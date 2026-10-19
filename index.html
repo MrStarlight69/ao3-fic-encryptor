@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="gerald">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AO3 Fic Encryptor</title>
+<script>
+  // apply saved theme before paint (no flash)
+  try { var t = localStorage.getItem("ao3enc.theme"); var legacy = { aero: "gerald", night: "quadrangle", evil: "lettuce", holy: "barometer" }; if (legacy[t]) { t = legacy[t]; localStorage.setItem("ao3enc.theme", t); } if (/^(gerald|barometer|amoled|quadrangle|lettuce)$/.test(t)) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+<style>
+/* =====================================================================
+   THEME TOKENS
+   ===================================================================== */
+:root, [data-theme="gerald"]{
+  --ink:#0d2b45; --muted:#33536d; --accent:#0a6fc2; --ok:#16611a; --err:#b0151f;
+  --head-ink:#ffffff; --head-shadow:0 2px 0 rgba(0,90,170,.25),0 4px 18px rgba(0,80,160,.45);
+  --sub-ink:#0d2b45;
+  --page-bg: linear-gradient(180deg,#36aeea 0%,#7fd0fa 30%,#c9eeff 62%,#e6fbef 84%,#c9f0a8 100%);
+  --panel-bg: linear-gradient(rgba(255,255,255,.46),rgba(255,255,255,.30));
+  --spec: linear-gradient(180deg,rgba(255,255,255,.70) 0%,rgba(255,255,255,.18) 24%,rgba(255,255,255,0) 46%);
+  --panel-border: rgba(255,255,255,.8);
+  --panel-shadow: inset 0 1px 0 #fff, inset 0 0 0 1px rgba(255,255,255,.3), inset 0 -14px 34px rgba(120,205,255,.22), 0 18px 44px rgba(0,70,140,.22);
+  --blur: 18px; --radius: 18px;
+  --field-bg: rgba(255,255,255,.75); --field-border: rgba(10,110,190,.28); --field-ink:#0d2b45;
+  --field-shadow: inset 0 2px 6px rgba(0,60,120,.12);
+  --btn-bg: linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.7) 49%,rgba(214,238,255,.8) 51%,rgba(250,253,255,.95) 100%);
+  --btn-ink:#0d3a5c; --btn-border: rgba(10,110,190,.32);
+  --btn-shadow: 0 2px 6px rgba(0,80,160,.18), inset 0 1px 0 #fff;
+  --primary-bg: linear-gradient(180deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,.16) 49%,rgba(255,255,255,0) 51%), linear-gradient(180deg,#5cc63a 0%,#1f7f1c 100%);
+  --primary-ink:#fff; --primary-border:#1a6e17; --primary-tshadow:0 1px 1px rgba(0,50,0,.5);
+  --primary-shadow: 0 3px 10px rgba(30,120,20,.35), inset 0 1px 0 rgba(255,255,255,.8);
+  --tab-bg: rgba(255,255,255,.28); --tab-ink:#123f62;
+  --tab-active-bg: linear-gradient(180deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,.12) 49%,rgba(255,255,255,0) 51%), linear-gradient(180deg,#3ab0f5 0%,#0a64b4 100%);
+  --tab-active-ink:#fff; --tab-active-shadow: 0 3px 10px rgba(0,90,180,.35), inset 0 1px 0 rgba(255,255,255,.75);
+  --font: "Segoe UI", "Myriad Pro", "Helvetica Neue", system-ui, Arial, sans-serif;
+  --head-font: var(--font); --mono: ui-monospace, "Cascadia Mono", Consolas, Menlo, "Liberation Mono", monospace;
+  --focus: 0 0 0 3px rgba(10,132,214,.45);
+  --chip: rgba(255,255,255,.5);
+}
+[data-theme="quadrangle"]{
+  --ink:#e8f6ff; --muted:#a8cbe3; --accent:#5fe6ff; --ok:#6ee7a8; --err:#ff9a9a;
+  --head-ink:#e9fbff; --head-shadow:0 0 12px rgba(80,220,255,.65),0 0 30px rgba(40,160,255,.35);
+  --sub-ink:#b9d8ec;
+  --page-bg: radial-gradient(ellipse 90% 50% at 50% 118%, #0f5577 0%, rgba(15,85,119,0) 70%), linear-gradient(180deg,#02061a 0%,#07103a 45%,#0b1f4c 80%,#0c2c55 100%);
+  --panel-bg: linear-gradient(rgba(24,58,120,.42),rgba(6,18,58,.55));
+  --spec: linear-gradient(180deg,rgba(170,235,255,.24) 0%,rgba(170,235,255,.05) 26%,rgba(170,235,255,0) 46%);
+  --panel-border: rgba(120,220,255,.38);
+  --panel-shadow: inset 0 1px 0 rgba(190,245,255,.5), inset 0 0 26px rgba(60,200,255,.09), 0 0 32px rgba(40,180,255,.18), 0 18px 44px rgba(0,0,0,.55);
+  --field-bg: rgba(2,10,36,.62); --field-border: rgba(100,210,255,.32); --field-ink:#e8f6ff;
+  --field-shadow: inset 0 2px 8px rgba(0,0,0,.45);
+  --btn-bg: linear-gradient(180deg,rgba(170,235,255,.26) 0%,rgba(170,235,255,.08) 49%,rgba(30,110,190,.16) 51%,rgba(60,170,235,.28) 100%);
+  --btn-ink:#e3f7ff; --btn-border: rgba(110,215,255,.42);
+  --btn-shadow: 0 0 12px rgba(60,200,255,.15), inset 0 1px 0 rgba(200,245,255,.45);
+  --primary-bg: linear-gradient(180deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,.12) 49%,rgba(255,255,255,0) 51%), linear-gradient(180deg,#7ff3e2 0%,#09b6d6 100%);
+  --primary-ink:#00232b; --primary-border:#55dff0; --primary-tshadow:0 1px 0 rgba(255,255,255,.35);
+  --primary-shadow: 0 0 18px rgba(34,211,238,.55), inset 0 1px 0 rgba(255,255,255,.8);
+  --tab-bg: rgba(20,50,110,.35); --tab-ink:#bfe3f7;
+  --tab-active-bg: linear-gradient(180deg,rgba(255,255,255,.35) 0%,rgba(255,255,255,.06) 49%,rgba(255,255,255,0) 51%), linear-gradient(180deg,#1f8fd0 0%,#0a4282 100%);
+  --tab-active-ink:#fff; --tab-active-shadow: 0 0 16px rgba(60,190,255,.45), inset 0 1px 0 rgba(200,245,255,.6);
+  --focus: 0 0 0 3px rgba(95,230,255,.5);
+  --chip: rgba(30,80,150,.35);
+}
+[data-theme="lettuce"]{
+  --ink:#f8e9ef; --muted:#d3abba; --accent:#ff3d64; --ok:#86e8a6; --err:#ff8a98;
+  --head-ink:#fff0f3; --head-shadow:0 0 2px #fff, 0 0 14px rgba(255,30,70,.75), 0 0 34px rgba(150,0,60,.6);
+  --sub-ink:#d9b4c3;
+  --page-bg: radial-gradient(ellipse 70% 50% at 15% -5%, rgba(110,0,150,.55), rgba(110,0,150,0) 70%), radial-gradient(ellipse 80% 55% at 85% 110%, rgba(180,0,30,.55), rgba(180,0,30,0) 70%), linear-gradient(180deg,#0a0008 0%,#170010 50%,#0a0006 100%);
+  --panel-bg: linear-gradient(rgba(46,6,30,.55),rgba(14,0,12,.72));
+  --spec: linear-gradient(180deg,rgba(255,100,130,.24) 0%,rgba(255,60,90,.05) 22%,rgba(255,60,90,0) 42%);
+  --panel-border: rgba(255,60,100,.38);
+  --panel-shadow: inset 0 1px 0 rgba(255,130,160,.55), inset 0 -22px 44px rgba(120,0,40,.28), 0 0 0 1px rgba(0,0,0,.6), 0 22px 52px rgba(0,0,0,.75), 0 0 42px rgba(200,0,50,.16);
+  --field-bg: rgba(6,0,6,.7); --field-border: rgba(255,60,100,.32); --field-ink:#f8e9ef;
+  --field-shadow: inset 0 2px 10px rgba(0,0,0,.6);
+  --btn-bg: linear-gradient(180deg,rgba(255,255,255,.2) 0%,rgba(255,255,255,.05) 49%,rgba(0,0,0,.25) 51%,rgba(90,0,40,.45) 100%), #1c0614;
+  --btn-ink:#f8e9ef; --btn-border: rgba(255,70,110,.45);
+  --btn-shadow: 0 2px 10px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,150,170,.4);
+  --primary-bg: linear-gradient(180deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.08) 49%,rgba(255,255,255,0) 51%), linear-gradient(180deg,#e8173f 0%,#6a0020 100%);
+  --primary-ink:#fff; --primary-border:#ff4d72; --primary-tshadow:0 1px 2px rgba(0,0,0,.6);
+  --primary-shadow: 0 0 18px rgba(255,20,60,.45), inset 0 1px 0 rgba(255,200,210,.7);
+  --tab-bg: rgba(40,0,30,.45); --tab-ink:#e3bccb;
+  --tab-active-bg: linear-gradient(180deg,rgba(255,255,255,.3) 0%,rgba(255,255,255,.05) 49%,rgba(255,255,255,0) 51%), linear-gradient(180deg,#6a1596 0%,#2a0540 100%);
+  --tab-active-ink:#fff; --tab-active-shadow: 0 0 16px rgba(160,40,220,.45), inset 0 1px 0 rgba(240,190,255,.6);
+  --focus: 0 0 0 3px rgba(255,61,100,.5);
+  --chip: rgba(80,0,40,.4);
+}
+[data-theme="barometer"]{
+  --ink:#3a2a06; --muted:#6b521d; --accent:#8d6200; --ok:#2c6a17; --err:#a01e14;
+  --head-ink:#8a5f00; --head-shadow:0 0 18px rgba(255,205,70,.75), 0 1px 0 #fff8d8;
+  --sub-ink:#5b4517;
+  --page-bg: radial-gradient(ellipse 80% 55% at 50% -12%, #fff3b8 0%, rgba(255,240,180,0) 70%), linear-gradient(180deg,#fffdf5 0%,#fff6dd 55%,#fbeabd 100%);
+  --panel-bg: linear-gradient(rgba(255,254,249,.9),rgba(255,248,228,.86));
+  --spec: linear-gradient(180deg,rgba(255,255,255,.95) 0%,rgba(255,255,255,0) 28%);
+  --panel-border: #cfa634;
+  --panel-shadow: inset 0 0 0 1px rgba(255,255,255,.95), inset 0 0 0 3px rgba(236,200,100,.35), 0 0 0 4px rgba(240,205,110,.22), 0 0 44px rgba(255,200,60,.38), 0 14px 32px rgba(150,110,20,.16);
+  --blur: 10px; --radius: 14px;
+  --field-bg: #fffdf6; --field-border: #dcbc5c; --field-ink:#3a2a06;
+  --field-shadow: inset 0 1px 4px rgba(160,120,20,.12);
+  --btn-bg: linear-gradient(180deg,#fffffa 0%,#fdf3d3 100%);
+  --btn-ink:#4a3608; --btn-border:#d2ab42;
+  --btn-shadow: 0 1px 0 #fff inset, 0 2px 6px rgba(170,125,20,.15);
+  --primary-bg: linear-gradient(180deg,#fff4b5 0%,#f6cc48 44%,#dca61c 56%,#f2cc52 100%);
+  --primary-ink:#352300; --primary-border:#b4850f; --primary-tshadow:0 1px 0 rgba(255,250,210,.7);
+  --primary-shadow: 0 0 18px rgba(255,200,50,.55), inset 0 1px 0 #fffbe0;
+  --tab-bg: rgba(255,250,232,.7); --tab-ink:#6b521d;
+  --tab-active-bg: linear-gradient(180deg,#fff4b5 0%,#f6cc48 44%,#dca61c 56%,#f2cc52 100%);
+  --tab-active-ink:#352300; --tab-active-shadow: 0 0 14px rgba(255,200,50,.5), inset 0 1px 0 #fffbe0;
+  --head-font: "Palatino Linotype", "Book Antiqua", Palatino, "URW Palladio L", "Hoefler Text", Georgia, serif;
+  --focus: 0 0 0 3px rgba(220,166,28,.5);
+  --chip: rgba(255,240,190,.7);
+}
+[data-theme="amoled"]{
+  --ink:#f2f2f2; --muted:#9e9e9e; --accent:#3ddcc0; --ok:#3ddc84; --err:#ff6b6b;
+  --head-ink:#ffffff; --head-shadow:none; --sub-ink:#9e9e9e;
+  --page-bg:#000; --panel-bg: linear-gradient(#000,#000); --spec: linear-gradient(transparent,transparent);
+  --panel-border:#262626; --panel-shadow:none; --blur:0px; --radius: 12px;
+  --field-bg:#000; --field-border:#2c2c2c; --field-ink:#eaeaea; --field-shadow:none;
+  --btn-bg:#000; --btn-ink:#e6e6e6; --btn-border:#3a3a3a; --btn-shadow:none;
+  --primary-bg:#000; --primary-ink:#3ddcc0; --primary-border:#3ddcc0; --primary-tshadow:none; --primary-shadow:none;
+  --tab-bg:#000; --tab-ink:#8a8a8a; --tab-active-bg:#000; --tab-active-ink:#3ddcc0; --tab-active-shadow: inset 0 -2px 0 #3ddcc0;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; --head-font: var(--font);
+  --focus: 0 0 0 2px #3ddcc0;
+  --chip:#0d0d0d;
+}
+
+/* =====================================================================
+   BASE
+   ===================================================================== */
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{background:#000}
+body{margin:0;min-height:100vh;color:var(--ink);font:16px/1.5 var(--font);background:var(--page-bg);background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;padding-bottom:110px}
+a{color:var(--accent)}
+.scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.scene > *{position:absolute}
+.wrap{position:relative;z-index:1}
+
+header{padding:26px 16px 6px;text-align:center}
+header h1{margin:0;font-family:var(--head-font);font-weight:700;letter-spacing:.2px;color:var(--head-ink);text-shadow:var(--head-shadow);
+  font-size:clamp(1.7rem,4.6vw,2.6rem)}
+header p{margin:8px auto 0;color:var(--sub-ink);max-width:640px;font-size:.98rem}
+
+.themes{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:16px auto 0;padding:5px;border-radius:999px;width:max-content;max-width:100%;
+  background:var(--spec),var(--panel-bg);border:1px solid var(--panel-border);box-shadow:var(--panel-shadow);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(160%);backdrop-filter:blur(var(--blur)) saturate(160%)}
+.themes button{display:flex;align-items:center;gap:7px;font:600 .84rem/1 var(--font);color:var(--tab-ink);background:transparent;border:1px solid transparent;
+  padding:7px 11px 7px 7px;border-radius:999px;cursor:pointer}
+.themes button:hover{background:var(--chip)}
+.themes button[aria-checked="true"]{background:var(--tab-active-bg);color:var(--tab-active-ink);box-shadow:var(--tab-active-shadow)}
+.sw{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 1px 1px rgba(255,255,255,.7),0 0 0 1px rgba(0,0,0,.25);flex:none}
+.sw.gerald{background:radial-gradient(circle at 35% 30%,#fff 0 12%,transparent 13%),linear-gradient(135deg,#38b6ff,#7ddc4f)}
+.sw.barometer{background:radial-gradient(circle at 35% 30%,#fff 0 12%,transparent 13%),linear-gradient(135deg,#fff6c8,#e0a91c)}
+.sw.amoled{background:linear-gradient(135deg,#000 55%,#3ddcc0 56%)}
+.sw.quadrangle{background:radial-gradient(circle at 35% 30%,#fff 0 12%,transparent 13%),linear-gradient(135deg,#0a1440,#22d3ee)}
+.sw.lettuce{background:radial-gradient(circle at 35% 30%,#fff 0 12%,transparent 13%),linear-gradient(135deg,#2a0040,#e8173f)}
+
+main{max-width:900px;margin:0 auto;padding:12px 16px 40px}
+.glass{position:relative;background:var(--spec),var(--panel-bg);border:1px solid var(--panel-border);border-radius:var(--radius);box-shadow:var(--panel-shadow);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(170%);backdrop-filter:blur(var(--blur)) saturate(170%)}
+
+.tabs{display:flex;gap:6px;margin:16px auto 12px;padding:5px;border-radius:999px;max-width:420px}
+.tab{flex:1;border:1px solid transparent;background:var(--tab-bg);color:var(--tab-ink);padding:10px 12px;font:700 .98rem/1 var(--font);border-radius:999px;cursor:pointer;transition:filter .15s}
+.tab:hover{filter:brightness(1.06)}
+.tab[aria-selected="true"]{background:var(--tab-active-bg);color:var(--tab-active-ink);box-shadow:var(--tab-active-shadow)}
+.panel{padding:22px}
+.panel[hidden]{display:none}
+
+.drop{border:2px dashed var(--field-border);border-radius:calc(var(--radius) - 4px);padding:26px 16px;text-align:center;cursor:pointer;transition:.15s;
+  background:var(--chip)}
+.drop:hover,.drop.over{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
+.drop strong{display:block;font-size:1.06rem;font-family:var(--head-font)}
+.drop span{color:var(--muted);font-size:.92rem}
+.drop .icon{font-size:1.8rem;line-height:1;display:block;margin-bottom:6px}
+.fileinfo{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--chip);border:1px solid var(--field-border);display:none}
+.fileinfo.show{display:block}
+.fileinfo .t{font-family:var(--head-font);font-size:1.15rem;font-weight:700}
+.fileinfo .m{color:var(--muted);font-size:.9rem}
+label{display:block;font-weight:700;margin:16px 0 6px;font-family:var(--head-font)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input[type=password],input[type=text],input[type=url],select{flex:1;min-width:180px;font:inherit;padding:11px 12px;border-radius:12px;
+  border:1px solid var(--field-border);background:var(--field-bg);color:var(--field-ink);box-shadow:var(--field-shadow)}
+select{cursor:pointer}
+select option{background:var(--field-bg);color:var(--field-ink)}
+[data-theme="quadrangle"] select option,[data-theme="lettuce"] select option,[data-theme="amoled"] select option{background:#111}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,.drop:focus-visible{outline:none;box-shadow:var(--focus)}
+::placeholder{color:var(--muted);opacity:.85}
+
+.btn{position:relative;font:700 .95rem/1 var(--font);padding:11px 16px;border-radius:12px;border:1px solid var(--btn-border);background:var(--btn-bg);
+  color:var(--btn-ink);box-shadow:var(--btn-shadow);cursor:pointer;transition:transform .12s,filter .15s,box-shadow .15s;white-space:nowrap}
+.btn:hover:not(:disabled){filter:brightness(1.06) saturate(1.05);transform:translateY(-1px)}
+.btn:active:not(:disabled){transform:translateY(0);filter:brightness(.97)}
+.btn.primary{background:var(--primary-bg);color:var(--primary-ink);border-color:var(--primary-border);box-shadow:var(--primary-shadow);text-shadow:var(--primary-tshadow);
+  padding:12px 22px;font-size:1rem}
+.btn.small{padding:7px 10px;font-size:.82rem;border-radius:10px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+[data-theme="amoled"] .btn.primary:hover:not(:disabled){background:#3ddcc0;color:#000;filter:none}
+[data-theme="amoled"] .btn:hover:not(:disabled){transform:none;border-color:#777;filter:none}
+[data-theme="amoled"] .tabs,[data-theme="amoled"] .themes{border-radius:12px}
+[data-theme="amoled"] .tab,[data-theme="amoled"] .themes button{border-radius:8px}
+[data-theme="amoled"] .themes button[aria-checked="true"]{box-shadow:inset 0 0 0 1px #3ddcc0}
+
+textarea{width:100%;min-height:260px;font:13px/1.45 var(--mono);padding:12px;border-radius:12px;border:1px solid var(--field-border);background:var(--field-bg);
+  color:var(--field-ink);box-shadow:var(--field-shadow);resize:vertical;word-break:break-all}
+.out{margin-top:20px}
+.outhead{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.outhead strong{font-family:var(--head-font);font-size:1.05rem}
+.count{color:var(--muted);font-size:.9rem;font-variant-numeric:tabular-nums}
+.status{margin-top:12px;min-height:1.5em;font-size:.95rem;font-weight:600}
+.status.ok{color:var(--ok)} .status.err{color:var(--err)} .status.busy{color:var(--muted)} .status.warn{color:var(--accent)}
+.cell.dup.soft{box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent);border-color:var(--accent)} .cell.dup.soft input{color:var(--accent)}
+.hint{color:var(--muted);font-size:.88rem;margin:6px 0 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+footer{position:relative;z-index:1;text-align:center;color:var(--sub-ink);font-size:.84rem;padding:0 16px 24px;opacity:.9}
+
+/* ---------- reader ---------- */
+.reader{margin-top:12px;border-radius:14px;overflow:hidden;border:1px solid var(--field-border);display:flex;flex-direction:column;background:var(--chip)}
+.reader .rbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 10px;border-bottom:1px solid var(--field-border)}
+.reader .rbar .rt{flex:1;min-width:120px;font-family:var(--head-font);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.reader .seg{display:flex;gap:4px}
+.reader iframe{width:100%;height:min(70vh,640px);border:0;display:block;background:#fff}
+.reader .exit{display:none}
+.reader.reading{position:fixed;inset:0;z-index:50;margin:0;border-radius:0;border:0;background:var(--spec),var(--panel-bg);
+  -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
+[data-theme="amoled"] .reader.reading{background:#000}
+.reader.reading iframe{flex:1;height:auto}
+.reader.reading .exit{display:inline-block}
+.reader.reading .enter{display:none}
+body.reading-open{overflow:hidden}
+/* backdrop-filter on an ancestor would trap position:fixed inside the panel */
+body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
+.reader[hidden]{display:none}
+
+/* ---------- player ---------- */
+.player{position:fixed;right:16px;bottom:16px;z-index:60;width:360px;max-width:calc(100vw - 24px);padding:0;overflow:hidden}
+.player .ph{display:flex;align-items:center;gap:8px;padding:9px 10px 9px 14px;cursor:pointer;user-select:none}
+.player .ph .note{font-size:1.1rem}
+.player .ph strong{font-family:var(--head-font);font-size:.95rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.player .pbody{padding:0 12px 12px}
+.player.min{width:auto;border-radius:999px}
+.player.min .pbody{height:0;padding:0;overflow:hidden;visibility:hidden}
+.player.min .ph{padding:8px 10px 8px 14px}
+.pframe{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;border:1px solid var(--field-border)}
+.pframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.pempty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:14px;color:#cfd8e3;font-size:.88rem;
+  background:radial-gradient(circle at 50% 40%,#2a3a52,#0b1119)}
+.pnote{margin:8px 0 0;padding:8px 10px;border-radius:10px;font-size:.82rem;line-height:1.4;background:var(--chip);border:1px solid var(--field-border);color:var(--ink)}
+.plinks{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:.84rem}
+.plinks a{font-weight:700}
+.player .row{margin-top:8px;gap:6px}
+.player select,.player input{min-width:0;padding:8px 10px;font-size:.88rem;border-radius:10px}
+.player details{margin-top:8px}
+.player summary{cursor:pointer;font-weight:700;font-size:.88rem;color:var(--ink)}
+.pmsg{font-size:.82rem;min-height:1.2em;margin-top:4px;font-weight:600}
+.pmsg.err{color:var(--err)} .pmsg.ok{color:var(--ok)}
+
+/* =====================================================================
+   SCENERY PER THEME
+   ===================================================================== */
+.scene .a,.scene .b,.scene .c{inset:0}
+.bubble{bottom:-120px;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;
+  animation:rise var(--d) linear var(--delay) infinite;opacity:0}
+@keyframes rise{0%{transform:translate(0,0) scale(.9);opacity:0}10%{opacity:var(--o,.9)}50%{transform:translate(var(--sway),-55vh) scale(1)}
+  90%{opacity:var(--o,.9)}100%{transform:translate(0,-118vh) scale(1.05);opacity:0}}
+@keyframes drift{from{transform:translateX(-6%)}to{transform:translateX(6%)}}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes twinkle{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes aurora{0%{transform:translateX(-8%) skewX(-8deg);opacity:.55}50%{transform:translateX(6%) skewX(6deg);opacity:.85}100%{transform:translateX(-8%) skewX(-8deg);opacity:.55}}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:.9}}
+
+/* Gerald: clouds + green hills + glossy bubbles */
+[data-theme="gerald"] .scene .a{inset:-10% -10% auto -10%;height:60%;animation:drift 60s ease-in-out infinite alternate;filter:blur(6px);
+  background:radial-gradient(ellipse 18% 9% at 12% 22%,rgba(255,255,255,.95),rgba(255,255,255,0) 70%),
+    radial-gradient(ellipse 14% 7% at 20% 18%,rgba(255,255,255,.9),rgba(255,255,255,0) 70%),
+    radial-gradient(ellipse 22% 10% at 78% 30%,rgba(255,255,255,.9),rgba(255,255,255,0) 70%),
+    radial-gradient(ellipse 14% 7% at 86% 25%,rgba(255,255,255,.85),rgba(255,255,255,0) 70%),
+    radial-gradient(ellipse 20% 8% at 50% 55%,rgba(255,255,255,.6),rgba(255,255,255,0) 70%)}
+[data-theme="gerald"] .scene .b{inset:auto -20% -8% -20%;height:34%;
+  background:radial-gradient(ellipse 45% 70% at 25% 100%,#9ee26a 0%,#5fbf3a 55%,rgba(95,191,58,0) 72%),
+    radial-gradient(ellipse 50% 65% at 78% 105%,#b6ec7e 0%,#6cc944 50%,rgba(108,201,68,0) 72%);opacity:.85}
+[data-theme="gerald"] .scene .c{background:radial-gradient(ellipse 60% 30% at 50% -5%,rgba(255,255,255,.55),rgba(255,255,255,0) 70%)}
+[data-theme="gerald"] .bubble{--o:.85;background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.95) 0 9%,rgba(255,255,255,.25) 10%,rgba(255,255,255,0) 32%),
+  radial-gradient(circle at 50% 50%,rgba(255,255,255,0) 55%,rgba(180,235,255,.5) 70%,rgba(255,255,255,.85) 100%);
+  box-shadow:inset -3px -5px 10px rgba(120,200,255,.35),0 4px 12px rgba(0,100,180,.12)}
+
+/* Quadrangle: stars + aurora + luminous bubbles */
+[data-theme="quadrangle"] .scene .a{background-image:
+    radial-gradient(1.2px 1.2px at 20px 30px,#fff,transparent),radial-gradient(1px 1px at 120px 80px,#cfefff,transparent),
+    radial-gradient(1.4px 1.4px at 200px 150px,#fff,transparent),radial-gradient(1px 1px at 60px 190px,#bfe9ff,transparent),
+    radial-gradient(1.6px 1.6px at 260px 40px,#fff,transparent),radial-gradient(1px 1px at 300px 220px,#e0f6ff,transparent);
+  background-size:320px 260px;animation:twinkle 6s ease-in-out infinite;opacity:.8}
+[data-theme="quadrangle"] .scene .b{inset:-10% -20% auto -20%;height:65%;filter:blur(50px);animation:aurora 22s ease-in-out infinite;
+  background:linear-gradient(100deg,rgba(0,0,0,0) 10%,rgba(40,240,190,.35) 30%,rgba(60,170,255,.32) 50%,rgba(150,90,255,.28) 68%,rgba(0,0,0,0) 85%)}
+[data-theme="quadrangle"] .scene .c{background:radial-gradient(ellipse 70% 25% at 50% 108%,rgba(40,200,255,.22),rgba(0,0,0,0) 70%)}
+[data-theme="quadrangle"] .bubble{--o:.75;background:radial-gradient(circle at 32% 28%,rgba(220,250,255,.9) 0 8%,rgba(220,250,255,.15) 10%,rgba(0,0,0,0) 30%),
+  radial-gradient(circle,rgba(0,0,0,0) 55%,rgba(60,220,255,.35) 75%,rgba(160,240,255,.8) 100%);box-shadow:0 0 14px rgba(60,210,255,.45)}
+
+/* Lettuce: crimson glows + smoke + dark glossy orbs */
+[data-theme="lettuce"] .scene .a{background:radial-gradient(ellipse 40% 30% at 50% 110%,rgba(255,0,40,.28),rgba(0,0,0,0) 70%);animation:pulse 7s ease-in-out infinite}
+[data-theme="lettuce"] .scene .b{inset:-10%;filter:blur(40px);animation:drift 40s ease-in-out infinite alternate;opacity:.7;
+  background:radial-gradient(ellipse 30% 20% at 20% 60%,rgba(90,0,120,.35),rgba(0,0,0,0) 70%),radial-gradient(ellipse 30% 18% at 80% 35%,rgba(140,0,40,.3),rgba(0,0,0,0) 70%)}
+[data-theme="lettuce"] .scene .c{background:radial-gradient(ellipse at center,rgba(0,0,0,0) 50%,rgba(0,0,0,.65) 100%)}
+[data-theme="lettuce"] .bubble{--o:.8;background:radial-gradient(circle at 32% 28%,rgba(255,170,185,.9) 0 7%,rgba(255,60,90,.2) 10%,rgba(0,0,0,0) 30%),
+  radial-gradient(circle at 50% 60%,rgba(30,0,20,.75) 40%,rgba(140,0,40,.75) 80%,rgba(255,60,100,.85) 100%);box-shadow:0 0 16px rgba(220,0,50,.35)}
+
+/* Barometer: rotating light rays + halo + gold motes */
+[data-theme="barometer"] .scene .a{inset:auto;left:50%;top:0;width:220vmax;height:220vmax;transform:translate(-50%,-50%);animation:spin 240s linear infinite;
+  background:repeating-conic-gradient(from 0deg,rgba(255,205,70,.16) 0deg 5deg,rgba(255,205,70,0) 5deg 15deg);
+  -webkit-mask:radial-gradient(circle,#000 0%,rgba(0,0,0,.6) 25%,transparent 48%);mask:radial-gradient(circle,#000 0%,rgba(0,0,0,.6) 25%,transparent 48%)}
+[data-theme="barometer"] .scene .b{background:radial-gradient(circle at 50% 0%,rgba(255,236,150,.85) 0%,rgba(255,220,110,.35) 22%,rgba(255,220,110,0) 50%)}
+[data-theme="barometer"] .scene .c{background:radial-gradient(ellipse 60% 40% at 50% 100%,rgba(255,215,120,.25),rgba(0,0,0,0) 70%)}
+[data-theme="barometer"] .bubble{--o:.7;width:calc(var(--s) * .12);height:calc(var(--s) * .12);background:radial-gradient(circle,#fff6c8 0%,#f2c230 45%,rgba(242,194,48,0) 72%);
+  box-shadow:0 0 10px rgba(255,200,60,.8)}
+[data-theme="barometer"] header h1{background:linear-gradient(180deg,#d9a514 0%,#a77400 55%,#7a5200 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:none;filter:drop-shadow(0 0 14px rgba(255,205,70,.7)) drop-shadow(0 1px 0 #fff8d8)}
+[data-theme="barometer"] header h1::before,[data-theme="barometer"] header h1::after{content:"\2726";-webkit-text-fill-color:#d6a620;font-size:.55em;vertical-align:middle;margin:0 .5em}
+[data-theme="barometer"] .panel{border-width:1.5px}
+
+/* AMOLED: nothing */
+[data-theme="amoled"] .scene{display:none}
+[data-theme="amoled"] header h1{font-weight:300;letter-spacing:1px}
+[data-theme="amoled"] header h1 span{color:#3ddcc0}
+
+@media (max-width:600px){
+  .panel{padding:16px} textarea{min-height:200px}
+  .themes{border-radius:18px} .themes button{padding:6px 9px 6px 6px;font-size:.8rem}
+  .player{right:8px;left:8px;bottom:8px;width:auto}
+  .player.min{left:auto}
+  .reader iframe{height:60vh}
+}
+@media (prefers-reduced-motion: reduce){
+  .scene *, .scene{animation:none !important}
+  .bubble{display:none}
+  .btn{transition:none}
+}
+/* ---------- cipher UI ---------- */
+.tabs{max-width:540px}
+.cipherline{margin-top:16px}
+.cipherline .row{gap:8px}
+.cipherline select{flex:1 1 220px}
+.badge{display:inline-flex;align-items:center;gap:4px;font:700 .78rem/1 var(--mono);padding:6px 9px;border-radius:999px;background:var(--chip);
+  border:1px solid var(--field-border);color:var(--muted);white-space:nowrap}
+.badge b{color:var(--ink);font-weight:700}
+.badge.warn{color:var(--err);border-color:var(--err)}
+.sub{font-family:var(--head-font);font-size:1.05rem;margin:22px 0 4px;font-weight:700}
+.sub:first-child{margin-top:0}
+.presets{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px;margin-top:8px}
+.preset{display:flex;gap:6px;align-items:center;padding:8px;border-radius:12px;background:var(--chip);border:1px solid var(--field-border)}
+.preset .btn{flex:none}
+.preset input{min-width:0 !important;padding:8px 10px !important;font-size:.9rem !important}
+.preset input[type=number]{flex:0 0 72px;font:inherit;padding:8px;border-radius:10px;border:1px solid var(--field-border);background:var(--field-bg);color:var(--field-ink);box-shadow:var(--field-shadow)}
+.preset .lbl{font-size:.85rem;color:var(--muted);flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.preset .lbl.k{flex:none}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px;margin-top:10px;padding:10px;border-radius:14px;
+  background:var(--chip);border:1px solid var(--field-border);max-height:430px;overflow:auto}
+.cell{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:10px;border:1px solid var(--field-border);
+  background:var(--field-bg);padding:4px 3px 3px;box-shadow:var(--field-shadow)}
+.cell .p{font:600 .78rem/1.1 var(--mono);color:var(--muted)}
+.cell .p::after{content:" \2193";opacity:.6}
+.cell input{width:100%;min-width:0 !important;flex:none !important;text-align:center;font:700 1.05rem/1.2 var(--mono) !important;padding:4px 0 !important;
+  border-radius:7px !important;border:1px solid transparent !important;background:transparent !important;box-shadow:none !important;color:var(--field-ink)}
+.cell input:focus{border-color:var(--accent) !important}
+.cell.sp::after{content:"\2423";position:absolute;left:0;right:0;bottom:6px;text-align:center;pointer-events:none;font:700 1.05rem/1.2 var(--mono);color:var(--accent)}
+.cell.self{border-style:dashed}
+.cell.dup{border-color:var(--err);box-shadow:0 0 0 2px color-mix(in srgb,var(--err) 35%,transparent)}
+.cell.dup input{color:var(--err)}
+.cell.empty{border-color:var(--err);border-style:dotted}
+.cell.flash{animation:flash .6s ease}
+@keyframes flash{0%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 60%,transparent)}100%{box-shadow:none}}
+.savebar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--chip);border:1px solid var(--field-border)}
+.savebar .dirty{font-weight:700;color:var(--err);font-size:.9rem}
+.savebar .clean{font-weight:600;color:var(--ok);font-size:.9rem}
+.mono{font-family:var(--mono) !important;font-size:.9rem !important}
+.jsondrop{padding:16px;margin-top:10px}
+.jsondrop strong{font-size:.98rem}
+#cipImportMsg{white-space:pre-line;font-weight:500;line-height:1.45}
+#cipImportMsg.ok{color:var(--ink)}
+.warnbox{margin-top:12px;padding:12px 14px;border-radius:12px;border:1px solid var(--err);background:color-mix(in srgb,var(--err) 10%,transparent);color:var(--ink)}
+.warnbox .actions{margin-top:8px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin-top:6px}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:-2px;border:1px solid var(--field-border)}
+.legend .l-self::before{border-style:dashed}
+.legend .l-dup::before{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent)}
+.legend .l-empty::before{border-color:var(--err);border-style:dotted}
+@media (max-width:600px){ .cgrid{grid-template-columns:repeat(auto-fill,minmax(46px,1fr));max-height:360px} .presets{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="scene" aria-hidden="true"><div class="b"></div><div class="a"></div><div class="c"></div><div id="bubbles"></div></div>
+
+<div class="wrap">
+<header>
+  <h1>AO3 Fic <span>Encryptor</span></h1>
+  <p>Scramble an AO3 HTML download with a cipher you design. The result uses only characters you can type on a standard keyboard, and anyone you give the cipher key to can turn it back. Everything happens in your browser: nothing is uploaded anywhere.</p>
+  <div class="themes" role="radiogroup" aria-label="Theme" id="themes">
+    <button role="radio" data-theme-btn="gerald"><span class="sw gerald"></span>Gerald</button>
+    <button role="radio" data-theme-btn="quadrangle"><span class="sw quadrangle"></span>Quadrangle</button>
+    <button role="radio" data-theme-btn="lettuce"><span class="sw lettuce"></span>Lettuce</button>
+    <button role="radio" data-theme-btn="barometer"><span class="sw barometer"></span>Barometer</button>
+    <button role="radio" data-theme-btn="amoled"><span class="sw amoled"></span>AMOLED</button>
+  </div>
+</header>
+
+<main>
+  <div class="tabs glass" role="tablist">
+    <button class="tab" role="tab" id="tab-enc" aria-selected="true" aria-controls="panel-enc">Encrypt</button>
+    <button class="tab" role="tab" id="tab-dec" aria-selected="false" aria-controls="panel-dec">Decrypt</button>
+    <button class="tab" role="tab" id="tab-cip" aria-selected="false" aria-controls="panel-cip">Cipher</button>
+  </div>
+
+  <!-- ENCRYPT -->
+  <section class="panel glass" id="panel-enc" role="tabpanel" aria-labelledby="tab-enc">
+    <div class="drop" id="encDrop" tabindex="0" role="button" aria-label="Choose AO3 HTML file">
+      <span class="icon" aria-hidden="true">&#128214;</span>
+      <strong>Drop your AO3 .html file here</strong>
+      <span>or click to choose one (AO3: Download &rarr; HTML)</span>
+      <input type="file" id="encFile" accept=".html,.htm,text/html" hidden>
+    </div>
+    <div class="fileinfo" id="encInfo"><div class="t" id="encTitle"></div><div class="m" id="encMeta"></div></div>
+
+    <div class="cipherline">
+      <label for="encCipher">Cipher</label>
+      <div class="row">
+        <select id="encCipher" class="cipherSel"></select>
+        <span class="badge" title="Cipher fingerprint">ID <b id="encFp"></b></span>
+        <button class="btn small" data-goto-cipher>Edit ciphers</button>
+      </div>
+      <p class="hint" id="encHint"></p>
+    </div>
+    <div class="actions"><button class="btn primary" id="encBtn" disabled>Encrypt</button></div>
+    <div class="status" id="encStatus" aria-live="polite"></div>
+
+    <div class="out" id="encOut" hidden>
+      <div class="outhead"><strong>Encrypted text</strong><span class="count" id="encCount"></span></div>
+      <textarea id="encText" readonly spellcheck="false" aria-label="Encrypted text" wrap="off"></textarea>
+      <div class="actions">
+        <button class="btn" id="copyBtn">Copy</button>
+        <button class="btn" id="dlTxtBtn">Download .txt</button>
+      </div>
+      <p class="hint">Whoever decrypts this needs the same cipher. Share its cipher key from the Cipher tab, separately from the text.</p>
+    </div>
+  </section>
+
+  <!-- DECRYPT -->
+  <section class="panel glass" id="panel-dec" role="tabpanel" aria-labelledby="tab-dec" hidden>
+    <label for="decText" style="margin-top:0">Encrypted text</label>
+    <textarea id="decText" spellcheck="false" wrap="off" placeholder="Paste the encrypted text (first line starts with AO3SUB$) or drop a .txt file here"></textarea>
+    <div class="actions">
+      <button class="btn" id="decFileBtn">Upload .txt</button>
+      <input type="file" id="decFile" accept=".txt,text/plain" hidden>
+    </div>
+    <div class="cipherline">
+      <label for="decCipher">Cipher</label>
+      <div class="row">
+        <select id="decCipher" class="cipherSel"></select>
+        <span class="badge" title="Cipher fingerprint">ID <b id="decFp"></b></span>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <input type="text" id="decKey" class="mono" spellcheck="false" autocomplete="off" placeholder="…or paste a cipher key someone shared (AO3CIPHER$1$…$)" aria-label="Cipher key">
+      </div>
+      <p class="hint" id="decKeyHint"></p>
+      <div class="actions" id="decKeySaveRow" hidden><button class="btn small" id="decKeySave">Save this cipher</button></div>
+    </div>
+    <div class="actions"><button class="btn primary" id="decBtn">Decrypt</button></div>
+    <div class="status" id="decStatus" aria-live="polite"></div>
+    <div class="warnbox" id="decWarn" hidden>
+      <div id="decWarnMsg"></div>
+      <div class="actions">
+        <button class="btn small primary" id="decUseMatch" hidden></button>
+        <button class="btn small" id="decForce">Try anyway</button>
+      </div>
+    </div>
+
+    <div class="out" id="decOut" hidden>
+      <div class="outhead"><strong id="decTitle">Decrypted work</strong><span class="count" id="decCount"></span></div>
+      <div class="actions">
+        <button class="btn" id="dlHtmlBtn">Download .html</button>
+        <button class="btn" id="previewBtn">Hide preview</button>
+        <button class="btn primary" id="readBtn">&#128214; Reading mode</button>
+      </div>
+      <div class="reader" id="reader">
+        <div class="rbar">
+          <span class="rt" id="readerTitle">Preview</span>
+          <div class="seg">
+            <button class="btn small" id="fontDown" aria-label="Smaller text">A&minus;</button>
+            <button class="btn small" id="fontUp" aria-label="Larger text">A+</button>
+          </div>
+          <select id="paper" aria-label="Page colour" style="flex:0 0 auto;min-width:0;padding:6px 8px;font-size:.84rem">
+            <option value="light">Light page</option><option value="sepia">Sepia page</option><option value="dark">Dark page</option><option value="original">Original style</option>
+          </select>
+          <button class="btn small enter" id="readBtn2">Expand</button>
+          <button class="btn small primary exit" id="exitRead">Exit reading (Esc)</button>
+        </div>
+        <iframe id="preview" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" title="Sandboxed preview of the decrypted work"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- CIPHER EDITOR -->
+  <section class="panel glass" id="panel-cip" role="tabpanel" aria-labelledby="tab-cip" hidden>
+    <div class="sub">Your ciphers</div>
+    <div class="row">
+      <select id="cipSel" class="cipherSel" aria-label="Saved ciphers"></select>
+      <button class="btn small" id="cipNew">+ New</button>
+      <button class="btn small" id="cipDup">Duplicate</button>
+      <button class="btn small" id="cipDel">Delete</button>
+    </div>
+    <label for="cipName">Name</label>
+    <div class="row">
+      <input type="text" id="cipName" maxlength="60" placeholder="Cipher name">
+      <span class="badge" title="Fingerprint of the cipher being edited">ID <b id="cipFp"></b></span>
+    </div>
+
+    <div class="sub">Quick setups</div>
+    <p class="hint" style="margin-top:0">Each one replaces the whole table below. Nothing is saved until you press Save.</p>
+    <div class="presets">
+      <div class="preset"><button class="btn small" id="preShuffle">&#127922; Random shuffle</button><span class="lbl">scramble everything</span></div>
+      <div class="preset"><button class="btn small" id="preCaesar">Caesar shift</button><span class="lbl k">by</span><input type="number" id="cipShift" value="3" step="1" aria-label="Shift amount"></div>
+      <div class="preset"><button class="btn small" id="preReverse">Reverse (Atbash)</button><span class="lbl">space &harr; ~, ! &harr; }</span></div>
+      <div class="preset"><button class="btn small" id="preKeyword">Keyword</button><input type="text" id="cipKeyword" placeholder="e.g. lighthouse" aria-label="Keyword"></div>
+      <div class="preset"><button class="btn small" id="preIdentity">Reset (no change)</button><span class="lbl">nothing changes</span></div>
+      <div class="preset"><span class="lbl k">Swap</span><input type="text" id="swapA" maxlength="1" class="mono" style="flex:0 0 46px;text-align:center" aria-label="First character"><span class="lbl k">&harr;</span><input type="text" id="swapB" maxlength="1" class="mono" style="flex:0 0 46px;text-align:center" aria-label="Second character"><button class="btn small" id="swapBtn">Swap</button></div>
+    </div>
+
+    <div class="sub">Substitution table</div>
+    <p class="hint" style="margin-top:0">Top: the original character. Box: what it turns into. Click a box and type a character (␣ = space). Ideally each character is used once; you can reuse one, but then decrypting can't tell those originals apart and gives back the first one in keyboard order.</p>
+    <div class="legend"><span class="l-self">maps to itself</span><span class="l-dup">shared output</span><span class="l-empty">empty</span></div>
+    <div class="cgrid" id="cgrid" aria-label="Substitution table"></div>
+    <div class="status" id="cipStatus" aria-live="polite"></div>
+    <div class="savebar">
+      <button class="btn primary" id="cipSave">Save</button>
+      <button class="btn" id="cipRevert">Revert</button>
+      <span id="cipDirty"></span>
+    </div>
+
+    <div class="sub">Share or back up</div>
+    <label for="cipKeyOut" style="margin-top:4px">Cipher key for the saved version (send this to whoever should decrypt)</label>
+    <div class="row">
+      <input type="text" id="cipKeyOut" class="mono" readonly spellcheck="false">
+      <button class="btn small" id="cipCopy">Copy</button>
+    </div>
+    <label>Cipher files (.json)</label>
+    <div class="row">
+      <button class="btn small" id="cipExportJson">&#11015; Export .json</button>
+      <button class="btn small" id="cipExportAll">&#11015; Export all ciphers</button>
+      <button class="btn small" id="cipImportJsonBtn">&#11014; Import .json</button>
+      <input type="file" id="cipImportFile" accept=".json,application/json" multiple hidden>
+    </div>
+    <div class="drop jsondrop" id="cipDrop" tabindex="0" role="button" aria-label="Import cipher .json files">
+      <strong>Drop cipher .json files here</strong>
+      <span>single ciphers or an "all ciphers" collection</span>
+    </div>
+    <label for="cipKeyIn">Import a cipher key</label>
+    <div class="row">
+      <input type="text" id="cipKeyIn" class="mono" spellcheck="false" autocomplete="off" placeholder="AO3CIPHER$1$…$">
+      <button class="btn small" id="cipImport">Import as new</button>
+    </div>
+    <div class="status" id="cipImportMsg" aria-live="polite"></div>
+  </section>
+</main>
+<footer>Substitution cipher &middot; keyboard-only output &middot; works offline &middot; Keeps text away from casual eyes; it is not strong encryption.</footer>
+</div>
+
+<!-- MUSIC PLAYER -->
+<aside class="player glass" id="player" aria-label="Music player">
+  <div class="ph" id="playerHead" title="Show / hide player">
+    <span class="note" aria-hidden="true">&#9835;</span>
+    <strong id="plNow">Music while you read</strong>
+    <button class="btn small" id="plMin" aria-expanded="true" aria-controls="playerBody">&ndash;</button>
+  </div>
+  <div class="pbody" id="playerBody">
+    <div class="pframe">
+      <iframe id="ytFrame" title="YouTube player" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" hidden></iframe>
+      <div class="pempty" id="ytEmpty">Add a YouTube playlist below and it'll play here.</div>
+    </div>
+    <div class="pnote" id="fileNote" hidden>
+      <strong>Heads up:</strong> YouTube usually won't play embedded videos on a page opened straight from a file on your device (you may see "Error 153"). The player works when this page is opened from a web address. Until then, use <em>Open on YouTube</em> below.
+    </div>
+    <div class="plinks"><a id="ytOpen" href="#" target="_blank" rel="noopener noreferrer" hidden>Open on YouTube &#8599;</a><span></span></div>
+    <div class="row">
+      <select id="plSelect" aria-label="Saved playlists"></select>
+      <button class="btn small" id="plRemove">Remove</button>
+    </div>
+    <details id="plAdd">
+      <summary>+ Add a playlist</summary>
+      <div class="row"><input type="url" id="plUrl" placeholder="YouTube playlist or video link" aria-label="YouTube link"></div>
+      <div class="row"><input type="text" id="plName" placeholder="Name (optional)" aria-label="Playlist name"><button class="btn small primary" id="plSave">Save</button></div>
+      <div class="pmsg" id="plMsg" aria-live="polite"></div>
+    </details>
+  </div>
+</aside>
+<script>
+"use strict";
+const enc = new TextEncoder(), dec = new TextDecoder();
+// =====================================================================
+// SUBSTITUTION CIPHER ENGINE
+// Alphabet: the 95 printable ASCII characters (space .. ~). A cipher is a
+// 95-char string: key[i] is what ALPHA[i] turns into. Outputs may repeat; a
+// one-to-one cipher uses format version 1 (below), one with shared outputs
+// uses version 2 (see "version 2" further down).
+//
+// Encrypted text format:
+//   line 1:  AO3SUB$1$<6-char cipher ID>$<original byte length>
+//   rest:    the escaped file, with every printable char substituted.
+// Escape scheme (applied BEFORE substitution, so escapes are scrambled too):
+//   printable ASCII except "~"  -> itself
+//   "~"                         -> "~~"
+//   newline (LF, 0x0A)          -> kept as a real newline (not substituted)
+//   valid UTF-8 character       -> "~{HEX}"  (Unicode code point, e.g. ~{2014})
+//   any other single byte       -> "~XX"     (2 hex digits; CR = ~0D, tab = ~09,
+//                                             invalid UTF-8 bytes too)
+// =====================================================================
+const ALPHA = Array.from({ length: 95 }, (_, i) => String.fromCharCode(32 + i)).join("");
+const KEY_PREFIX = "AO3CIPHER$1$", TEXT_MAGIC = "AO3SUB", TEXT_VERSION = "1", TEXT_VERSION_SHARED = "2";
+const HEXC = new Uint8Array([..."0123456789ABCDEF"].map(c => c.charCodeAt(0)));
+
+function analyzeKey(arr){            // arr: array/string of 95 entries ("" = empty)
+  const counts = new Map(); let empty = 0;
+  for (let i = 0; i < 95; i++){ const c = arr[i] || ""; if (!c){ empty++; continue; } counts.set(c, (counts.get(c) || 0) + 1); }
+  const dups = new Set([...counts].filter(([, n]) => n > 1).map(([c]) => c));
+  const missing = [...ALPHA].filter(c => !counts.has(c));
+  const bad = [...counts.keys()].filter(c => c.length !== 1 || ALPHA.indexOf(c) < 0);
+  let self = 0; for (let i = 0; i < 95; i++) if (arr[i] === ALPHA[i]) self++;
+  const ok = arr.length === 95 && !empty && !bad.length;   // shared outputs are allowed
+  return { ok, injective: ok && !dups.size, dups, missing, empty, self };
+}
+function isValidKey(k){ return typeof k === "string" && k.length === 95 && analyzeKey(k).ok; }
+function fingerprint(key){           // short ID so decrypt can spot a different cipher; not secret-revealing
+  let h = 0x811c9dc5;
+  for (let i = 0; i < key.length; i++){ h ^= key.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  h ^= h >>> 15; h = Math.imul(h, 0x2c1b3c6d) >>> 0; h ^= h >>> 12;
+  return ((h >>> 0) % 2176782336).toString(36).toUpperCase().padStart(6, "0");
+}
+function exportKey(key){ return KEY_PREFIX + key + "$"; }
+function importKey(text){
+  const s = String(text || "");
+  const at = s.indexOf(KEY_PREFIX);
+  if (at < 0) return null;
+  const key = s.substr(at + KEY_PREFIX.length, 95);
+  if (key.length !== 95 || s[at + KEY_PREFIX.length + 95] !== "$" || !isValidKey(key)) return null;
+  return key;
+}
+function makeMaps(key){
+  const enc = new Uint8Array(128), dec = new Uint8Array(128).fill(255);
+  for (let i = 0; i < 95; i++){ const c = key.charCodeAt(i); enc[32 + i] = c; if (dec[c] === 255) dec[c] = 32 + i; }   // first in keyboard order wins
+  return { enc, dec };
+}
+// presets
+function shuffleKey(){
+  const a = [...ALPHA], r = new Uint32Array(95); crypto.getRandomValues(r);
+  for (let i = 94; i > 0; i--){ const j = r[i] % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+  return a.join("");
+}
+function caesarKey(n){ n = ((Math.trunc(n) % 95) + 95) % 95; return ALPHA.slice(n) + ALPHA.slice(0, n); }
+function reverseKey(){ return [...ALPHA].reverse().join(""); }
+function keywordKey(word){
+  const seen = new Set(); let out = "";
+  for (const c of String(word)) if (ALPHA.includes(c) && !seen.has(c)){ seen.add(c); out += c; }
+  for (const c of ALPHA) if (!seen.has(c)) out += c;
+  return out;
+}
+
+// ---------- cipher .json files ----------
+const JSON_NOTE = "Each key is an original character; its value is what it turns into. Values may repeat: when decrypting, a shared value turns back into the first of its characters in keyboard order (the order of this list). Characters left out stay unchanged; if a key is listed twice, the first one counts.";
+function cipherJsonLines(c, pre){
+  const p = pre + "  ", L = [];
+  L.push(pre + "{");
+  L.push(`${p}"format": "ao3-cipher",`);
+  L.push(`${p}"version": 1,`);
+  L.push(`${p}"name": ${JSON.stringify(c.name)},`);
+  L.push(`${p}"id": "${fingerprint(c.key)}",`);
+  L.push(`${p}"created": ${JSON.stringify(c.created || new Date().toISOString())},`);
+  L.push(`${p}"note": ${JSON.stringify(JSON_NOTE)},`);
+  L.push(`${p}"key": ${JSON.stringify(exportKey(c.key))},`);
+  L.push(`${p}"mapping": {`);
+  // written by hand so the order stays keyboard order (JS objects would move "0"-"9" first)
+  for (let i = 0; i < 95; i++) L.push(`${p}  ${JSON.stringify(ALPHA[i])}: ${JSON.stringify(c.key[i])}${i < 94 ? "," : ""}`);
+  L.push(`${p}}`);
+  L.push(pre + "}");
+  return L;
+}
+function cipherToJson(c){ return cipherJsonLines(c, "").join("\n") + "\n"; }
+function collectionToJson(list){
+  const L = ["{", `  "format": "ao3-cipher-collection",`, `  "version": 1,`, `  "exported": ${JSON.stringify(new Date().toISOString())},`,
+    `  "count": ${list.length},`, `  "ciphers": [`];
+  list.forEach((c, i) => { const cl = cipherJsonLines(c, "    "); if (i < list.length - 1) cl[cl.length - 1] += ","; L.push(...cl); });
+  L.push("  ]", "}");
+  return L.join("\n") + "\n";
+}
+const charList = (arr, max = 24) => arr.slice(0, max).map(c => c === " " ? "space" : c).join("  ") + (arr.length > max ? `  … (+${arr.length - max} more)` : "");
+function validateCipherObject(o){
+  if (!o || typeof o !== "object" || Array.isArray(o)) return { error: "isn't a cipher (expected an object with a \"mapping\")." };
+  if (o.format !== undefined && o.format !== "ao3-cipher") return { error: `has "format": ${JSON.stringify(o.format)}, expected "ao3-cipher".` };
+  if (typeof o.version === "number" && o.version > 1) return { error: `uses format version ${o.version}, which is newer than this page understands.` };
+  const notes = []; let key = null;
+  const nm = c => c === " " ? "space" : c;
+  if (o.mapping !== undefined){
+    const m = o.mapping;
+    if (!m || typeof m !== "object" || Array.isArray(m)) return { error: "has a \"mapping\" that isn't an object like {\"a\": \"q\", …}." };
+    const has = k => Object.prototype.hasOwnProperty.call(m, k);
+    const badKeys = Object.keys(m).filter(k => k.length !== 1 || !ALPHA.includes(k));
+    if (badKeys.length) return { error: `has keys that aren't single keyboard characters: ${badKeys.slice(0, 8).map(k => JSON.stringify(k)).join(", ")}.` };
+    const badVals = [...ALPHA].filter(c => has(c) && !(typeof m[c] === "string" && m[c].length === 1 && ALPHA.includes(m[c])));
+    if (badVals.length) return { error: `has values that aren't a single keyboard character for: ${charList(badVals)} (e.g. ${JSON.stringify(badVals[0])} → ${JSON.stringify(m[badVals[0]])}).` };
+    const dupKeys = JSON_DUPS.get(m) || [];
+    for (const d of dupKeys.slice(0, 8)) notes.push(`${JSON.stringify(d.key)} was listed more than once, so the first value ${JSON.stringify(d.kept)} was used (ignored ${JSON.stringify(d.ignored)})`);
+    if (dupKeys.length > 8) notes.push(`${dupKeys.length - 8} more repeated keys also kept their first value`);
+    const missing = [...ALPHA].filter(c => !has(c));
+    if (missing.length) notes.push(`${missing.length} character${missing.length > 1 ? "s weren't" : " wasn't"} listed, so ${missing.length > 1 ? "they stay" : "it stays"} unchanged: ${charList(missing)}`);
+    key = [...ALPHA].map(c => has(c) ? m[c] : c).join("");
+    if (typeof o.key === "string" && importKey(o.key) !== key) notes.push("its \"key\" field didn't match the mapping, so the mapping was used");
+  } else if (typeof o.key === "string"){
+    key = importKey(o.key);
+    if (!key) return { error: "has no \"mapping\" and its \"key\" isn't a valid cipher key." };
+  } else return { error: "has no \"mapping\"." };
+  const shared = sharedOutputs(key);
+  if (shared.length) notes.push(`${shared.length} output${shared.length > 1 ? "s are" : " is"} shared by several characters, so decrypting gives back the first in keyboard order: ` +
+    shared.slice(0, 6).map(([v, os]) => `${nm(v)} (${os.map(nm).join(", ")} → ${nm(os[0])})`).join("; ") + (shared.length > 6 ? "; …" : ""));
+  const id = fingerprint(key);
+  if (o.id !== undefined && o.id !== id) notes.push(`the file said ID ${JSON.stringify(o.id)} but this mapping's ID is ${id} (it was probably edited), so ${id} is used`);
+  const name = typeof o.name === "string" && o.name.trim() ? o.name.trim().slice(0, 60) : null;
+  const created = typeof o.created === "string" && !isNaN(Date.parse(o.created)) ? o.created : null;
+  return { key, id, name, created, notes };
+}
+function parseCipherFile(text){
+  let data;
+  const clean = String(text).replace(/^\uFEFF/, "");
+  try { JSON.parse(clean); }
+  catch (e){ return { error: "isn't valid JSON (" + e.message.replace(/^JSON\.parse: /, "") + ")." }; }
+  data = parseJsonFirstWins(clean);
+  let list;
+  if (Array.isArray(data)) list = data;
+  else if (data && typeof data === "object" && Array.isArray(data.ciphers)){
+    if (data.format !== undefined && data.format !== "ao3-cipher-collection") return { error: `has "format": ${JSON.stringify(data.format)}, expected "ao3-cipher-collection".` };
+    if (typeof data.version === "number" && data.version > 1) return { error: `uses format version ${data.version}, which is newer than this page understands.` };
+    list = data.ciphers;
+  } else if (data && typeof data === "object") list = [data];
+  else return { error: "doesn't look like a cipher file." };
+  if (!list.length) return { error: "contains no ciphers." };
+  return { collection: list.length > 1 || Array.isArray(data) || Array.isArray(data.ciphers), items: list.map(o => Object.assign(validateCipherObject(o), { rawName: o && typeof o.name === "string" ? o.name.trim().slice(0, 60) : null })) };
+}
+function slugify(s){ return String(s || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 50) || "cipher"; }
+
+// ---------- version 2: ciphers where several originals share an output ----------
+// The marker M is whatever "~" turns into. Every original whose output is M is
+// written as an escape, so M in the text always starts an escape. What follows M
+// is written RAW (not substituted), so shared outputs can never scramble it:
+//   M ~        -> "~"          M XX       -> byte XX (2 hex digits)
+//   M {HEX}    -> code point   newline    -> real newline
+// Every other character is substituted. When several originals share an output,
+// decrypting gives back the FIRST of them in keyboard order (space, !, ", … ~).
+// Characters nothing maps to are left as they are when decrypting.
+function sharedOutputs(key){          // [[output, [originals…]], …] in keyboard order of the first original
+  const by = new Map();
+  for (let i = 0; i < 95; i++){ const v = key[i]; if (!by.has(v)) by.set(v, []); by.get(v).push(ALPHA[i]); }
+  return [...by].filter(([, o]) => o.length > 1);
+}
+function encodeBytesV2(bytes, key){
+  const { enc } = makeMaps(key), n = bytes.length, M = enc[126];
+  const out = new Uint8Array(n * 9 + 16);   // worst case "M{10FFFF}" for 4 bytes, or "MXX" per byte
+  let o = 0;
+  const raw = c => { out[o++] = c; };
+  for (let i = 0; i < n; ){
+    const b = bytes[i];
+    if (b === 10){ raw(10); i++; continue; }
+    if (b >= 32 && b <= 126){
+      if (enc[b] !== M){ raw(enc[b]); i++; continue; }
+      raw(M); if (b === 126) raw(126); else { raw(HEXC[b >> 4]); raw(HEXC[b & 15]); }
+      i++; continue;
+    }
+    let len = 0, cp = 0;
+    const c1 = bytes[i + 1], c2 = bytes[i + 2], c3 = bytes[i + 3];
+    const cont = x => x !== undefined && (x & 0xC0) === 0x80;
+    if (b >= 0xC2 && b <= 0xDF && cont(c1)){ len = 2; cp = ((b & 31) << 6) | (c1 & 63); }
+    else if (b >= 0xE0 && b <= 0xEF && cont(c1) && cont(c2) && !(b === 0xE0 && c1 < 0xA0) && !(b === 0xED && c1 > 0x9F)){ len = 3; cp = ((b & 15) << 12) | ((c1 & 63) << 6) | (c2 & 63); }
+    else if (b >= 0xF0 && b <= 0xF4 && cont(c1) && cont(c2) && cont(c3) && !(b === 0xF0 && c1 < 0x90) && !(b === 0xF4 && c1 > 0x8F)){ len = 4; cp = ((b & 7) << 18) | ((c1 & 63) << 12) | ((c2 & 63) << 6) | (c3 & 63); }
+    raw(M);
+    if (len){ raw(123); const h = cp.toString(16).toUpperCase(); for (let k = 0; k < h.length; k++) raw(h.charCodeAt(k)); raw(125); i += len; }
+    else { raw(HEXC[b >> 4]); raw(HEXC[b & 15]); i++; }
+  }
+  return new TextDecoder("latin1").decode(out.subarray(0, o));
+}
+function decodeBodyV2(src, key, len){
+  const { enc } = makeMaps(key), M = enc[126], n = src.length;
+  const dec = new Uint8Array(128).fill(255);           // first original in keyboard order wins; M is reserved
+  for (let i = 0; i < 95; i++){ const c = enc[32 + i]; if (c !== M && dec[c] === 255) dec[c] = 32 + i; }
+  const out = new Uint8Array(Math.max(n, len));
+  let o = 0, i = 0;
+  const bad = () => cipherError("BADTEXT");
+  const nextRaw = () => { while (i < n && src[i] === 13) i++; if (i >= n) throw bad(); const c = src[i++]; if (c > 126) throw cipherError("NONKEY"); return c; };
+  const hexv = c => (c >= 48 && c <= 57) ? c - 48 : (c >= 65 && c <= 70) ? c - 55 : (c >= 97 && c <= 102) ? c - 87 : -1;
+  while (i < n){
+    const c = src[i];
+    if (c === 13){ i++; continue; }
+    if (c === 10){ out[o++] = 10; i++; continue; }
+    if (c > 126) throw cipherError("NONKEY");
+    i++;
+    if (c !== M){ out[o++] = dec[c] === 255 ? c : dec[c]; continue; }
+    const q = nextRaw();
+    if (q === 126){ out[o++] = 126; continue; }
+    if (q === 123){
+      let cp = 0, digits = 0, d;
+      while ((d = nextRaw()) !== 125){ const v = hexv(d); if (v < 0 || ++digits > 6) throw bad(); cp = cp * 16 + v; }
+      if (!digits || cp > 0x10FFFF || (cp >= 0xD800 && cp <= 0xDFFF)) throw bad();
+      if (cp < 0x80) out[o++] = cp;
+      else if (cp < 0x800){ out[o++] = 0xC0 | (cp >> 6); out[o++] = 0x80 | (cp & 63); }
+      else if (cp < 0x10000){ out[o++] = 0xE0 | (cp >> 12); out[o++] = 0x80 | ((cp >> 6) & 63); out[o++] = 0x80 | (cp & 63); }
+      else { out[o++] = 0xF0 | (cp >> 18); out[o++] = 0x80 | ((cp >> 12) & 63); out[o++] = 0x80 | ((cp >> 6) & 63); out[o++] = 0x80 | (cp & 63); }
+      continue;
+    }
+    const hi = hexv(q), lo = hexv(nextRaw());
+    if (hi < 0 || lo < 0) throw bad();
+    out[o++] = hi * 16 + lo;
+  }
+  return { out, o };
+}
+
+// Minimal JSON reader for already-valid JSON that keeps the FIRST value of a repeated
+// key (JSON.parse keeps the last) and records the repeats.
+const JSON_DUPS = new WeakMap();
+function parseJsonFirstWins(text){
+  let i = 0;
+  const ws = () => { while (i < text.length && " \t\n\r".includes(text[i])) i++; };
+  const str = () => { let j = i + 1; while (text[j] !== '"'){ if (text[j] === "\\") j++; j++; } const s = JSON.parse(text.slice(i, j + 1)); i = j + 1; return s; };
+  const val = () => {
+    ws(); const ch = text[i];
+    if (ch === "{"){
+      i++; const obj = {}, dups = []; ws();
+      if (text[i] === "}"){ i++; return obj; }
+      for (;;){
+        ws(); const k = str(); ws(); i++; /* : */ const v = val(); ws();
+        if (Object.prototype.hasOwnProperty.call(obj, k)) dups.push({ key: k, kept: obj[k], ignored: v });
+        else Object.defineProperty(obj, k, { value: v, enumerable: true, writable: true, configurable: true });
+        if (text[i] === ","){ i++; continue; } i++; break;   // "}"
+      }
+      if (dups.length) JSON_DUPS.set(obj, dups);
+      return obj;
+    }
+    if (ch === "["){ i++; const arr = []; ws(); if (text[i] === "]"){ i++; return arr; } for (;;){ arr.push(val()); ws(); if (text[i] === ","){ i++; continue; } i++; break; } return arr; }
+    if (ch === '"') return str();
+    const m = /true|false|null|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/y; m.lastIndex = i; const t = m.exec(text)[0]; i += t.length;
+    return t === "true" ? true : t === "false" ? false : t === "null" ? null : Number(t);
+  };
+  return val();
+}
+
+function encodeBytes(bytes, key){
+  if (!analyzeKey(key).injective){
+    const text = [TEXT_MAGIC, TEXT_VERSION_SHARED, fingerprint(key), String(bytes.length)].join("$") + "\n" + encodeBytesV2(bytes, key);
+    for (let i = 0; i < text.length; i++){ const c = text.charCodeAt(i); if (c !== 10 && (c < 32 || c > 126)) throw new Error("Internal error: non-keyboard character produced"); }
+    return text;
+  }
+  const { enc } = makeMaps(key), n = bytes.length;
+  const out = new Uint8Array(n * 3 + 16);   // worst case: 3 output chars per input byte
+  let o = 0;
+  const put = c => { out[o++] = enc[c]; };
+  const putByte = b => { put(126); put(HEXC[b >> 4]); put(HEXC[b & 15]); };
+  for (let i = 0; i < n; ){
+    const b = bytes[i];
+    if (b === 10){ out[o++] = 10; i++; continue; }
+    if (b >= 32 && b <= 126){ if (b === 126) put(126); put(b); i++; continue; }
+    // try one canonical UTF-8 sequence
+    let len = 0, cp = 0;
+    const c1 = bytes[i + 1], c2 = bytes[i + 2], c3 = bytes[i + 3];
+    const cont = x => x !== undefined && (x & 0xC0) === 0x80;
+    if (b >= 0xC2 && b <= 0xDF && cont(c1)){ len = 2; cp = ((b & 31) << 6) | (c1 & 63); }
+    else if (b >= 0xE0 && b <= 0xEF && cont(c1) && cont(c2) &&
+             !(b === 0xE0 && c1 < 0xA0) && !(b === 0xED && c1 > 0x9F)){ len = 3; cp = ((b & 15) << 12) | ((c1 & 63) << 6) | (c2 & 63); }
+    else if (b >= 0xF0 && b <= 0xF4 && cont(c1) && cont(c2) && cont(c3) &&
+             !(b === 0xF0 && c1 < 0x90) && !(b === 0xF4 && c1 > 0x8F)){ len = 4; cp = ((b & 7) << 18) | ((c1 & 63) << 12) | ((c2 & 63) << 6) | (c3 & 63); }
+    if (len){
+      put(126); put(123);
+      const h = cp.toString(16).toUpperCase();
+      for (let k = 0; k < h.length; k++) put(h.charCodeAt(k));
+      put(125); i += len;
+    } else { putByte(b); i++; }
+  }
+  const body = new TextDecoder("latin1").decode(out.subarray(0, o));
+  const text = [TEXT_MAGIC, TEXT_VERSION, fingerprint(key), String(n)].join("$") + "\n" + body;
+  for (let i = 0; i < text.length; i++){ const c = text.charCodeAt(i); if (c !== 10 && (c < 32 || c > 126)) throw new Error("Internal error: non-keyboard character produced"); }
+  return text;
+}
+
+function cipherError(code, extra){ const e = new Error(code); Object.assign(e, extra || {}); return e; }
+function readHeader(text){
+  const t = String(text).replace(/^\s+/, "");
+  const nl = t.indexOf("\n");
+  const head = (nl < 0 ? t : t.slice(0, nl)).trim();
+  if (head.startsWith("AO3ENC$")) throw cipherError("OLDFORMAT");
+  const m = /^AO3SUB\$(\d+)\$([0-9A-Z]{6})\$(\d+)$/.exec(head);
+  if (!m) throw cipherError("FORMAT");
+  if (m[1] !== TEXT_VERSION && m[1] !== TEXT_VERSION_SHARED) throw cipherError("VERSION");
+  return { version: m[1], fp: m[2], len: +m[3], body: nl < 0 ? "" : t.slice(nl + 1) };
+}
+function decodeText(text, key, opts){
+  const h = readHeader(text);
+  if (h.fp !== fingerprint(key) && !(opts && opts.force)) throw cipherError("FINGERPRINT", { textFp: h.fp });
+  if (h.version === TEXT_VERSION_SHARED){
+    const { out, o } = decodeBodyV2(new TextEncoder().encode(h.body), key, h.len);
+    if (o < h.len) throw cipherError("INCOMPLETE");
+    for (let k = h.len; k < o; k++) if (out[k] !== 10) throw cipherError("BADTEXT");
+    return out.slice(0, h.len);
+  }
+  const { dec } = makeMaps(key);
+  const src = new TextEncoder().encode(h.body), n = src.length;
+  const out = new Uint8Array(Math.max(n, h.len));
+  let o = 0, i = 0;
+  const bad = () => cipherError("BADTEXT");
+  const next = () => {                       // next substituted char -> plain code (skips CR)
+    while (i < n && src[i] === 13) i++;
+    if (i >= n) throw bad();
+    const c = src[i++]; if (c > 126 || dec[c] === 255) throw cipherError(c > 126 ? "NONKEY" : "BADTEXT");
+    return dec[c];
+  };
+  const hexv = c => (c >= 48 && c <= 57) ? c - 48 : (c >= 65 && c <= 70) ? c - 55 : (c >= 97 && c <= 102) ? c - 87 : -1;
+  while (i < n){
+    const c = src[i];
+    if (c === 13){ i++; continue; }
+    if (c === 10){ out[o++] = 10; i++; continue; }
+    if (c > 126) throw cipherError("NONKEY");
+    const p = next();
+    if (p !== 126){ out[o++] = p; continue; }
+    const q = next();
+    if (q === 126){ out[o++] = 126; continue; }
+    if (q === 123){
+      let cp = 0, digits = 0, d;
+      while ((d = next()) !== 125){ const v = hexv(d); if (v < 0 || ++digits > 6) throw bad(); cp = cp * 16 + v; }
+      if (!digits || cp > 0x10FFFF || (cp >= 0xD800 && cp <= 0xDFFF)) throw bad();
+      if (cp < 0x80) out[o++] = cp;
+      else if (cp < 0x800){ out[o++] = 0xC0 | (cp >> 6); out[o++] = 0x80 | (cp & 63); }
+      else if (cp < 0x10000){ out[o++] = 0xE0 | (cp >> 12); out[o++] = 0x80 | ((cp >> 6) & 63); out[o++] = 0x80 | (cp & 63); }
+      else { out[o++] = 0xF0 | (cp >> 18); out[o++] = 0x80 | ((cp >> 12) & 63); out[o++] = 0x80 | ((cp >> 6) & 63); out[o++] = 0x80 | (cp & 63); }
+      continue;
+    }
+    const hi = hexv(q), lo = hexv(next());
+    if (hi < 0 || lo < 0) throw bad();
+    out[o++] = hi * 16 + lo;
+  }
+  if (o < h.len) throw cipherError("INCOMPLETE");
+  for (let k = h.len; k < o; k++) if (out[k] !== 10) throw bad();   // tolerate extra trailing newlines from copy/paste
+  return out.slice(0, h.len);
+}
+// ---------- AO3 metadata ----------
+function ao3Meta(html){
+  try{
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const q = s => { const el = doc.querySelector(s); return el ? el.textContent.trim().replace(/\s+/g," ") : ""; };
+    let title = q("#preface h1, .meta h1, h1");
+    let authors = [...doc.querySelectorAll('a[rel="author"]')].map(a => a.textContent.trim()).filter(Boolean);
+    let author = authors.join(", ") || q(".byline").replace(/^by\s+/i, "");
+    const t = (doc.title || "").trim();
+    if (!title && t) title = t.split(" - ")[0];
+    if (!author && t.split(" - ").length > 1) author = t.split(" - ")[1];
+    return {title, author};
+  }catch(e){ return {title:"", author:""}; }
+}
+
+// ---------- helpers ----------
+const $ = id => document.getElementById(id);
+function fmtBytes(n){ return n < 1024 ? n + " B" : n < 1048576 ? (n/1024).toFixed(1) + " KB" : (n/1048576).toFixed(2) + " MB"; }
+function setStatus(el, msg, cls){ el.textContent = msg; el.className = "status " + (cls || ""); }
+function download(data, name, type){
+  const url = URL.createObjectURL(new Blob([data], {type}));
+  const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+function safeName(s){ return (s || "work").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "_").slice(0, 80) || "work"; }
+const nextFrame = () => new Promise(r => setTimeout(r, 30));
+// ---------- storage helpers ----------
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+
+// ---------- tabs ----------
+const TABS = [["tab-enc","panel-enc"],["tab-dec","panel-dec"],["tab-cip","panel-cip"]];
+function showTab(id){ for (const [t, p] of TABS){ $(t).setAttribute("aria-selected", String(t === id)); $(p).hidden = t !== id; } }
+for (const [t] of TABS) $(t).addEventListener("click", () => showTab(t));
+document.querySelectorAll("[data-goto-cipher]").forEach(b => b.addEventListener("click", () => showTab("tab-cip")));
+async function copyText(text, btn){
+  try { await navigator.clipboard.writeText(text); }
+  catch(e){ const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); }
+  const old = btn.textContent; btn.textContent = "Copied!"; setTimeout(() => btn.textContent = old, 1500);
+}
+const showCh = c => c === " " ? "␣" : c;
+
+// ---------- saved ciphers ----------
+let ciphers = store.get("ao3enc.ciphers", []);
+if (!Array.isArray(ciphers)) ciphers = [];
+ciphers = ciphers.filter(c => c && typeof c.name === "string" && isValidKey(c.key));
+const newId = () => "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+if (!ciphers.length) ciphers.push({ id: newId(), name: "My cipher", key: shuffleKey() });
+let currentId = store.get("ao3enc.currentCipher", null);
+if (!ciphers.some(c => c.id === currentId)) currentId = ciphers[0].id;
+const cur = () => ciphers.find(c => c.id === currentId);
+function persist(){ ciphers.forEach(c => { if (!c.created) c.created = new Date().toISOString(); }); store.set("ao3enc.ciphers", ciphers); store.set("ao3enc.currentCipher", currentId); }
+persist();
+function uniqueName(base){ let n = base, i = 2; while (ciphers.some(c => c.name === n)) n = `${base} (${i++})`; return n; }
+
+// ---------- editor state ----------
+let draft = [], draftName = "";
+function loadDraft(){ const c = cur(); draft = [...c.key]; draftName = c.name; $("cipName").value = draftName; renderGrid(); }
+function selectCipher(id){ currentId = id; persist(); loadDraft(); renderSelects(); }
+function renderSelects(){
+  for (const sel of document.querySelectorAll(".cipherSel")){
+    sel.textContent = "";
+    for (const c of ciphers) sel.add(new Option(c.name + "  (" + fingerprint(c.key) + ")", c.id));
+    sel.value = currentId;
+  }
+  const c = cur(), fp = fingerprint(c.key);
+  $("encFp").textContent = fp; $("decFp").textContent = fp;
+  $("cipKeyOut").value = exportKey(c.key);
+  $("cipDel").disabled = false;
+  updateEncHint(); updateEncBtn(); updateDecKey();
+}
+document.querySelectorAll(".cipherSel").forEach(sel => sel.addEventListener("change", e => selectCipher(e.target.value)));
+
+// grid
+const cells = [];
+(function buildGrid(){
+  const g = $("cgrid");
+  for (let i = 0; i < 95; i++){
+    const cell = document.createElement("div"); cell.className = "cell";
+    const p = document.createElement("span"); p.className = "p"; p.textContent = showCh(ALPHA[i]);
+    const inp = document.createElement("input"); inp.type = "text"; inp.autocomplete = "off"; inp.spellcheck = false;
+    inp.setAttribute("aria-label", "Cipher for " + (ALPHA[i] === " " ? "space" : ALPHA[i]));
+    inp.dataset.i = i;
+    inp.addEventListener("focus", () => inp.select());
+    inp.addEventListener("input", () => {
+      const v = inp.value, pos = inp.selectionStart || v.length;
+      let ch = v ? (v[pos - 1] !== undefined ? v[pos - 1] : v[v.length - 1]) : "";
+      if (ch && !ALPHA.includes(ch)) ch = draft[i];     // ignore non-keyboard characters
+      draft[i] = ch || ""; inp.value = draft[i];
+      renderGrid();
+      if (draft[i] && cells[i + 1]) cells[i + 1].input.focus();
+    });
+    inp.addEventListener("keydown", e => {
+      if (e.key === "ArrowRight" && cells[i + 1]){ e.preventDefault(); cells[i + 1].input.focus(); }
+      if (e.key === "ArrowLeft" && cells[i - 1]){ e.preventDefault(); cells[i - 1].input.focus(); }
+      if (e.key === "Backspace" && !inp.value && cells[i - 1]){ e.preventDefault(); cells[i - 1].input.focus(); }
+    });
+    cell.append(p, inp); g.appendChild(cell); cells.push({ cell, input: inp });
+  }
+})();
+function renderGrid(){
+  const a = analyzeKey(draft);
+  for (let i = 0; i < 95; i++){
+    const { cell, input } = cells[i], v = draft[i] || "";
+    if (input.value !== v) input.value = v;
+    cell.classList.toggle("sp", v === " ");
+    cell.classList.toggle("self", v === ALPHA[i]);
+    cell.classList.toggle("dup", !!v && a.dups.has(v)); cell.classList.add("soft");
+    cell.classList.toggle("empty", !v);
+  }
+  const st = $("cipStatus");
+  if (a.ok && !a.injective){
+    const sh = sharedOutputs(draft.join(""));
+    setStatus(st, "⚠ Usable, but some characters share an output: " + sh.slice(0, 8).map(([v, os]) => `${showCh(v)} ← ${os.map(showCh).join(" ")}`).join(" · ") +
+      (sh.length > 8 ? " · …" : "") + ". Decrypting can't tell those apart, so each shared output turns back into the first of its characters in keyboard order (" +
+      sh.slice(0, 3).map(([, os]) => `${os.slice(1).map(showCh).join(", ")} → ${showCh(os[0])}`).join("; ") + "). Everything else, including accents, emoji and line breaks, still comes back exactly.", "warn");
+  } else if (a.ok){
+    let msg = "✓ Valid: every character turns into exactly one other.";
+    if (a.self === 95) msg = "✓ Valid, but this is the “no change” cipher: text would come out readable.";
+    else if (a.self) msg += ` (${a.self} character${a.self > 1 ? "s" : ""} map${a.self > 1 ? "" : "s"} to ${a.self > 1 ? "themselves" : "itself"}.)`;
+    setStatus(st, msg, a.self === 95 ? "err" : "ok");
+  } else {
+    const parts = [];
+    if (a.empty) parts.push(a.empty + " empty box" + (a.empty > 1 ? "es" : ""));
+    setStatus(st, "Not a usable cipher yet: " + parts.join(" · ") + ". Saving is blocked until every box has a character.", "err");
+  }
+  $("cipFp").textContent = a.ok ? fingerprint(draft.join("")) : "——";
+  const c = cur(), dirty = draft.join("") !== c.key || draftName !== c.name;
+  $("cipSave").disabled = !a.ok || !dirty || !draftName.trim();
+  $("cipRevert").disabled = !dirty;
+  $("cipDirty").className = dirty ? "dirty" : "clean";
+  $("cipDirty").textContent = dirty ? "Unsaved changes. Encrypt and Decrypt still use the saved version." : "Saved.";
+  updateEncHint();
+}
+function setDraft(key){ draft = [...key]; renderGrid(); cells.forEach(c => { c.cell.classList.remove("flash"); void c.cell.offsetWidth; c.cell.classList.add("flash"); }); }
+$("cipName").addEventListener("input", e => { draftName = e.target.value; renderGrid(); });
+$("preShuffle").addEventListener("click", () => setDraft(shuffleKey()));
+$("preCaesar").addEventListener("click", () => setDraft(caesarKey(parseInt($("cipShift").value, 10) || 0)));
+$("preReverse").addEventListener("click", () => setDraft(reverseKey()));
+$("preKeyword").addEventListener("click", () => {
+  const w = $("cipKeyword").value;
+  if (!w){ setStatus($("cipStatus"), "Type a keyword first.", "err"); $("cipKeyword").focus(); return; }
+  setDraft(keywordKey(w));
+});
+$("preIdentity").addEventListener("click", () => setDraft(ALPHA));
+$("swapBtn").addEventListener("click", () => {
+  const a = $("swapA").value, b = $("swapB").value, ia = ALPHA.indexOf(a), ib = ALPHA.indexOf(b);
+  if (!a || !b || ia < 0 || ib < 0){ setStatus($("cipStatus"), "Type two keyboard characters to swap (what they turn into gets exchanged).", "err"); return; }
+  [draft[ia], draft[ib]] = [draft[ib], draft[ia]]; renderGrid();
+  for (const k of [ia, ib]){ cells[k].cell.classList.remove("flash"); void cells[k].cell.offsetWidth; cells[k].cell.classList.add("flash"); }
+});
+$("cipSave").addEventListener("click", () => {
+  const key = draft.join("");
+  if (!isValidKey(key) || !draftName.trim()) return;
+  const c = cur(); c.key = key; c.name = draftName.trim(); draftName = c.name; $("cipName").value = c.name;
+  persist(); renderSelects(); renderGrid();
+});
+$("cipRevert").addEventListener("click", loadDraft);
+$("cipNew").addEventListener("click", () => {
+  const c = { id: newId(), name: uniqueName("Cipher " + (ciphers.length + 1)), key: shuffleKey() };
+  ciphers.push(c); selectCipher(c.id); $("cipName").focus(); $("cipName").select();
+});
+$("cipDup").addEventListener("click", () => {
+  const s = cur(), c = { id: newId(), name: uniqueName(s.name + " copy"), key: s.key };
+  ciphers.push(c); selectCipher(c.id);
+});
+let delArmed = 0;
+$("cipDel").addEventListener("click", () => {
+  if (Date.now() - delArmed > 3000){ delArmed = Date.now(); $("cipDel").textContent = "Click again to delete"; setTimeout(() => { $("cipDel").textContent = "Delete"; }, 3000); return; }
+  delArmed = 0; $("cipDel").textContent = "Delete";
+  ciphers = ciphers.filter(c => c.id !== currentId);
+  if (!ciphers.length) ciphers.push({ id: newId(), name: "My cipher", key: shuffleKey() });
+  selectCipher(ciphers[0].id);
+});
+$("cipCopy").addEventListener("click", () => copyText($("cipKeyOut").value, $("cipCopy")));
+function importAsNew(key, name){
+  const existing = ciphers.find(c => c.key === key);
+  if (existing){ selectCipher(existing.id); return existing; }
+  const c = { id: newId(), name: uniqueName(name || "Imported cipher"), key };
+  ciphers.push(c); selectCipher(c.id); return c;
+}
+$("cipImport").addEventListener("click", () => {
+  const key = importKey($("cipKeyIn").value), st = $("cipImportMsg");
+  if (!key){ setStatus(st, "That isn't a valid cipher key. It should look like AO3CIPHER$1$ followed by 95 characters and a final $.", "err"); return; }
+  const c = importAsNew(key); $("cipKeyIn").value = "";
+  setStatus(st, `Imported as “${c.name}” (ID ${fingerprint(key)}).`, "ok");
+});
+
+// ---------- .json export / import ----------
+$("cipExportJson").addEventListener("click", () => {
+  const c = cur(); persist();
+  download(cipherToJson(c), slugify(c.name) + ".ao3cipher.json", "application/json");
+});
+$("cipExportAll").addEventListener("click", () => {
+  persist();
+  download(collectionToJson(ciphers), "all-ciphers-" + new Date().toISOString().slice(0, 10) + ".ao3cipher.json", "application/json");
+});
+async function importCipherFiles(files){
+  const st = $("cipImportMsg"), lines = []; let added = 0, skipped = 0, failed = 0, lastId = null;
+  for (const f of files){
+    let text; try { text = await f.text(); } catch (e){ lines.push(`✗ ${f.name}: couldn't be read.`); failed++; continue; }
+    const res = parseCipherFile(text);
+    if (res.error){ lines.push(`✗ ${f.name} ${res.error}`); failed++; continue; }
+    res.items.forEach((it, i) => {
+      const label = res.collection ? `${f.name}, cipher #${i + 1}` : f.name;
+      if (it.error){ lines.push(`✗ ${label}${it.rawName ? " (“" + it.rawName + "”)" : ""}: ${it.error.replace(/^mapping problems: /, "")}`); failed++; return; }
+      const name = it.name || f.name.replace(/(\.ao3cipher)?\.json$/i, "") || "Imported cipher";
+      const existing = ciphers.find(c => c.key === it.key);
+      if (existing){ lines.push(`• “${name}” is already saved as “${existing.name}” (ID ${it.id}), so it was skipped.`); skipped++; lastId = existing.id; return; }
+      const c = { id: newId(), name: uniqueName(name), key: it.key, created: it.created || new Date().toISOString() };
+      ciphers.push(c); added++; lastId = c.id;
+      lines.push(`✓ Imported “${c.name}” (ID ${it.id})${c.name !== name ? " — renamed because that name was taken" : ""}${it.notes.length ? ". Note: " + it.notes.join("; ") : ""}.`);
+    });
+  }
+  if (lastId) selectCipher(lastId); else persist();
+  const sum = [added && `${added} imported`, skipped && `${skipped} already saved`, failed && `${failed} couldn't be imported`].filter(Boolean).join(", ");
+  setStatus(st, (sum ? sum.charAt(0).toUpperCase() + sum.slice(1) + ".\n" : "") + lines.join("\n"), failed && !added ? "err" : "ok");
+}
+$("cipImportJsonBtn").addEventListener("click", () => $("cipImportFile").click());
+$("cipImportFile").addEventListener("change", e => { importCipherFiles([...e.target.files]); e.target.value = ""; });
+const cdrop = $("cipDrop");
+cdrop.addEventListener("click", () => $("cipImportFile").click());
+cdrop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); $("cipImportFile").click(); } });
+["dragenter","dragover"].forEach(ev => cdrop.addEventListener(ev, e => { e.preventDefault(); cdrop.classList.add("over"); }));
+["dragleave","drop"].forEach(ev => cdrop.addEventListener(ev, e => { e.preventDefault(); cdrop.classList.remove("over"); }));
+cdrop.addEventListener("drop", e => importCipherFiles([...e.dataTransfer.files]));
+
+// ---------- encrypt UI ----------
+let encBytes = null, encName = "work";
+function updateEncBtn(){ $("encBtn").disabled = !encBytes; }
+function updateEncHint(){
+  const c = cur(); if (!c) return;
+  const notes = [];
+  if (c.key === ALPHA) notes.push("This cipher changes nothing, so the text would stay readable.");
+  else if (!analyzeKey(c.key).injective) notes.push("This cipher has shared outputs, so decrypting gives back the first character of each shared group (e.g. " +
+    sharedOutputs(c.key).slice(0, 2).map(([, os]) => `${os.slice(1).map(showCh).join(", ")} → ${showCh(os[0])}`).join("; ") + "). Everything else comes back exactly.");
+  if (draft.length && (draft.join("") !== c.key || draftName !== c.name)) notes.push("You have unsaved edits in the Cipher tab; the saved version is used.");
+  $("encHint").textContent = notes.join(" ");
+}
+async function loadEncFile(file){
+  if (!file) return;
+  encBytes = new Uint8Array(await file.arrayBuffer());
+  const m = ao3Meta(dec.decode(encBytes));
+  encName = safeName(m.title || file.name.replace(/\.html?$/i, ""));
+  $("encTitle").textContent = m.title || file.name;
+  $("encMeta").textContent = (m.author ? "by " + m.author + " · " : "") + file.name + " · " + fmtBytes(encBytes.length);
+  $("encInfo").classList.add("show");
+  $("encOut").hidden = true; setStatus($("encStatus"), "");
+  updateEncBtn();
+}
+const drop = $("encDrop");
+drop.addEventListener("click", () => $("encFile").click());
+drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); $("encFile").click(); } });
+$("encFile").addEventListener("change", e => loadEncFile(e.target.files[0]));
+["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => loadEncFile(e.dataTransfer.files[0]));
+$("encBtn").addEventListener("click", async () => {
+  const st = $("encStatus"), c = cur();
+  $("encBtn").disabled = true; setStatus(st, "Encrypting…", "busy"); await nextFrame();
+  try{
+    const t0 = performance.now();
+    const out = encodeBytes(encBytes, c.key);
+    $("encText").value = out;
+    $("encCount").textContent = out.length.toLocaleString() + " characters";
+    $("encOut").hidden = false;
+    setStatus(st, `Done in ${((performance.now() - t0)/1000).toFixed(1)}s with “${c.name}” (ID ${fingerprint(c.key)}).`, "ok");
+  }catch(e){ setStatus(st, "Encryption failed: " + e.message, "err"); }
+  updateEncBtn();
+});
+$("copyBtn").addEventListener("click", () => copyText($("encText").value, $("copyBtn")));
+$("dlTxtBtn").addEventListener("click", () => download($("encText").value, encName + ".cipher.txt", "text/plain"));
+
+// ---------- decrypt UI ----------
+let decHtml = null, decText = "", decName = "work";
+let pastedKey = null;
+function updateDecKey(){
+  const v = $("decKey").value.trim(), hint = $("decKeyHint");
+  pastedKey = v ? importKey(v) : null;
+  $("decKeySaveRow").hidden = !pastedKey || ciphers.some(c => c.key === pastedKey);
+  if (!v){ hint.textContent = ""; hint.style.color = ""; }
+  else if (!pastedKey){ hint.textContent = "That isn't a valid cipher key (expected AO3CIPHER$1$ + 95 characters + $)."; hint.style.color = "var(--err)"; }
+  else { hint.textContent = `Using the pasted key (ID ${fingerprint(pastedKey)}) instead of the selected cipher.`; hint.style.color = "var(--ok)"; }
+}
+$("decKey").addEventListener("input", updateDecKey);
+$("decKeySave").addEventListener("click", () => { if (pastedKey){ const c = importAsNew(pastedKey, "Shared cipher"); $("decKey").value = ""; updateDecKey(); setStatus($("decStatus"), `Saved as “${c.name}” and selected.`, "ok"); } });
+async function loadDecFile(file){ if (file) $("decText").value = await file.text(); }
+$("decFileBtn").addEventListener("click", () => $("decFile").click());
+$("decFile").addEventListener("change", e => loadDecFile(e.target.files[0]));
+$("decText").addEventListener("dragover", e => e.preventDefault());
+$("decText").addEventListener("drop", e => { if (e.dataTransfer.files.length){ e.preventDefault(); loadDecFile(e.dataTransfer.files[0]); } });
+
+const DEC_MSG = {
+  FORMAT: "That doesn't look like text from this tool. The first line should start with AO3SUB$. Make sure you copied all of it.",
+  OLDFORMAT: "This text was made with the older passphrase version of this tool, which this version can't open.",
+  VERSION: "This was made by a newer version of this tool.",
+  BADTEXT: "This text doesn't decode with this cipher. It's probably the wrong cipher, or the text was changed.",
+  NONKEY: "The text contains characters this tool never produces (maybe autocorrect turned quotes or dashes into fancy ones). Paste the original text.",
+  INCOMPLETE: "The text seems to be cut short. Make sure you copied all of it, including the end."
+};
+async function runDecrypt(force){
+  const st = $("decStatus"), key = pastedKey || cur().key;
+  $("decWarn").hidden = true;
+  if (!$("decText").value.trim()){ setStatus(st, "Paste the encrypted text first.", "err"); return; }
+  $("decBtn").disabled = true; $("decOut").hidden = true; setStatus(st, "Decrypting…", "busy"); await nextFrame();
+  try{
+    const bytes = decodeText($("decText").value, key, { force });
+    decHtml = bytes;
+    decText = dec.decode(bytes);
+    const m = ao3Meta(decText);
+    decName = safeName(m.title);
+    const label = (m.title || "Decrypted work") + (m.author ? " — by " + m.author : "");
+    $("decTitle").textContent = label; $("readerTitle").textContent = label;
+    $("decCount").textContent = fmtBytes(bytes.length);
+    $("decOut").hidden = false; $("reader").hidden = false; $("previewBtn").textContent = "Hide preview";
+    renderPreview();
+    const sh = analyzeKey(key).injective ? [] : sharedOutputs(key);
+    setStatus(st, sh.length ? "Decrypted. This cipher has shared outputs, so characters in those groups came back as the first of each (" +
+      sh.slice(0, 3).map(([, os]) => `${os.slice(1).map(showCh).join(", ")} → ${showCh(os[0])}`).join("; ") + (sh.length > 3 ? "; …" : "") + ")." : "Decrypted successfully.", "ok");
+  }catch(e){
+    if (e.message === "FINGERPRINT"){
+      setStatus(st, "", "");
+      const match = ciphers.find(c => fingerprint(c.key) === e.textFp);
+      $("decWarnMsg").textContent = `This text was made with a different cipher (ID ${e.textFp}); you're using ID ${fingerprint(key)}.` +
+        (match ? ` Your saved cipher “${match.name}” matches.` : " Ask whoever sent it for their cipher key, and paste it above.");
+      $("decUseMatch").hidden = !match;
+      if (match){ $("decUseMatch").textContent = `Use “${match.name}” and decrypt`; $("decUseMatch").dataset.id = match.id; }
+      $("decWarn").hidden = false;
+    } else setStatus(st, DEC_MSG[e.message] || ("Decryption failed: " + e.message), "err");
+  }
+  $("decBtn").disabled = false;
+}
+$("decBtn").addEventListener("click", () => runDecrypt(false));
+$("decForce").addEventListener("click", () => runDecrypt(true));
+$("decUseMatch").addEventListener("click", () => { $("decKey").value = ""; selectCipher($("decUseMatch").dataset.id); runDecrypt(false); });
+
+loadDraft(); renderSelects();
+$("dlHtmlBtn").addEventListener("click", () => decHtml && download(decHtml, decName + ".html", "text/html"));
+$("previewBtn").addEventListener("click", () => { const r = $("reader"); r.hidden = !r.hidden; $("previewBtn").textContent = r.hidden ? "Show preview" : "Hide preview"; if (r.hidden) setReading(false); });
+
+// ---------- reader (preview only; the downloaded file is always the exact original) ----------
+const PAPERS = { light:["#ffffff","#1f1f1f","#0b57a8"], sepia:["#f6ecd8","#3b2e1e","#8a4b0f"], dark:["#121417","#e2e2e2","#7cc4ff"] };
+const reader = Object.assign({ size: 19, paper: "light" }, store.get("ao3enc.reader", {}));
+$("paper").value = reader.paper;
+function readerCss(){
+  const base = `a{}img{max-width:100%;height:auto}body{padding-bottom:280px !important}`;
+  if (reader.paper === "original") return base + `body{font-size:${reader.size}px !important}`;
+  const [bg, ink, link] = PAPERS[reader.paper] || PAPERS.light;
+  return base + `html,body{background:${bg} !important;color:${ink} !important}
+body{font-family:Georgia,"Iowan Old Style","Palatino Linotype",Charter,serif !important;font-size:${reader.size}px !important;line-height:1.72 !important;
+max-width:38em !important;margin:0 auto !important;padding:2em 1.3em 280px !important}
+a{color:${link} !important} p{margin:0 0 1em !important}
+h1,h2,h3{line-height:1.25 !important} blockquote{margin-left:0 !important;padding-left:1em !important;border-left:3px solid rgba(128,128,128,.35) !important}
+.meta,#preface .message,#afterword .message{font-size:.85em !important;opacity:.85} hr{border:0;border-top:1px solid rgba(128,128,128,.35)}`;
+}
+function renderPreview(){
+  const inject = `<base target="_blank"><style id="koa-reader">${readerCss()}</style>`;
+  const html = /<head[^>]*>/i.test(decText) ? decText.replace(/<head[^>]*>/i, m => m + inject) : inject + decText;
+  $("preview").srcdoc = html;
+}
+function applyReader(){
+  store.set("ao3enc.reader", reader);
+  try {
+    const el = $("preview").contentDocument && $("preview").contentDocument.getElementById("koa-reader");
+    if (el){ el.textContent = readerCss(); return; }
+  } catch(e){}
+  if (decText) renderPreview(); // fallback: rebuild
+}
+$("fontUp").addEventListener("click", () => { reader.size = Math.min(30, reader.size + 1); applyReader(); });
+$("fontDown").addEventListener("click", () => { reader.size = Math.max(13, reader.size - 1); applyReader(); });
+$("paper").addEventListener("change", e => { reader.paper = e.target.value; applyReader(); });
+function setReading(on){
+  $("reader").classList.toggle("reading", on); document.body.classList.toggle("reading-open", on);
+  if (on) $("exitRead").focus();
+}
+$("readBtn").addEventListener("click", () => { $("reader").hidden = false; $("previewBtn").textContent = "Hide preview"; setReading(true); });
+$("readBtn2").addEventListener("click", () => setReading(true));
+$("exitRead").addEventListener("click", () => setReading(false));
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("reader").classList.contains("reading")) setReading(false); });
+
+// ---------- themes ----------
+const THEMES = ["gerald","quadrangle","lettuce","barometer","amoled"];
+function setTheme(t, save){
+  if (!THEMES.includes(t)) t = "gerald";
+  document.documentElement.setAttribute("data-theme", t);
+  document.querySelectorAll("[data-theme-btn]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.themeBtn === t)));
+  if (save) try { localStorage.setItem("ao3enc.theme", t); } catch(e){}
+}
+document.querySelectorAll("[data-theme-btn]").forEach(b => b.addEventListener("click", () => setTheme(b.dataset.themeBtn, true)));
+setTheme(document.documentElement.getAttribute("data-theme"), false);
+(function makeBubbles(){
+  const host = $("bubbles"), n = window.innerWidth < 600 ? 9 : 16;
+  for (let i = 0; i < n; i++){
+    const b = document.createElement("span"); b.className = "bubble";
+    const s = 18 + Math.random() * 70;
+    b.style.cssText = `--x:${(Math.random()*100).toFixed(1)}%;--s:${s.toFixed(0)}px;--d:${(16+Math.random()*22).toFixed(1)}s;--delay:-${(Math.random()*30).toFixed(1)}s;--sway:${(Math.random()*80-40).toFixed(0)}px`;
+    host.appendChild(b);
+  }
+})();
+
+// ---------- YouTube ----------
+const VID_RE = /^[A-Za-z0-9_-]{11}$/, LIST_RE = /^[A-Za-z0-9_-]{10,64}$/;
+function parseYouTube(input){
+  let s = String(input || "").trim();
+  if (!s) return null;
+  if (VID_RE.test(s)) return { videoId: s, listId: null };
+  if (LIST_RE.test(s) && /^(PL|OL|UU|FL|RD|LL|OLAK5uy_)/.test(s)) return { videoId: null, listId: s };
+  if (!/^[a-z]+:\/\//i.test(s)) s = "https://" + s;
+  let u; try { u = new URL(s); } catch(e){ return null; }
+  const host = u.hostname.toLowerCase().replace(/^(www|m|music)\./, "");
+  let videoId = null, listId = u.searchParams.get("list");
+  if (host === "youtu.be") videoId = u.pathname.split("/")[1] || null;
+  else if (host === "youtube.com" || host === "youtube-nocookie.com"){
+    const parts = u.pathname.split("/").filter(Boolean);
+    if (parts[0] === "watch") videoId = u.searchParams.get("v");
+    else if (["embed","shorts","live","v","e"].includes(parts[0]) && parts[1] && parts[1] !== "videoseries") videoId = parts[1];
+    else if (parts[0] === "playlist" || parts[1] === "videoseries"){ /* list only */ }
+    else if (!listId) return null;
+  } else return null;
+  if (videoId && !VID_RE.test(videoId)) videoId = null;
+  if (listId && !LIST_RE.test(listId)) listId = null;
+  if (!videoId && !listId) return null;
+  return { videoId, listId };
+}
+function embedUrl(p){
+  const q = new URLSearchParams({ rel: "0", modestbranding: "1", playsinline: "1" });
+  if (p.listId) q.set("list", p.listId);
+  return "https://www.youtube-nocookie.com/embed/" + (p.videoId ? p.videoId : "videoseries") + "?" + q.toString();
+}
+function watchUrl(p){
+  if (p.videoId) return "https://www.youtube.com/watch?v=" + p.videoId + (p.listId ? "&list=" + p.listId : "");
+  return "https://www.youtube.com/playlist?list=" + p.listId;
+}
+const isFile = location.protocol === "file:";
+let playlists = store.get("ao3enc.playlists", []);
+if (!Array.isArray(playlists)) playlists = [];
+let current = store.get("ao3enc.currentPlaylist", playlists[0] ? playlists[0].id : null);
+
+function renderPlaylists(){
+  const sel = $("plSelect");
+  sel.textContent = "";
+  if (!playlists.length){ const o = new Option("No saved playlists yet", ""); o.disabled = true; sel.add(o); sel.value = ""; }
+  for (const p of playlists) sel.add(new Option(p.name, p.id));
+  if (!playlists.some(p => p.id === current)) current = playlists[0] ? playlists[0].id : null;
+  if (current) sel.value = current;
+  sel.disabled = !playlists.length; $("plRemove").disabled = !playlists.length;
+  if (!playlists.length) $("plAdd").open = true;
+  loadCurrent();
+}
+function loadCurrent(){
+  const p = playlists.find(x => x.id === current), f = $("ytFrame");
+  store.set("ao3enc.currentPlaylist", current);
+  if (!p){
+    f.hidden = true; f.removeAttribute("src"); $("ytEmpty").hidden = false; $("ytOpen").hidden = true; $("fileNote").hidden = true;
+    $("plNow").textContent = "Music while you read"; return;
+  }
+  const src = embedUrl(p);
+  if (f.getAttribute("src") !== src) f.src = src;
+  f.hidden = false; $("ytEmpty").hidden = true;
+  $("ytOpen").href = watchUrl(p); $("ytOpen").hidden = false;
+  $("fileNote").hidden = !isFile;
+  $("plNow").textContent = p.name;
+}
+$("plSelect").addEventListener("change", e => { current = e.target.value; loadCurrent(); });
+$("plRemove").addEventListener("click", () => {
+  playlists = playlists.filter(p => p.id !== current); store.set("ao3enc.playlists", playlists); current = null; renderPlaylists();
+});
+function savePlaylist(){
+  const msg = $("plMsg"), p = parseYouTube($("plUrl").value);
+  if (!p){ msg.textContent = "That doesn't look like a YouTube playlist or video link."; msg.className = "pmsg err"; return; }
+  const name = $("plName").value.trim() || (p.listId ? "Playlist " : "Video ") + (playlists.length + 1);
+  const item = { id: "p" + Date.now().toString(36) + Math.random().toString(36).slice(2,6), name, videoId: p.videoId, listId: p.listId };
+  playlists.push(item); store.set("ao3enc.playlists", playlists); current = item.id;
+  $("plUrl").value = ""; $("plName").value = ""; $("plAdd").open = false;
+  msg.textContent = "Saved."; msg.className = "pmsg ok"; setTimeout(() => { msg.textContent = ""; }, 2000);
+  renderPlaylists();
+}
+$("plSave").addEventListener("click", savePlaylist);
+[$("plUrl"), $("plName")].forEach(i => i.addEventListener("keydown", e => { if (e.key === "Enter") savePlaylist(); }));
+function setMin(min){
+  $("player").classList.toggle("min", min); $("plMin").textContent = min ? "+" : "–";
+  $("plMin").setAttribute("aria-expanded", String(!min)); $("plMin").setAttribute("aria-label", min ? "Expand player" : "Minimize player");
+  store.set("ao3enc.playerMin", min);
+}
+$("playerHead").addEventListener("click", () => setMin(!$("player").classList.contains("min")));
+setMin(!!store.get("ao3enc.playerMin", window.innerWidth < 600)); // small screens start minimized
+renderPlaylists();
+// keep the player clear of badges some free hosts pin to the bottom-right corner
+function dodgeHostBadges(){
+  let lift = 0;
+  for (const el of document.body.children){
+    if (el.id === "player" || el.classList.contains("wrap") || el.classList.contains("scene") || el.tagName === "SCRIPT") continue;
+    if (getComputedStyle(el).position !== "fixed") continue;
+    const r = el.getBoundingClientRect();
+    if (r.height > 0 && r.height < 140 && r.bottom > innerHeight - 160 && r.right > innerWidth - 420) lift = Math.max(lift, innerHeight - r.top + 8);
+  }
+  $("player").style.bottom = lift ? lift + "px" : "";
+}
+new MutationObserver(dodgeHostBadges).observe(document.body, { childList: true });
+addEventListener("resize", dodgeHostBadges); setInterval(dodgeHostBadges, 1500); setTimeout(dodgeHostBadges, 300);
+
+// test hooks
+window.AO3Cipher = { ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta };
+window.KoaYT = { parseYouTube, embedUrl, watchUrl };
+</script>
+</body>
+</html>
