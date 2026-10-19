@@ -203,6 +203,16 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 textarea{width:100%;min-height:260px;font:13px/1.45 var(--mono);padding:12px;border-radius:12px;border:1px solid var(--field-border);background:var(--field-bg);
   color:var(--field-ink);box-shadow:var(--field-shadow);resize:vertical;word-break:break-all}
 .out{margin-top:20px}
+.storyhead{display:block;margin:0 0 10px}
+.cstory{max-height:min(72vh,680px);overflow:auto;padding:22px clamp(14px,4vw,36px);border-radius:12px;border:1px solid var(--field-border);background:var(--field-bg);
+  color:var(--field-ink);box-shadow:var(--field-shadow);font:14px/1.75 var(--mono);overflow-wrap:anywhere;word-break:break-word}
+.cstory p{margin:0 0 1.05em;white-space:pre-wrap}
+.cstory .cs-title{font-size:1.25em;font-weight:700;line-height:1.35;margin:0 0 .2em;color:var(--accent);white-space:pre-wrap}
+.cstory .cs-by{opacity:.75;margin:0 0 1.4em;white-space:pre-wrap}
+.cstory .cs-ch{font-weight:700;font-size:1.08em;color:var(--accent);margin:2.2em 0 1em;padding-top:1.1em;border-top:1px dashed var(--field-border);white-space:pre-wrap}
+.cstory .cs-ch:first-child,.cstory .cs-by+.cs-ch,.cstory .cs-title+.cs-ch{margin-top:.6em}
+.cstory .cs-hr{text-align:center;letter-spacing:.5em;opacity:.6;margin:1.4em 0}
+.cstory .cs-more{text-align:center;opacity:.75;font-family:var(--font);font-style:italic}
 .outhead{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px}
 .outhead strong{font-family:var(--head-font);font-size:1.05rem}
 .count{color:var(--muted);font-size:.9rem;font-variant-numeric:tabular-nums}
@@ -391,7 +401,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
 <div class="wrap">
 <header>
   <h1>AO3 Fic <span>Encryptor</span></h1>
-  <p>Scramble an AO3 HTML download with a cipher you design. The result uses only characters you can type on a standard keyboard, and anyone you give the cipher key to can turn it back. Everything happens in your browser: nothing is uploaded anywhere.</p>
+  <p>Scramble the story in an AO3 HTML download with a cipher you design. Only the story text is encrypted (chapter titles and chapters, not the tags, summary or notes), and it appears right here on the page using only characters you can type on a standard keyboard. Anyone you give the cipher key to can turn it back. Everything happens in your browser: nothing is uploaded anywhere.</p>
   <div class="themes" role="radiogroup" aria-label="Theme" id="themes">
     <button role="radio" data-theme-btn="gerald"><span class="sw gerald"></span>Gerald</button>
     <button role="radio" data-theme-btn="quadrangle"><span class="sw quadrangle"></span>Quadrangle</button>
@@ -413,7 +423,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
     <div class="drop" id="encDrop" tabindex="0" role="button" aria-label="Choose AO3 HTML file">
       <span class="icon" aria-hidden="true">&#128214;</span>
       <strong>Drop your AO3 .html file here</strong>
-      <span>or click to choose one (AO3: Download &rarr; HTML)</span>
+      <span>or click to choose one (AO3: Download &rarr; HTML). Only the story itself gets encrypted.</span>
       <input type="file" id="encFile" accept=".html,.htm,text/html" hidden>
     </div>
     <div class="fileinfo" id="encInfo"><div class="t" id="encTitle"></div><div class="m" id="encMeta"></div></div>
@@ -431,13 +441,16 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
     <div class="status" id="encStatus" aria-live="polite"></div>
 
     <div class="out" id="encOut" hidden>
-      <div class="outhead"><strong>Encrypted text</strong><span class="count" id="encCount"></span></div>
-      <textarea id="encText" readonly spellcheck="false" aria-label="Encrypted text" wrap="off"></textarea>
+      <div class="outhead"><strong>Encrypted story</strong><span class="count" id="encCount"></span></div>
+      <div class="fileinfo show storyhead" id="encHead"><div class="t" id="encHeadTitle"></div><div class="m" id="encHeadMeta"></div></div>
+      <div class="cstory" id="encStory" tabindex="0" role="region" aria-label="Encrypted story"></div>
+      <textarea id="encText" readonly spellcheck="false" aria-label="Encrypted text (raw)" wrap="off" hidden></textarea>
       <div class="actions">
         <button class="btn" id="copyBtn">Copy</button>
         <button class="btn" id="dlTxtBtn">Download .txt</button>
+        <button class="btn" id="rawBtn" aria-pressed="false">Show raw text</button>
       </div>
-      <p class="hint">Whoever decrypts this needs the same cipher. Share its cipher key from the Cipher tab, separately from the text.</p>
+      <p class="hint">Copy and Download give the exact text needed for decrypting (its first line is the format/ID line). The title, author and counts in the box above are only shown here and are not copied. Whoever decrypts needs the same cipher: share its cipher key from the Cipher tab, separately from the text.</p>
     </div>
   </section>
 
@@ -474,6 +487,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
     <div class="out" id="decOut" hidden>
       <div class="outhead"><strong id="decTitle">Decrypted work</strong><span class="count" id="decCount"></span></div>
       <div class="actions">
+        <button class="btn" id="dlStoryTxtBtn">Download .txt</button>
         <button class="btn" id="dlHtmlBtn">Download .html</button>
         <button class="btn" id="previewBtn">Hide preview</button>
         <button class="btn primary" id="readBtn">&#128214; Reading mode</button>
@@ -558,7 +572,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
     <div class="status" id="cipImportMsg" aria-live="polite"></div>
   </section>
 </main>
-<footer>Substitution cipher &middot; keyboard-only output &middot; works offline &middot; Keeps text away from casual eyes; it is not strong encryption.</footer>
+<footer>Story text only &middot; substitution cipher &middot; keyboard-only output &middot; works offline &middot; Keeps text away from casual eyes; it is not strong encryption.</footer>
 </div>
 
 <!-- MUSIC PLAYER -->
@@ -943,7 +957,7 @@ function decodeText(text, key, opts){
 // ---------- AO3 metadata ----------
 function ao3Meta(html){
   try{
-    const doc = new DOMParser().parseFromString(html, "text/html");
+    const doc = typeof html === "string" ? new DOMParser().parseFromString(html, "text/html") : html;
     const q = s => { const el = doc.querySelector(s); return el ? el.textContent.trim().replace(/\s+/g," ") : ""; };
     let title = q("#preface h1, .meta h1, h1");
     let authors = [...doc.querySelectorAll('a[rel="author"]')].map(a => a.textContent.trim()).filter(Boolean);
@@ -954,6 +968,129 @@ function ao3Meta(html){
     return {title, author};
   }catch(e){ return {title:"", author:""}; }
 }
+
+// ---------- story extraction (AO3 download format) ----------
+// AO3's download template: #preface (tags, stats, summary, notes) · #chapters · #afterword (end notes, comment prompt).
+// Inside #chapters, each chapter is a div.meta (h2.heading + chapter summary/notes) followed by the div.userstuff
+// with the text and maybe div.meta#endnotesN. One-chapter works: h2.toc-heading + one div.userstuff.
+const BLOCK_TAGS = new Set("P DIV BLOCKQUOTE H1 H2 H3 H4 H5 H6 LI UL OL DL DT DD TABLE THEAD TBODY TFOOT TR TD TH CENTER SECTION ARTICLE ASIDE HEADER FOOTER NAV FIGURE FIGCAPTION PRE ADDRESS DETAILS SUMMARY MAIN FORM FIELDSET".split(" "));
+const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEMPLATE", "IFRAME", "OBJECT", "BUTTON", "INPUT", "SELECT", "TEXTAREA"]);
+const oneLine = s => (s || "").replace(/\s+/g, " ").trim();
+function storyBlocks(root){
+  const out = []; let buf = "";
+  const flush = () => {
+    if (!buf) return;
+    let group = [];
+    const push = () => { if (group.length) out.push({ type: "p", text: group.join("\n") }); group = []; };
+    for (const line of buf.split("\n")){ const l = oneLine(line); if (l) group.push(l); else push(); }
+    push(); buf = "";
+  };
+  const walk = (node, pre) => {
+    for (const ch of node.childNodes){
+      if (ch.nodeType === 3){ buf += pre ? ch.data : ch.data.replace(/[\s\n]+/g, " "); continue; }
+      if (ch.nodeType !== 1) continue;
+      const tag = ch.tagName.toUpperCase();
+      if (SKIP_TAGS.has(tag) || (ch.classList && ch.classList.contains("landmark"))) continue;
+      if (tag === "BR"){ buf += "\n"; continue; }
+      if (tag === "HR"){ flush(); out.push({ type: "hr" }); continue; }
+      if (tag === "IMG"){ const a = oneLine(ch.getAttribute("alt")); buf += a ? `[image: ${a}]` : "[image]"; continue; }
+      if (BLOCK_TAGS.has(tag)){ flush(); if (tag === "LI") buf += "• "; walk(ch, pre || tag === "PRE"); flush(); continue; }
+      walk(ch, pre);
+    }
+  };
+  walk(root, false); flush();
+  return out;
+}
+function extractStory(html){
+  const doc = typeof html === "string" ? new DOMParser().parseFromString(html, "text/html") : html;
+  const meta = ao3Meta(doc);
+  let chapters = [];
+  const root = doc.getElementById("chapters");
+  if (root){
+    let cur = null;
+    for (const el of root.children){
+      if (el.matches("div.chapter")){ // AO3's normal web page (Save Page As), not the download
+        const h = el.querySelector(".chapter.preface .title, h3.title"), us = [...el.querySelectorAll(".userstuff")].find(u => !u.closest(".preface, .notes, .summary, .end, blockquote"));
+        chapters.push(cur = { heading: h ? oneLine(h.textContent) : null, blocks: us ? storyBlocks(us) : [] }); cur = null; continue;
+      }
+      if (el.matches(".meta, .chapter-head")){
+        if (/^endnotes/.test(el.id || "")) continue;            // chapter end notes
+        const h = el.querySelector("h2.heading, .heading");
+        if (h){ chapters.push(cur = { heading: oneLine(h.textContent), blocks: [] }); }
+        continue;                                                // chapter summary / notes live in here
+      }
+      if (el.matches(".toc-heading")) continue;
+      if (el.matches(".userstuff")){
+        if (!cur || cur.blocks.length) chapters.push(cur = { heading: null, blocks: [] });
+        cur.blocks.push(...storyBlocks(el)); continue;
+      }
+    }
+    if (!chapters.some(c => c.blocks.length)){ // text sitting directly inside #chapters
+      const b = storyBlocks(root); if (b.length) chapters = [{ heading: null, blocks: b }];
+    }
+  }
+  if (!chapters.some(c => c.blocks.length)){ // fallback: any story-looking userstuff outside the preface/notes
+    chapters = [...doc.querySelectorAll(".userstuff")]
+      .filter(e => !e.closest("#preface, #afterword, .meta, blockquote, .summary, .notes, .preface, .end, .afterword") && !(e.parentElement && e.parentElement.closest(".userstuff")))
+      .map(e => ({ heading: null, blocks: storyBlocks(e) }));
+  }
+  chapters = chapters.filter(c => c.blocks.length || c.heading);
+  if (!chapters.some(c => c.blocks.length)) return null;
+  let words = 0;
+  for (const c of chapters) for (const b of c.blocks) if (b.type === "p") words += (b.text.match(/\S+/g) || []).length;
+  return { title: meta.title, author: meta.author, chapters, words };
+}
+// Story text format (what gets encrypted): blocks separated by one blank line.
+//   "# Title", "by Author", "## Chapter heading", "* * *" = scene break, anything else = a paragraph
+//   (line breaks inside it are <br>s). A paragraph that could be mistaken for one of those starts with "\".
+const SCENE = "* * *";
+function storyText(s){
+  const out = [];
+  if (s.title) out.push("# " + oneLine(s.title));
+  if (s.author) out.push("by " + oneLine(s.author));
+  for (const c of s.chapters){
+    if (c.heading) out.push("## " + c.heading);
+    for (const b of c.blocks){
+      if (b.type === "hr"){ if (out[out.length - 1] !== SCENE) out.push(SCENE); continue; }
+      out.push(/^(#|\\|by )/.test(b.text) || b.text === SCENE ? "\\" + b.text : b.text);
+    }
+  }
+  return out.join("\n\n") + "\n";
+}
+const splitBlocks = t => t.replace(/\r\n?/g, "\n").replace(/^\n+|\n+$/g, "").split(/\n{2,}/).filter(b => b !== "");
+function parseStoryText(text){
+  const raw = splitBlocks(text), blocks = [];
+  raw.forEach((b, i) => {
+    if (i === 0 && b.startsWith("# ")) blocks.push({ type: "title", text: b.slice(2) });
+    else if (b.startsWith("by ") && (i === 0 || (i === 1 && blocks[0].type === "title"))) blocks.push({ type: "by", text: b.slice(3) });
+    else if (b.startsWith("## ")) blocks.push({ type: "ch", text: b.slice(3) });
+    else if (b === SCENE) blocks.push({ type: "hr" });
+    else blocks.push({ type: "p", text: b.startsWith("\\") ? b.slice(1) : b });
+  });
+  return blocks;
+}
+const escHtml = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+function storyToHtml(text){
+  const blocks = parseStoryText(text);
+  const t = blocks.find(b => b.type === "title"), by = blocks.find(b => b.type === "by");
+  // laid out like an AO3 download (#chapters, heading block + .userstuff), so this file can be encrypted again
+  let body = "", open = false;
+  const close = () => { if (open){ body += "</div>\n"; open = false; } };
+  for (const b of blocks){
+    const h = escHtml(b.text || "").replace(/\n/g, "<br>\n");
+    if (b.type === "title") body += `<h1>${h}</h1>\n`;
+    else if (b.type === "by") body += `<p class="byline">by ${h}</p>\n<div id="chapters">\n`;
+    else if (b.type === "ch"){ close(); body += `<div class="chapter-head"><h2 class="heading chapter">${h}</h2></div>\n`; }
+    else { if (!open){ body += `<div class="userstuff">\n`; open = true; } body += b.type === "hr" ? `<hr class="scene">\n` : `<p>${h}</p>\n`; }
+  }
+  close();
+  if (body.includes('<div id="chapters">')) body += "</div>\n"; else body = body.replace(/(<\/h1>\n)?/, m => m + '<div id="chapters">\n') + "</div>\n";
+  return `<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n<title>${escHtml(t ? t.text : "Story")}${by ? " - " + escHtml(by.text) : ""}</title>
+<style>body{max-width:38em;margin:0 auto;padding:2em 1.3em;font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif;line-height:1.7}
+h1{line-height:1.2;margin-bottom:.2em}.byline{margin-top:0;opacity:.75}h2.chapter{margin-top:2.6em;padding-top:1em;border-top:1px solid rgba(128,128,128,.35)}
+hr.scene{border:0 !important;height:auto;text-align:center;margin:1.6em 0;overflow:visible}hr.scene::after{content:"\\2042";opacity:.7}</style>\n</head>\n<body>\n${body}\n</body>\n</html>\n`;
+}
+const looksLikeHtmlFile = t => /^\s*(<!doctype|<html|<\?xml|<head)/i.test(t.slice(0, 2000)) || /<\/html>\s*$/i.test(t.slice(-200));
 
 // ---------- helpers ----------
 const $ = id => document.getElementById(id);
@@ -1170,7 +1307,7 @@ cdrop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ")
 cdrop.addEventListener("drop", e => importCipherFiles([...e.dataTransfer.files]));
 
 // ---------- encrypt UI ----------
-let encBytes = null, encName = "work";
+let encBytes = null, encName = "work", encStory = null, encStoryText = "", encStats = "";
 function updateEncBtn(){ $("encBtn").disabled = !encBytes; }
 function updateEncHint(){
   const c = cur(); if (!c) return;
@@ -1183,13 +1320,25 @@ function updateEncHint(){
 }
 async function loadEncFile(file){
   if (!file) return;
-  encBytes = new Uint8Array(await file.arrayBuffer());
-  const m = ao3Meta(dec.decode(encBytes));
-  encName = safeName(m.title || file.name.replace(/\.html?$/i, ""));
-  $("encTitle").textContent = m.title || file.name;
-  $("encMeta").textContent = (m.author ? "by " + m.author + " · " : "") + file.name + " · " + fmtBytes(encBytes.length);
+  const raw = new Uint8Array(await file.arrayBuffer());
+  encBytes = null; encStoryText = "";
+  $("encOut").hidden = true; setStatus($("encStatus"), "Reading the story…", "busy"); await nextFrame();
+  let story = null;
+  try { story = extractStory(dec.decode(raw)); } catch(e){ story = null; }
+  const title = story && story.title, author = story && story.author;
+  encName = safeName(title || file.name.replace(/\.html?$/i, ""));
+  $("encTitle").textContent = title || file.name;
   $("encInfo").classList.add("show");
-  $("encOut").hidden = true; setStatus($("encStatus"), "");
+  if (!story){
+    $("encMeta").textContent = file.name + " · " + fmtBytes(raw.length);
+    setStatus($("encStatus"), "Couldn't find a story in this file. Use the HTML file from AO3's Download button on the work page (Download → HTML); the story text is expected inside its chapters section.", "err");
+    updateEncBtn(); return;
+  }
+  encStory = story; encStoryText = storyText(story); encBytes = enc.encode(encStoryText);
+  const n = story.chapters.length;
+  encStats = n.toLocaleString() + (n === 1 ? " chapter" : " chapters") + " · " + story.words.toLocaleString() + " words";
+  $("encMeta").textContent = (author ? "by " + author + " · " : "") + encStats + " · " + file.name + " · " + fmtBytes(raw.length);
+  setStatus($("encStatus"), "Found the story: " + encStats + ". Tags, summary, notes and AO3's extra text are left out.", "ok");
   updateEncBtn();
 }
 const drop = $("encDrop");
@@ -1207,16 +1356,41 @@ $("encBtn").addEventListener("click", async () => {
     const out = encodeBytes(encBytes, c.key);
     $("encText").value = out;
     $("encCount").textContent = out.length.toLocaleString() + " characters";
+    $("encHeadTitle").textContent = encStory.title || "Untitled work";
+    $("encHeadMeta").textContent = (encStory.author ? "by " + encStory.author + " · " : "") + encStats;
+    renderCipherStory(out);
     $("encOut").hidden = false;
     setStatus(st, `Done in ${((performance.now() - t0)/1000).toFixed(1)}s with “${c.name}” (ID ${fingerprint(c.key)}).`, "ok");
   }catch(e){ setStatus(st, "Encryption failed: " + e.message, "err"); }
   updateEncBtn();
 });
 $("copyBtn").addEventListener("click", () => copyText($("encText").value, $("copyBtn")));
+// The cipher keeps every line break, so line N of the encrypted body is line N of the story text:
+// use the plain structure to lay the encrypted lines out as title / chapters / paragraphs.
+function renderCipherStory(out){
+  const box = $("encStory"); box.textContent = "";
+  const body = out.slice(out.indexOf("\n") + 1), plain = parseStoryText(encStoryText), ct = splitBlocks(body);
+  const frag = document.createDocumentFragment(), mk = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; e.textContent = txt; frag.appendChild(e); };
+  if (ct.length !== plain.length){ ct.forEach(b => mk("p", "", b)); }
+  else plain.forEach((b, i) => {
+    const c = ct[i];
+    if (b.type === "title") mk("div", "cs-title", c);
+    else if (b.type === "by") mk("div", "cs-by", c);
+    else if (b.type === "ch") mk("div", "cs-ch", c);
+    else if (b.type === "hr") mk("div", "cs-hr", "⁂");
+    else mk("p", "", c);
+  });
+  box.appendChild(frag); box.scrollTop = 0;
+}
+$("rawBtn").addEventListener("click", () => {
+  const raw = $("encText").hidden;
+  $("encText").hidden = !raw; $("encStory").hidden = raw;
+  $("rawBtn").setAttribute("aria-pressed", String(raw)); $("rawBtn").textContent = raw ? "Show story layout" : "Show raw text";
+});
 $("dlTxtBtn").addEventListener("click", () => download($("encText").value, encName + ".cipher.txt", "text/plain"));
 
 // ---------- decrypt UI ----------
-let decHtml = null, decText = "", decName = "work";
+let decHtml = null, decText = "", decName = "work", decStory = "", decLegacy = false;
 let pastedKey = null;
 function updateDecKey(){
   const v = $("decKey").value.trim(), hint = $("decKeyHint");
@@ -1249,18 +1423,29 @@ async function runDecrypt(force){
   $("decBtn").disabled = true; $("decOut").hidden = true; setStatus(st, "Decrypting…", "busy"); await nextFrame();
   try{
     const bytes = decodeText($("decText").value, key, { force });
-    decHtml = bytes;
-    decText = dec.decode(bytes);
-    const m = ao3Meta(decText);
+    const plain = dec.decode(bytes);
+    decLegacy = looksLikeHtmlFile(plain);
+    let m;
+    if (decLegacy){ // made by an older version that encrypted the whole AO3 file
+      decHtml = bytes; decText = plain; decStory = ""; m = ao3Meta(decText);
+      $("decCount").textContent = "whole AO3 file · " + fmtBytes(bytes.length);
+    } else {
+      decStory = plain; decText = storyToHtml(plain); decHtml = enc.encode(decText);
+      const blocks = parseStoryText(plain), t = blocks.find(b => b.type === "title"), by = blocks.find(b => b.type === "by");
+      m = { title: t ? t.text : "", author: by ? by.text : "" };
+      const nch = blocks.filter(b => b.type === "ch").length || 1, words = blocks.reduce((n, b) => n + (b.type === "p" ? (b.text.match(/\S+/g) || []).length : 0), 0);
+      $("decCount").textContent = nch.toLocaleString() + (nch === 1 ? " chapter" : " chapters") + " · " + words.toLocaleString() + " words";
+    }
+    $("dlStoryTxtBtn").hidden = decLegacy;
+    $("dlHtmlBtn").textContent = decLegacy ? "Download original .html" : "Download .html";
     decName = safeName(m.title);
-    const label = (m.title || "Decrypted work") + (m.author ? " — by " + m.author : "");
+    const label = (m.title || "Decrypted story") + (m.author ? " — by " + m.author : "");
     $("decTitle").textContent = label; $("readerTitle").textContent = label;
-    $("decCount").textContent = fmtBytes(bytes.length);
     $("decOut").hidden = false; $("reader").hidden = false; $("previewBtn").textContent = "Hide preview";
     renderPreview();
     const sh = analyzeKey(key).injective ? [] : sharedOutputs(key);
     setStatus(st, sh.length ? "Decrypted. This cipher has shared outputs, so characters in those groups came back as the first of each (" +
-      sh.slice(0, 3).map(([, os]) => `${os.slice(1).map(showCh).join(", ")} → ${showCh(os[0])}`).join("; ") + (sh.length > 3 ? "; …" : "") + ")." : "Decrypted successfully.", "ok");
+      sh.slice(0, 3).map(([, os]) => `${os.slice(1).map(showCh).join(", ")} → ${showCh(os[0])}`).join("; ") + (sh.length > 3 ? "; …" : "") + ")." : (decLegacy ? "Decrypted. This text was made by an older version that encrypted the whole AO3 file; it's shown as-is and the download is the original file." : "Decrypted successfully."), "ok");
   }catch(e){
     if (e.message === "FINGERPRINT"){
       setStatus(st, "", "");
@@ -1280,6 +1465,7 @@ $("decUseMatch").addEventListener("click", () => { $("decKey").value = ""; selec
 
 loadDraft(); renderSelects();
 $("dlHtmlBtn").addEventListener("click", () => decHtml && download(decHtml, decName + ".html", "text/html"));
+$("dlStoryTxtBtn").addEventListener("click", () => decStory && download(decStory, decName + ".txt", "text/plain"));
 $("previewBtn").addEventListener("click", () => { const r = $("reader"); r.hidden = !r.hidden; $("previewBtn").textContent = r.hidden ? "Show preview" : "Hide preview"; if (r.hidden) setReading(false); });
 
 // ---------- reader (preview only; the downloaded file is always the exact original) ----------
@@ -1444,7 +1630,7 @@ new MutationObserver(dodgeHostBadges).observe(document.body, { childList: true }
 addEventListener("resize", dodgeHostBadges); setInterval(dodgeHostBadges, 1500); setTimeout(dodgeHostBadges, 300);
 
 // test hooks
-window.AO3Cipher = { ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta };
+window.AO3Cipher = { ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta, extractStory, storyText, parseStoryText, storyToHtml, looksLikeHtmlFile };
 window.KoaYT = { parseYouTube, embedUrl, watchUrl };
 </script>
 </body>
