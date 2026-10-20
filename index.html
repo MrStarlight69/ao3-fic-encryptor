@@ -312,6 +312,14 @@ footer{position:relative;z-index:1;text-align:center;color:var(--sub-ink);font-s
 .reader.reading .exit{display:inline-block}
 .reader.reading .enter{display:none}
 body.reading-open{overflow:hidden}
+.rmorebtn{display:none}
+@media (max-width:600px){
+  .reader.reading .rmorebtn{display:inline-flex}
+  .reader.reading .rbar:not(.more) .rmore{display:none}
+  .reader.reading .rbar .rt{flex-basis:auto;flex:1 1 40%}
+}
+.rdresume{margin:0;padding:4px 12px;font-size:.8rem;opacity:.85}.rdresume:empty{display:none}
+.rdkind{flex:0 0 auto;font-size:.72rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px;border:1.5px solid currentColor;background:transparent;color:inherit}
 /* backdrop-filter on an ancestor would trap position:fixed inside the panel */
 body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
 .reader[hidden]{display:none}
@@ -941,6 +949,7 @@ details.allch>summary{cursor:pointer;font-weight:700;color:var(--accent);padding
         <button class="btn" id="copyBtn">Copy</button>
         <button class="btn" id="dlTxtBtn">Download .txt</button>
         <button class="btn" id="rawBtn" aria-pressed="false">Show raw text</button>
+        <button class="btn primary" id="encReadBtn" title="Read the encrypted story full-screen (same reader as the Decrypt tab)">&#128214; Read</button>
       </div>
       <p class="hint">Copy and Download give the exact text needed to decrypt (the title box above isn't included). Share the cipher key from the Cipher tab separately.</p>
     </div>
@@ -990,18 +999,20 @@ details.allch>summary{cursor:pointer;font-weight:700;color:var(--accent);padding
       </div>
       <div class="reader" id="reader">
         <div class="rbar">
-          <span class="rt" id="readerTitle">Preview</span>
+          <span class="rt" id="readerTitle">Preview</span><span class="rdkind" id="rdKind" hidden>encrypted</span>
           <div class="seg">
             <button class="btn small" id="fontDown" aria-label="Smaller text">A&minus;</button>
             <button class="btn small" id="fontUp" aria-label="Larger text">A+</button>
           </div>
-          <select id="paper" aria-label="Page colour" style="flex:0 0 auto;min-width:0;padding:6px 8px;font-size:.84rem">
+          <button class="btn small rmorebtn" id="rdMore" type="button" aria-expanded="false" aria-controls="paper spacing readTags" title="Page colour, spacing, tag colours">Aa &#9662;</button>
+          <select class="rmore" id="paper" aria-label="Page colour" style="flex:0 0 auto;min-width:0;padding:6px 8px;font-size:.84rem">
             <option value="light">Light page</option><option value="sepia">Sepia page</option><option value="dark">Dark page</option><option value="original">Original style</option>
           </select>
-          <select id="spacing" aria-label="Spacing" style="flex:0 0 auto;min-width:0;padding:6px 8px;font-size:.84rem">
+          <select class="rmore" id="spacing" aria-label="Spacing" style="flex:0 0 auto;min-width:0;padding:6px 8px;font-size:.84rem">
             <option value="normal">Normal spacing</option><option value="wide">Wide spacing</option><option value="wider">Wider spacing</option>
           </select>
-          <label class="check" style="font-size:.84rem"><input type="checkbox" id="readTags"> Tag colours</label>
+          <label class="check rmore" style="font-size:.84rem"><input type="checkbox" id="readTags"> Tag colours</label>
+          <select id="rdToc" aria-label="Jump to chapter" style="flex:0 1 auto;min-width:0;max-width:14em;padding:6px 8px;font-size:.84rem" hidden></select>
           <div class="bmwrap">
             <div class="seg">
               <button class="btn small" id="bmAdd" title="Bookmark the paragraph at the top of the page (or double-click / double-tap any paragraph)">&#128278; Bookmark</button>
@@ -1010,10 +1021,12 @@ details.allch>summary{cursor:pointer;font-weight:700;color:var(--accent);padding
             </div>
             <div class="bmlist" id="bmList" hidden></div>
           </div>
+          <a class="btn small" id="rdPrev" target="_blank" rel="noopener noreferrer" hidden>&larr; Prev</a>
           <a class="btn small" id="rdNext" target="_blank" rel="noopener noreferrer" hidden>Next chapter &rarr;</a>
           <button class="btn small enter" id="readBtn2">Expand</button>
           <button class="btn small primary exit" id="exitRead">Exit reading (Esc)</button>
         </div>
+        <p class="rdresume" id="rdResume" aria-live="polite"></p>
         <iframe id="preview" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" title="Sandboxed preview of the decrypted work"></iframe>
         <div class="picklayer" id="pickLayer" hidden><span class="pickmsg" id="pickMsg">Tap the paragraph to bookmark &middot; tap Pick again to cancel</span></div>
       </div>
@@ -3160,9 +3173,7 @@ function showDecChapters(nChapters){
   const box = $("decChapters"); box.textContent = ""; box.classList.remove("collapsed");
   const m = decIndex ? nextModel(decIndex, nChapters || 0, decIndex.stats) : null;
   renderNextBar($("decNext"), m && m.kind !== "none" ? m : null, decIndex);
-  const rn = $("rdNext"); rn.hidden = !(m && (m.kind === "next" || m.kind === "dlnext"));
-  if (m && m.kind === "next"){ rn.href = chapterUrl(decIndex, m.next) || ao3Links({ work: decIndex.work }).index; rn.title = `Next chapter: ${m.next.num}. ${m.next.title}`; }
-  else if (m && m.kind === "dlnext"){ rn.href = m.href; rn.title = `Next chapter: Chapter ${m.num}` + (m.direct ? "" : " (opens the chapter list on AO3)"); }
+  setRdNext(m, decIndex);
   if (decIndex && decIndex.list.length > 1) renderChapterNav(box, decIndex, null, { fold: true, noNav: true });
   else if (decIndex && decIndex.work) renderChapterNav(box, decIndex, null, { fold: true });
   box.hidden = !box.childNodes.length;
@@ -3289,19 +3300,25 @@ u,ins{color:${P.u} !important}blockquote,blockquote p{color:${P.q} !important}li
   return css;
 }
 function readerCss(){
-  const base = fontImportsCss() + `a{}img{max-width:100%;height:auto}body{padding-bottom:280px !important}` + readerExtraCss();
-  if (reader.paper === "original") return base + `body{font-size:${reader.size}px !important}` + (reader.font ? `body,body *{font-family:${fontStack(reader.font, "read")} !important}` : "") + (reader.lh ? `body,body p{line-height:${reader.lh} !important}` : "");
+  const enc = rdSrc === "enc", mono = getComputedStyle(document.documentElement).getPropertyValue("--mono").trim() || "monospace";
+  const fam = enc ? fontStack(prefs.encFont, "enc").replace(/var\(--mono\)/g, mono) : fontStack(reader.font, "read");   // the frame can't see the page's CSS variables
+  const base = fontImportsCss() + `a{}img{max-width:100%;height:auto}body{padding-bottom:280px !important}` + readerExtraCss() +
+    (enc ? `body{overflow-wrap:anywhere;font-variant-ligatures:none}.ao3-index{display:none !important}` : "");
+  if (reader.paper === "original" && !enc) return base + `body{font-size:${reader.size}px !important}` + (reader.font ? `body,body *{font-family:${fontStack(reader.font, "read")} !important}` : "") + (reader.lh ? `body,body p{line-height:${reader.lh} !important}` : "");
   const [bg, ink, link] = PAPERS[reader.paper] || PAPERS.light;
   return base + `html,body{background:${bg} !important;color:${ink} !important}
-body{font-family:${fontStack(reader.font, "read")} !important;font-size:${reader.size}px !important;line-height:${reader.lh || 1.72} !important;
+body{font-family:${fam} !important;font-size:${reader.size}px !important;line-height:${(enc && prefs.encLh) || reader.lh || 1.72} !important;
 max-width:38em !important;margin:0 auto !important;padding:2em 1.3em 280px !important}
 a{color:${link} !important} p{margin:0 0 1em !important}
 h1,h2,h3{line-height:1.25 !important} blockquote{margin-left:0 !important;padding-left:1em !important;border-left:3px solid rgba(128,128,128,.35) !important}
 .meta,#preface .message,#afterword .message{font-size:.85em !important;opacity:.85} hr{border:0;border-top:1px solid rgba(128,128,128,.35)}`;
 }
+let rdSrc = "dec", encReadHtml = "", encReadId = "", decRdNext = null;
+const rdId = () => rdSrc === "enc" ? encReadId : decStoryId;
+const rdHtml = () => rdSrc === "enc" ? encReadHtml : decText;
 function renderPreview(){
-  const inject = `<base target="_blank"><style id="koa-reader">${readerCss()}</style>`;
-  const html = /<head[^>]*>/i.test(decText) ? decText.replace(/<head[^>]*>/i, m => m + inject) : inject + decText;
+  const inject = `<base target="_blank"><style id="koa-reader">${readerCss()}</style>`, src = rdHtml();
+  const html = /<head[^>]*>/i.test(src) ? src.replace(/<head[^>]*>/i, m => m + inject) : inject + src;
   $("preview").srcdoc = html;
 }
 function applyReader(){
@@ -3310,7 +3327,7 @@ function applyReader(){
     const el = $("preview").contentDocument && $("preview").contentDocument.getElementById("koa-reader");
     if (el){ el.textContent = readerCss(); return; }
   } catch(e){}
-  if (decText) renderPreview(); // fallback: rebuild
+  if (rdHtml()) renderPreview(); // fallback: rebuild
 }
 $("fontUp").addEventListener("click", () => { reader.size = Math.min(30, reader.size + 1); applyReader(); });
 $("fontDown").addEventListener("click", () => { reader.size = Math.max(13, reader.size - 1); applyReader(); });
@@ -3324,18 +3341,18 @@ let bookmarks = store.get("ao3enc.bookmarks", {});     // storyId -> { title, it
 let positions = store.get("ao3enc.positions", {});     // storyId -> { i, at }
 let previewEls = [];
 const pdoc = () => { try { return $("preview").contentDocument; } catch(e){ return null; } };
-function bookItems(){ return (bookmarks[decStoryId] && bookmarks[decStoryId].items) || []; }
+function bookItems(){ const id = rdId(); return (bookmarks[id] && bookmarks[id].items) || []; }
 function saveBookmarks(){ for (const k of Object.keys(bookmarks)) if (!bookmarks[k].items.length) delete bookmarks[k]; store.set("ao3enc.bookmarks", bookmarks); }
 function chapterOf(i){ for (let j = i; j >= 0; j--){ const e = previewEls[j]; if (e && /^H[1-3]$/.test(e.tagName) && j !== i) return oneLine(e.textContent); } return ""; }
 function addBookmark(i){
-  if (i < 0 || !previewEls[i] || !decStoryId) return;
+  if (i < 0 || !previewEls[i] || !rdId()) return;
   const items = bookItems();
   if (items.some(b => b.i === i)) return;
   const label = oneLine($("readerTitle").textContent);
-  bookmarks[decStoryId] = { title: label, items: items.concat({ i, where: chapterOf(i) || "Start", snip: oneLine(previewEls[i].textContent).slice(0, 80), at: new Date().toISOString() }).sort((a, b) => a.i - b.i) };
+  bookmarks[rdId()] = { title: label + (rdSrc === "enc" ? " (encrypted)" : ""), items: items.concat({ i, where: chapterOf(i) || "Start", snip: oneLine(previewEls[i].textContent).slice(0, 80), at: new Date().toISOString() }).sort((a, b) => a.i - b.i) };
   saveBookmarks(); markBookmarks(); renderBookmarks();
 }
-function removeBookmark(i){ if (!bookmarks[decStoryId]) return; bookmarks[decStoryId].items = bookItems().filter(b => b.i !== i); saveBookmarks(); markBookmarks(); renderBookmarks(); }
+function removeBookmark(i){ if (!bookmarks[rdId()]) return; bookmarks[rdId()].items = bookItems().filter(b => b.i !== i); saveBookmarks(); markBookmarks(); renderBookmarks(); }
 function markBookmarks(){
   const set = new Set(bookItems().map(b => b.i));
   previewEls.forEach((e, i) => e.classList.toggle("koa-bm", set.has(i)));
@@ -3354,7 +3371,7 @@ function renderBookmarks(){
     row.append(go, x); list.appendChild(row);
   }
   const clr = document.createElement("button"); clr.className = "btn small"; clr.textContent = "Delete all bookmarks in this story"; clr.style.marginTop = "6px";
-  clr.addEventListener("click", () => { delete bookmarks[decStoryId]; saveBookmarks(); markBookmarks(); renderBookmarks(); });
+  clr.addEventListener("click", () => { delete bookmarks[rdId()]; saveBookmarks(); markBookmarks(); renderBookmarks(); });
   list.appendChild(clr);
 }
 function toggleBmList(open){ const l = $("bmList"); l.hidden = open === undefined ? !l.hidden : !open; $("bmToggle").setAttribute("aria-expanded", String(!l.hidden)); }
@@ -3375,8 +3392,8 @@ let posTimer = 0;
 function savePosition(){
   clearTimeout(posTimer);
   posTimer = setTimeout(() => {
-    if (!decStoryId) return; const i = topIndex(); if (i < 0) return;
-    positions[decStoryId] = { i, at: new Date().toISOString() };
+    const id = rdId(); if (!id) return; const i = topIndex(); if (i < 0) return;
+    positions[id] = { i, at: new Date().toISOString() };
     const keys = Object.keys(positions).sort((a, b) => (positions[b].at > positions[a].at ? 1 : -1)); for (const k of keys.slice(40)) delete positions[k];
     store.set("ao3enc.positions", positions);
   }, 250);
@@ -3405,7 +3422,7 @@ window.addEventListener("resize", () => { if (!$("pickLayer").hidden) setPick(tr
 // reading position: the scroll listener inside the preview doesn't fire in Safari, so also check now and then
 let lastScrollY = -1;
 setInterval(() => {
-  if (!decStoryId || $("reader").hidden || $("decOut").hidden) return;
+  if (!rdId() || $("reader").hidden || (rdSrc === "dec" ? $("decOut").hidden : !$("reader").classList.contains("reading"))) return;
   const d = pdoc(); if (!d || !d.defaultView) return;
   const y = d.defaultView.scrollY; if (y !== lastScrollY){ if (lastScrollY >= 0) savePosition(); lastScrollY = y; }
 }, 1200);
@@ -3413,7 +3430,7 @@ $("preview").addEventListener("load", () => {
   setPick(false); lastScrollY = -1;
   const d = pdoc(); if (!d || !d.body) return;
   previewEls = [...d.querySelectorAll(BOOKABLE)].filter(e => e.textContent.trim() && !e.closest("nav"));
-  markBookmarks();
+  markBookmarks(); buildToc();
   const toggleBm = toggleBookmarkEl;
   // double-click (mouse) or double-tap (touch) a paragraph to bookmark it
   let lastTap = null, tapAt = 0;
@@ -3430,9 +3447,21 @@ $("preview").addEventListener("load", () => {
   d.defaultView.addEventListener("scroll", savePosition, { passive: true });
   if (pendingResume > 0){
     const i = pendingResume; pendingResume = -1;
-    setTimeout(() => { jumpTo(i); const st = $("decStatus"); if (st.className.includes("ok")) st.textContent += " Picked up where you left off" + (chapterOf(i) ? " (" + chapterOf(i) + ")" : "") + "."; }, 30);
+    setTimeout(() => { jumpTo(i); const where = " Picked up where you left off" + (chapterOf(i) ? " (" + chapterOf(i) + ")" : "") + ".";
+      if (rdSrc === "enc") $("rdResume").textContent = where.trim(); else { const st = $("decStatus"); if (st.className.includes("ok")) st.textContent += where; } }, 30);
   }
 });
+// chapter jump: every chapter heading (h2/h3, or h1 when there's nothing else) in the reader
+function buildToc(){
+  const sel = $("rdToc"); sel.textContent = "";
+  let hs = previewEls.map((e, i) => [e, i]).filter(([e]) => /^H[23]$/.test(e.tagName) && !e.closest("#preface, #afterword, .meta"));
+  if (hs.length < 2) hs = previewEls.map((e, i) => [e, i]).filter(([e]) => /^H[1-3]$/.test(e.tagName));
+  sel.hidden = hs.length < 2; if (sel.hidden) return;
+  const o0 = document.createElement("option"); o0.value = ""; o0.textContent = `Chapters (${hs.length})`; sel.appendChild(o0);
+  for (const [e, i] of hs){ const o = document.createElement("option"); o.value = i; o.textContent = oneLine(e.textContent).slice(0, 70); sel.appendChild(o); }
+}
+$("rdMore").addEventListener("click", () => { const b = $("rdMore").closest(".rbar"), on = !b.classList.contains("more"); b.classList.toggle("more", on); $("rdMore").setAttribute("aria-expanded", String(on)); });
+$("rdToc").addEventListener("change", e => { const v = e.target.value; if (v !== "") jumpTo(+v); e.target.value = ""; });
 // "b" jumps to the next bookmark (the reference used a key to jump to its bookmark)
 function readerKeys(e){
   if (e.key !== "b" || e.ctrlKey || e.metaKey || e.altKey || /INPUT|TEXTAREA|SELECT/.test((e.target && e.target.tagName) || "")) return;
@@ -3444,7 +3473,56 @@ function setReading(on){
   setPick(false);
   $("reader").classList.toggle("reading", on); document.body.classList.toggle("reading-open", on);
   if (on) $("exitRead").focus();
+  else if (rdSrc === "enc") closeEncReader();
 }
+function setRdNext(m, idx){
+  const rn = $("rdNext"); rn.hidden = !(m && (m.kind === "next" || m.kind === "dlnext"));
+  if (m && m.kind === "next"){ rn.href = chapterUrl(idx, m.next) || ao3Links({ work: idx.work }).index; rn.title = `Next chapter: ${m.next.num}. ${m.next.title}`; }
+  else if (m && m.kind === "dlnext"){ rn.href = m.href; rn.title = `Next chapter: Chapter ${m.num}` + (m.direct ? "" : " (opens the chapter list on AO3)"); }
+  const rp = $("rdPrev"), pv = m && m.kind === "next" && m.prev; rp.hidden = !pv;
+  if (pv){ rp.href = chapterUrl(idx, m.prev) || ao3Links({ work: idx.work }).index; rp.title = `Previous chapter: ${m.prev.num}. ${m.prev.title}`; }
+}
+// ---- reading mode for the ENCRYPTED story (Encrypt tab): the same reader, pointed at the cipher text ----
+// The page shown is the encrypted story exactly as on the Encrypt tab (#encStory: formatted texts keep their HTML structure,
+// plain texts are split into title / chapter headings / paragraphs), with headings turned into real h1/h2 so the chapter list,
+// bookmarks and "where" labels work. Bookmarks and position are kept under their own id ("e" + hash of the cipher text):
+// paragraph numbers differ from the decrypted page (preface, notes), so sharing them would point at the wrong paragraph.
+let readerHome = null;
+function encReadDoc(){
+  const src = $("encStory").cloneNode(true), d = document.implementation.createHTMLDocument(""), b = d.body;
+  src.querySelectorAll(".ao3-index").forEach(e => e.remove());
+  src.querySelectorAll(".esc").forEach(e => e.replaceWith(d.createTextNode(e.textContent)));
+  const swap = (sel, tag, cls) => src.querySelectorAll(sel).forEach(e => { const n = d.createElement(tag); if (cls) n.className = cls; n.textContent = e.textContent; e.replaceWith(n); });
+  swap(".cs-title", "h1"); swap(".cs-by", "p", "byline"); swap(".cs-ch", "h2", "heading chapter"); src.querySelectorAll(".cs-hr").forEach(e => e.replaceWith(d.createElement("hr")));
+  for (const n of [...src.childNodes]) b.appendChild(d.importNode(n, true));
+  b.querySelectorAll("[id]").forEach(e => { if (e.id !== "chapters") e.removeAttribute("id"); });
+  const t = oneLine($("encHeadTitle").textContent);
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escHtml(t)} (encrypted)</title></head><body>${b.innerHTML}</body></html>`;
+}
+function openEncReader(){
+  if ($("encOut").hidden || !$("encText").value) return;
+  if (!readerHome){ readerHome = document.createComment("reader"); $("reader").before(readerHome); }
+  const r = $("reader");
+  decRdNext = { hidden: $("rdNext").hidden, href: $("rdNext").getAttribute("href"), title: $("rdNext").title, ph: $("rdPrev").hidden, phref: $("rdPrev").getAttribute("href"), ptitle: $("rdPrev").title };
+  rdSrc = "enc"; encReadHtml = encReadDoc(); encReadId = "e" + hashStr($("encText").value);
+  $("encOut").appendChild(r); r.hidden = false;
+  $("readerTitle").textContent = oneLine($("encHeadTitle").textContent) || "Encrypted story"; $("rdKind").hidden = false; $("rdResume").textContent = "";
+  setRdNext(encIndex && encStory ? nextModel(encIndex, encStory.chapters.length, encIndex.stats) : null, encIndex);
+  const pos = positions[encReadId]; pendingResume = pos && pos.i > 0 ? pos.i : -1;
+  toggleBmList(false); renderBookmarks(); renderPreview(); setReading(true);
+}
+function closeEncReader(){
+  rdSrc = "dec"; const r = $("reader");
+  if (readerHome) readerHome.after(r);
+  $("rdKind").hidden = true; $("rdResume").textContent = "";
+  $("readerTitle").textContent = oneLine($("decTitle").textContent) || "Preview";
+  if (decRdNext){ const n = $("rdNext"), p = $("rdPrev"); n.hidden = decRdNext.hidden; if (decRdNext.href) n.href = decRdNext.href; n.title = decRdNext.title; p.hidden = decRdNext.ph; if (decRdNext.phref) p.href = decRdNext.phref; p.title = decRdNext.ptitle; decRdNext = null; }
+  r.hidden = $("previewBtn").textContent === "Show preview";
+  toggleBmList(false); renderBookmarks();
+  if (decText) renderPreview(); else { $("preview").srcdoc = ""; previewEls = []; $("rdToc").hidden = true; }
+  const btn = $("encReadBtn"); if (!$("encOut").hidden){ btn.focus({ preventScroll: true }); btn.scrollIntoView({ block: "nearest" }); }
+}
+$("encReadBtn").addEventListener("click", openEncReader);
 $("readBtn").addEventListener("click", () => { $("reader").hidden = false; $("previewBtn").textContent = "Hide preview"; setReading(true); });
 $("readBtn2").addEventListener("click", () => setReading(true));
 $("exitRead").addEventListener("click", () => setReading(false));
