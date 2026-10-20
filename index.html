@@ -580,7 +580,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
 [data-theme="gravel"] select option{background:#111}
 
 /* ---- Doorknob extras ---- */
-[data-theme="doorknob"] :where(.glass,.panel,.tab,.btn,.themes,.themebtn,.setnav a,.themes button,input,select,textarea,.drop,.fileinfo,.chapbox,details.box,.intro,.cstory,.reader,.player,.pframe,.fontcard,.fontprev,.preset,.cgrid,.cell,.savebar,.warnbox,.badge,.bmlist,.taglegend span,.pnote,.chapnav .cn-list,.chapnav .cn-list .tag){border-radius:0 !important}
+[data-theme="doorknob"] :where(.glass,.panel,.tab,.btn,.themes,.themebtn,.nextbar,.setnav a,.themes button,input,select,textarea,.drop,.fileinfo,.chapbox,details.box,.intro,.cstory,.reader,.player,.pframe,.fontcard,.fontprev,.preset,.cgrid,.cell,.savebar,.warnbox,.badge,.bmlist,.taglegend span,.pnote,.chapnav .cn-list,.chapnav .cn-list .tag){border-radius:0 !important}
 [data-theme="doorknob"] header h1{font-weight:300;text-transform:lowercase;letter-spacing:-.5px;font-size:clamp(2rem,6vw,3.2rem)}
 [data-theme="doorknob"] .tabs{background:rgba(255,255,255,.92);border:0;box-shadow:none}
 [data-theme="doorknob"] .tab{text-transform:lowercase;font-weight:400;font-size:1.08rem;font-family:var(--head-font)}
@@ -813,6 +813,44 @@ details.more>summary{cursor:pointer;color:var(--accent);font-weight:600;font-siz
   .themebtn .tlabel{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
   .cipherline label{margin-top:12px}
     }
+
+/* ---- round 16: Next chapter bar, minimal first screen ---- */
+.hbtns{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.hbtns .themebtn{margin:0}
+.helpbtn{min-width:44px;justify-content:center;font-weight:800;padding:6px 10px}
+.tlabel.vh,.gear .tlabel{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.drop.loaded{padding:10px 12px;display:flex;align-items:center;gap:10px;text-align:left;border-style:solid}
+.drop.loaded .icon{font-size:1.2rem;margin:0}.drop.loaded strong{font-size:.95rem}.drop.loaded #encDropS{display:none}
+.nextbar{position:sticky;top:6px;z-index:6;margin-top:10px;padding:8px;border-radius:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  background:var(--spec),var(--panel-bg);border:1px solid var(--accent);box-shadow:0 6px 18px rgba(0,0,0,.18);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.nextbar[hidden]{display:none}
+.nextbar a{text-decoration:none}
+.nextbar .cn-next{flex:1 1 220px;min-height:44px;justify-content:center;text-align:center;font-size:1rem;overflow-wrap:anywhere}
+.nextbar .cn-prev{flex:0 0 auto}
+.picked.quiet{display:none}
+.nextbar .nb-pos{flex-basis:100%;font-size:.8rem;color:var(--muted);text-align:center;margin-top:-2px}
+.nextbar .nb-msg{flex:1 1 200px;font-weight:600;font-size:.92rem;padding:2px 6px}
+.nextbar.nb-whole .nb-msg,.nextbar.nb-all .nb-msg,.nextbar.nb-single .nb-msg{color:var(--ok)}
+.nextbar.nb-none,.nextbar.nb-nolist{position:static;border-color:var(--field-border);box-shadow:none}
+.nextbar.nb-none .nb-msg,.nextbar.nb-nolist .nb-msg{font-weight:400;color:var(--muted)}
+details.allch{margin-top:2px}
+details.allch>summary{cursor:pointer;font-weight:700;color:var(--accent);padding:6px 0}
+.chapbox.collapsed{padding:4px 12px;background:transparent;border-style:dashed}
+.cipherline.compact .row{flex-wrap:nowrap}
+.cipherline.compact label.inl{margin:0;flex:none}
+.cipherline.compact select{flex:1 1 auto;min-width:0;width:auto}
+.encgo{align-items:center}
+.gear{font-size:1.15rem;line-height:1;min-width:44px;justify-content:center}
+#rdNext{text-decoration:none}
+@media (max-width:600px){
+  .hbtns{margin:0}
+  .hbtns .helpbtn{position:absolute;top:10px;left:8px;right:auto}
+  #panel-enc summary, #panel-dec summary{min-height:44px;box-sizing:border-box;padding-top:10px;padding-bottom:10px}
+  .nextbar .cn-next{flex-basis:150px}
+  .cipherline.compact .badge{display:none}
+  .nextbar{top:4px}
+  .nextbar .cn-next{font-size:.95rem}
+}
 </style>
 <style id="fontCss"></style>
 </head>
@@ -822,12 +860,15 @@ details.more>summary{cursor:pointer;color:var(--accent);font-weight:600;font-siz
 <div class="wrap">
 <header>
   <h1>AO3 Fic <span>Encryptor</span></h1>
-  <p>Encrypt the story in an AO3 download with your own cipher, using only keyboard characters. It all happens in your browser.</p>
+  <p>Encrypt AO3 fics with your own cipher. Nothing leaves your browser.</p>
+  <div class="hbtns">
+  <button class="themebtn helpbtn" id="helpBtn" type="button" aria-expanded="false" aria-controls="intro" title="How it works"><span aria-hidden="true">?</span><span class="tlabel">How it works</span></button>
+  <button class="themebtn" id="themeBtn" type="button" aria-expanded="false" aria-controls="themes" title="Change the theme"><span class="sw" id="themeSw"></span><span class="tlabel">Theme: <b id="themeName">Gerald</b></span><span class="car" aria-hidden="true">&#9662;</span></button>
+  </div>
   <div class="intro" id="intro" hidden>
-    <ol><li>AO3: <b>Download &rarr; HTML</b></li><li>Choose it below, press <b>Encrypt</b></li><li>Share the cipher key (<b>Cipher</b> tab) separately</li></ol>
+    <ol><li>On AO3 open a chapter and save the page (browser menu &rarr; <b>Download</b>), or use <b>Download &rarr; HTML</b> for the whole work</li><li>Choose the file below, press <b>Encrypt</b></li><li>Share the cipher key (<b>Cipher</b> tab) separately</li></ol>
     <button class="btn small" id="introClose">Got it</button>
   </div>
-  <button class="themebtn" id="themeBtn" type="button" aria-expanded="false" aria-controls="themes" title="Change the theme"><span class="sw" id="themeSw"></span><span class="tlabel">Theme: <b id="themeName">Gerald</b></span><span class="car" aria-hidden="true">&#9662;</span></button>
   <div class="themes" role="radiogroup" aria-label="Theme" id="themes" hidden>
     <button role="radio" data-theme-btn="gerald"><span class="sw gerald"></span>Gerald</button>
     <button role="radio" data-theme-btn="quadrangle"><span class="sw quadrangle"></span>Quadrangle</button>
@@ -855,11 +896,16 @@ details.more>summary{cursor:pointer;color:var(--accent);font-weight:600;font-siz
   <section class="panel glass" id="panel-enc" role="tabpanel" aria-labelledby="tab-enc">
     <label class="drop" id="encDrop" for="encFile">
       <span class="icon" aria-hidden="true">&#128214;</span>
-      <strong>Choose your AO3 .html file</strong>
-      <span>or drop it here &middot; AO3: Download &rarr; HTML &middot; several chapter files at once work too</span>
+      <strong id="encDropT">Choose your AO3 .html file</strong>
+      <span id="encDropS">a saved chapter page or AO3&rsquo;s Download &rarr; HTML &middot; or drop it here</span>
       <input type="file" id="encFile" multiple class="cover" title="" aria-label="Choose your AO3 story file">
     </label>
     <div class="picked" id="encPicked" hidden aria-live="polite"></div>
+    <div class="fileinfo" id="encInfo"><div class="t" id="encTitle"></div><div class="m" id="encMeta"></div></div>
+    <div class="nextwrap"><!-- the bar sticks to the top only while you scroll through the chapter list, never over the story -->
+    <div class="nextbar" id="encNext" hidden aria-live="polite"></div>
+    <div class="chapbox" id="encChapters" hidden></div>
+    </div>
     <details class="trouble" id="encTrouble"><summary>Having trouble uploading?</summary>
     <p class="hint">Saved pages (.mhtml/.mht), .htm, .txt and EPUB work too. Only the story itself gets encrypted.</p>
     <div class="fallback" id="encFallback">
@@ -872,20 +918,17 @@ details.more>summary{cursor:pointer;color:var(--accent);font-weight:600;font-siz
       </details>
     </div>
     </details>
-    <div class="fileinfo" id="encInfo"><div class="t" id="encTitle"></div><div class="m" id="encMeta"></div></div>
-    <div class="chapbox" id="encChapters" hidden></div>
 
-    <div class="cipherline">
-      <label for="encCipher">Cipher</label>
+    <div class="cipherline compact">
       <div class="row">
+        <label for="encCipher" class="inl">Cipher</label>
         <select id="encCipher" class="cipherSel"></select>
         <span class="badge" title="Cipher fingerprint">ID <b id="encFp"></b></span>
-        <button class="btn small" data-goto-cipher>Edit ciphers</button>
+        <button class="btn small" data-goto-cipher title="Edit ciphers (Cipher tab)">Edit</button>
       </div>
-      <p class="hint" id="encHint"></p>
+      <details class="more" id="encHintBox" hidden><summary>About this cipher</summary><p class="hint" id="encHint"></p></details>
     </div>
-    <div class="optsum" id="encOptsSum"><span class="oico" aria-hidden="true">&#9881;</span><span id="encOptsText"></span><button class="linkbtn" id="encOptsBtn" type="button">Change</button></div>
-    <div class="actions"><button class="btn primary" id="encBtn" disabled>Encrypt</button></div>
+    <div class="actions encgo"><button class="btn primary" id="encBtn" disabled>Encrypt</button><button class="btn small gear" id="encOptsBtn" type="button" title="Encryption options (Settings)"><span aria-hidden="true">&#9881;</span><span class="tlabel">Options: <span id="encOptsText"></span></span></button></div>
     <div class="status" id="encStatus" aria-live="polite"></div>
 
     <div class="out" id="encOut" hidden>
@@ -935,7 +978,10 @@ details.more>summary{cursor:pointer;color:var(--accent);font-weight:600;font-siz
 
     <div class="out" id="decOut" hidden>
       <div class="outhead"><strong id="decTitle">Decrypted work</strong><span class="count" id="decCount"></span></div>
+      <div class="nextwrap">
+      <div class="nextbar" id="decNext" hidden></div>
       <div class="chapbox" id="decChapters" hidden></div>
+      </div>
       <div class="actions">
         <button class="btn" id="dlStoryTxtBtn">Download .txt</button>
         <button class="btn" id="dlHtmlBtn">Download .html</button>
@@ -964,6 +1010,7 @@ details.more>summary{cursor:pointer;color:var(--accent);font-weight:600;font-siz
             </div>
             <div class="bmlist" id="bmList" hidden></div>
           </div>
+          <a class="btn small" id="rdNext" target="_blank" rel="noopener noreferrer" hidden>Next chapter &rarr;</a>
           <button class="btn small enter" id="readBtn2">Expand</button>
           <button class="btn small primary exit" id="exitRead">Exit reading (Esc)</button>
         </div>
@@ -1991,10 +2038,13 @@ function storyToFmtDoc(story, index){
   if (story.title) add(b, "h1", {}, oneLine(story.title));
   if (story.author) add(b, "p", { class: "byline" }, "by " + oneLine(story.author));
   // the work's chapter list (ids + names) travels inside the encrypted text, ciphered like everything else
-  if (index && (index.work || index.list.length > 1)){
+  if (index && (index.work || index.list.length > 1)){   // (also the work id, AO3's download file name and "Chapters: x/y")
     const ol = add(b, "ol", { class: "ao3-index" });
     if (index.work) add(ol, "li", {}, "work " + index.work);
     const dn = index.work && ao3DownloadName(index.title, index.dlName); if (dn) add(ol, "li", {}, "download " + dn);
+    if (index.stats) add(ol, "li", {}, "chapters " + index.stats.posted + "/" + (index.stats.total || "?"));
+    if (index.download) add(ol, "li", {}, "from download");
+    for (const d of index.direct || []) add(ol, "li", {}, "link " + d.id + " " + (d.num || "next"));
     for (const c of index.list) add(ol, "li", c.have ? { class: "have" } : {}, (c.id || "-") + " " + c.num + ". " + (oneLine(c.title) || "Chapter " + c.num));
   }
   const chs = add(b, "div", { id: "chapters" });
@@ -2073,6 +2123,9 @@ function takeChapterIndex(doc){
     const t = oneLine(li.textContent), w = /^work (\d{1,15})$/i.exec(t), d = /^download ([\w.-]{1,160}\.html)$/i.exec(t);
     if (w){ idx.work = w[1]; continue; }
     if (d){ idx.dlName = d[1]; continue; }
+    if (/^from download$/i.test(t)){ idx.download = true; continue; }
+    const dk = /^link (\d{1,12}) (\d{1,5}|next)$/i.exec(t); if (dk){ (idx.direct = idx.direct || []).push({ id: dk[1], num: /next/i.test(dk[2]) ? null : +dk[2], next: /next/i.test(dk[2]) }); continue; }
+    const st = /^chapters (\d{1,5})\/(\d{1,5}|\?)$/i.exec(t); if (st){ idx.stats = { posted: +st[1], total: st[2] === "?" ? null : +st[2] }; continue; }
     const m = /^(\S+) (\d{1,5})\.\s*(.*)$/.exec(t); if (!m) continue;
     idx.list.push({ id: /^\d{1,12}$/.test(m[1]) ? m[1] : null, num: +m[2], title: m[3] || "Chapter " + m[2], have: li.classList.contains("have") });
   }
@@ -2574,7 +2627,7 @@ function updateEncHint(){
   else if (!analyzeKey(c.key).injective) notes.push("This cipher has shared outputs, so decrypting gives back the first character of each shared group (e.g. " +
     sharedOutputs(c.key).slice(0, 2).map(([, os]) => `${os.slice(1).map(showCh).join(", ")} → ${showCh(os[0])}`).join("; ") + "). Everything else comes back exactly.");
   if (draft.length && (draft.join("") !== c.key || draftName !== c.name)) notes.push("You have unsaved edits in the Cipher tab; the saved version is used.");
-  $("encHint").textContent = notes.join(" ");
+  $("encHint").textContent = notes.join(" "); $("encHintBox").hidden = !notes.length;
 }
 // ---------- AO3 links: read any AO3 address people paste, build clean ones ----------
 // A cleaned-up version of the old gemt()/rl() helpers. Those split the address on "/" and took the piece after
@@ -2671,8 +2724,23 @@ function chapterIndexOf(doc, raw){
   // 4. Previous / Next chapter links
   const pn = (q) => { const a = doc.querySelector(q), h = a && hrefOf(a); if (h){ work = work || h[1]; put(h[2], null, ""); return h[2]; } return null; };
   prevId = pn("li.chapter.previous a[href]"); nextId = pn("li.chapter.next a[href]");
+  // AO3's Download → HTML file: "Posted originally on the Archive of Our Own at …/works/W" in #preface. It has no chapter ids
+  // (otwarchive's downloads/_download_chapter template prints plain headings), so we only keep chapter links of this work that
+  // say which chapter they are ("Chapter 4", "Next chapter") — e.g. an author's note linking ahead.
+  const dlMsg = [...doc.querySelectorAll("#preface p.message, p.message")].find(p => /Posted originally on the/i.test(p.textContent));
+  const download = !!dlMsg && !sel && !doc.querySelector("li.chapter.next, li.chapter.previous, ol.chapter.index");
+  const direct = [];
+  if (dlMsg){ for (const a of dlMsg.querySelectorAll("a[href]")){ const w = parseAo3Link(a.getAttribute("href") || ""); if (w && w.work){ work = work || w.work; break; } } }
   // 5. any other chapter links on the page
-  for (const a of doc.querySelectorAll("a[href*='/chapters/']")){ const h = hrefOf(a); if (h && (!work || h[1] === work)){ work = work || h[1]; put(h[2], null, ""); } }
+  for (const a of doc.querySelectorAll("a[href*='/chapters/']")){
+    const h = hrefOf(a); if (!h || (work && h[1] !== work)) continue;
+    if (download){
+      const t = oneLine(a.textContent + " " + (a.title || "")), n = /chapter\s*(\d{1,5})/i.exec(t);
+      if (n || /\bnext\b/i.test(t)) direct.push({ id: h[2], num: n ? +n[1] : null, next: !n });
+      continue;
+    }
+    work = work || h[1]; put(h[2], null, "");
+  }
   // work id from the page's own address (Chrome's "saved from url" note, canonical link) or any work link
   const self = /saved from url=\(\d+\)(\S+)/i.exec(raw.slice(0, 600));
   const canon = doc.querySelector("link[rel='canonical'][href], meta[property='og:url'][content]");
@@ -2693,13 +2761,22 @@ function chapterIndexOf(doc, raw){
   list.filter(c => !c.num).sort((a, b) => a.id.length - b.id.length || (a.id < b.id ? -1 : 1)).forEach((c, i) => { c.num = maxNum + i + 1; });
   list.forEach(c => { if (!c.title) c.title = "Chapter " + c.num; });
   list.sort((a, b) => a.num - b.num);
-  return { work, list, current, loaded: [...loaded], dlName };
+  return { work, list, current, loaded: [...loaded], dlName, download, direct };
+}
+// AO3's "Chapters: 3/5" (work pages: dl.stats dd.chapters; downloads: the Stats line). total null = "?" (in progress)
+function workStats(doc){
+  const dd = doc.querySelector("dd.chapters"); let m = dd && /^\s*(\d{1,5})\s*\/\s*(\d{1,5}|\?)/.exec(dd.textContent);
+  if (!m) for (const el of doc.querySelectorAll("dl.stats, #preface dd, #preface .meta, .meta dd, .meta")){
+    m = /Chapters:\s*(\d{1,5})\s*\/\s*(\d{1,5}|\?)/.exec(el.textContent); if (m) break;
+  }
+  return m ? { posted: +m[1], total: m[2] === "?" ? null : +m[2] } : null;
 }
 // one list for several uploaded files (each file's own chapter is marked as loaded)
 function mergeIndexes(idxs){
   const out = { work: null, list: [], current: null }, byId = new Map(), loaded = new Set();
   for (const x of idxs.filter(Boolean)){
     out.work = out.work || x.work; out.dlName = out.dlName || x.dlName || null;
+    if (x.download) out.download = true; if (x.direct && x.direct.length) out.direct = (out.direct || []).concat(x.direct);
     for (const c of x.list){
       const e = byId.get(c.id);
       if (!e) byId.set(c.id, Object.assign({}, c));
@@ -2722,8 +2799,16 @@ function chapterNumber(part){
 }
 // the chapter list on the page: number, name (linked to its AO3 chapter, adult check skipped), which ones you have,
 // Previous / Next, whole-work links, and the links to copy or download. Nothing is fetched: the links open AO3 in a new tab.
+// opts.fold: inside a closed "All chapters (N)" section; opts.noNav: Next/Previous are shown in the Next chapter bar instead.
 function renderChapterNav(box, idx, note, opts){
   opts = opts || {};
+  if (opts.fold){
+    const d = document.createElement("details"); d.className = "allch"; box.appendChild(d); box.classList.add("collapsed");
+    const sm = document.createElement("summary"); sm.textContent = idx.list.length > 1 ? `All chapters (${idx.list.length})` : "Links on AO3"; d.appendChild(sm);
+    box = d;
+    if (opts.pre) for (const t of opts.pre){ const p = document.createElement("p"); p.className = "hint cn-pre"; p.textContent = t; box.appendChild(p); }
+    if (idx.list.length <= 1){ renderWorkLinks(box, idx, opts.tip); return; }
+  }
   const el = (tag, cls, text, par) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; (par || box).appendChild(e); return e; };
   const link = (par, href, text, cls) => { const a = el(href ? "a" : "span", cls, text, par); if (href){ a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; } return a; };
   const nav = el("div", "chapnav"), L = idx.work ? ao3Links({ work: idx.work }) : null, dl = ao3DownloadUrl(idx);
@@ -2732,7 +2817,7 @@ function renderChapterNav(box, idx, note, opts){
   el("strong", null, `Chapters of this work (${n})`, head);
   el("span", "cn-have", have === n ? `You have all ${n}.` : have ? `You have ${have} of ${n}.` : "", head);
   const { next, prev } = chapterNextPrev(idx);
-  if (next || prev){
+  if (!opts.noNav && (next || prev)){
     const np = el("div", "cn-np", null, nav);
     if (prev) link(np, chapterUrl(idx, prev) || (L && L.index), `\u2190 Previous: ${prev.num}. ${prev.title}`, "btn small cn-prev");
     if (next) link(np, chapterUrl(idx, next) || (L && L.index), `Next chapter: ${next.num}. ${next.title} \u2192`, "btn primary cn-next");
@@ -2761,6 +2846,70 @@ function renderChapterNav(box, idx, note, opts){
   if (opts.tip && have < n) el("p", "hint cn-tip", "To add a chapter: open its link, save the page (browser menu \u2192 Download / Save page, or Share \u2192 Save) or use AO3\u2019s Download \u2192 HTML, then choose it here together with the file(s) you already have. They\u2019re combined in chapter order.", nav);
   if (note) el("p", "hint cn-note", note, nav);
 }
+// What comes after what you loaded? Uses the chapter ids (chapter menu, AO3's own Previous/Next links, chapter index,
+// chapter headings) and, for whole-work downloads, AO3's "Chapters: x/y".
+function nextModel(idx, nChapters, stats){
+  const list = idx ? idx.list : [], W = idx && idx.work;
+  if (list.length > 1){
+    const have = list.filter(c => c.have).length;
+    let { next, prev } = chapterNextPrev(idx);
+    if (!have) next = list.find(c => c.id) || null;          // a chapter index alone: start at chapter 1
+    if (next) return { kind: "next", next, prev, have, n: list.length };
+    return { kind: "all", prev, n: list.length, wip: !!(stats && (!stats.total || stats.total > list.length)), stats };
+  }
+  if (stats && stats.total === 1) return { kind: "single" };
+  // AO3's Download → HTML: no chapter ids, but we know the work, how many chapters the file has and "Chapters: x/y"
+  if (idx && idx.download && W && nChapters){
+    if (stats && stats.total && stats.total === stats.posted && nChapters >= stats.posted) return { kind: "whole", n: nChapters, wip: false, stats, download: true };
+    if (!stats) return { kind: "whole", n: nChapters, wip: false, download: true };
+    const num = nChapters + 1, d = (idx.direct || []).find(x => x.num === num) || (idx.direct || []).find(x => x.next);
+    return { kind: "dlnext", num, n: nChapters, stats, direct: !!d, ahead: stats.posted > nChapters,
+             href: d ? buildAo3Url({ work: W, chapter: d.id }) : ao3Links({ work: W }).index + "?view_adult=true" };
+  }
+  if (stats && nChapters >= stats.posted && (nChapters > 1 || stats.posted > 1)) return { kind: "whole", n: nChapters, wip: !stats.total || stats.total > stats.posted, stats };
+  if (!stats && nChapters > 1 && W) return { kind: "whole", n: nChapters, wip: false };
+  if (W) return { kind: "nolist" };
+  return nChapters ? { kind: "none" } : null;
+}
+function renderNextBar(box, m, idx){
+  box.textContent = ""; box.hidden = !m; if (!m) return;
+  box.className = "nextbar nb-" + m.kind;
+  const W = idx && idx.work, L = W ? ao3Links({ work: W }) : null;
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; box.appendChild(e); return e; };
+  const link = (href, text, cls, title) => { const a = el("a", cls, text); a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; if (title){ a.title = title; a.setAttribute("aria-label", title); } return a; };
+  const msg = t => el("span", "nb-msg", t);
+  if (m.kind === "next"){
+    link(chapterUrl(idx, m.next) || L.index, `Next chapter: ${m.next.num}. ${m.next.title} \u2192`, "btn primary cn-next");
+    if (m.prev) link(chapterUrl(idx, m.prev) || L.index, "\u2190 Previous", "btn small cn-prev", `Previous chapter: ${m.prev.num}. ${m.prev.title}`);
+    el("span", "nb-pos", m.have ? `You have ${m.have} of ${m.n} chapters · opens AO3 in a new tab` : `${m.n} chapters · opens AO3 in a new tab`);
+  } else if (m.kind === "dlnext"){
+    link(m.href, `Next chapter: Chapter ${m.num} \u2192`, "btn primary cn-next", m.direct ? `Chapter ${m.num} on AO3` : `Chapter list on AO3 (pick Chapter ${m.num})`);
+    if (L) link(L.full, "Entire work \u2197", "btn small cn-full");
+    const st = `${m.stats.posted}/${m.stats.total || "?"}`;
+    el("span", "nb-pos", (m.ahead ? `This download has chapters 1\u2013${m.n}, but AO3 lists ${m.stats.posted} posted (${st}). ` : `This download has all ${m.n} chapters that were posted when it was made (${st}); chapter ${m.num} may be out now. `) +
+      (m.direct ? "Opens chapter " + m.num + " on AO3 in a new tab." : "AO3\u2019s downloads have no chapter IDs, so this opens the chapter list on AO3, where you can pick it."));
+  } else if (m.kind === "all"){
+    msg(`\u2713 You have all ${m.n} chapters` + (m.wip ? ` posted so far (${m.stats.posted}/${m.stats.total || "?"}).` : " (the whole work)."));
+    if (m.wip && L) link(L.full, "Check AO3 for new chapters \u2197", "btn small cn-full");
+  } else if (m.kind === "whole"){
+    msg(m.wip ? `\u2713 You have the whole work as downloaded: ${m.n} chapters (${m.stats.posted}/${m.stats.total || "?"}, still in progress).` : m.stats ? `\u2713 You have the whole work (${m.stats.posted}/${m.stats.total}).` : `\u2713 You have the whole work (${m.n} chapters).`);
+    if ((m.wip || m.download) && L) link(L.full, m.download && !m.wip ? "Check for updates on AO3 \u2197" : "Check AO3 for new chapters \u2197", "btn small cn-full");
+  } else if (m.kind === "single"){
+    msg("This is a one-chapter work: there's no next chapter.");
+  } else if (m.kind === "nolist"){
+    msg("This file doesn't list the other chapters. For a Next chapter button, upload a chapter page saved from AO3.");
+    if (L) link(L.index, "Chapter index on AO3 \u2197", "btn small cn-index");
+  } else {
+    msg("No chapter info in this file. For a Next chapter button, upload a chapter page saved from AO3 (open the chapter \u2192 browser menu \u2192 Download / Save page).");
+  }
+}
+// whole-work links + copy/download buttons when there's no chapter list (e.g. AO3's Download → HTML)
+function renderWorkLinks(box, idx){
+  const L = ao3Links({ work: idx.work }), dl = ao3DownloadUrl(idx), row = document.createElement("div"); row.className = "linkrow"; box.appendChild(row);
+  for (const [h, t, c] of [[dl, "Download whole work (HTML) \u2197", "cn-dl"], [L.full, "Entire work on AO3 \u2197", "cn-full"], [L.index, "Chapter index on AO3 \u2197", "cn-index"]]){
+    if (!h) continue; const a = document.createElement("a"); a.href = h; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = t; a.className = c; row.appendChild(a);
+  }
+}
 function combineStories(parts){
   const sorted = parts.map((p, i) => ({ p, i, n: chapterNumber(p) })).sort((a, b) => a.n - b.n || a.i - b.i).map(x => x.p);
   const seen = new Set(), chapters = [];
@@ -2774,38 +2923,38 @@ function combineStories(parts){
 }
 let encWork = null, encIndex = null;
 function showChapterBox(good, story, parts){
-  const box = $("encChapters"); box.textContent = ""; box.hidden = true;
+  const box = $("encChapters"); box.textContent = ""; box.hidden = true; box.classList.remove("collapsed");
   const idx = mergeIndexes((parts || good).map(p => p.index));
   const work = idx.work;
   idx.title = story && story.title || null;
+  idx.stats = (parts || good).map(p => p.stats).filter(Boolean).sort((a, b) => b.posted - a.posted)[0] || null;
   encWork = work; encIndex = idx.work || idx.list.length > 1 ? idx : null;
   if (work && !$("ao3Url").value) $("ao3Url").value = "https://archiveofourown.org/works/" + work;
   if (work) showAo3Links(parseAo3Url($("ao3Url").value));
-  const add = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; box.appendChild(e); return e; };
-  if (good.length > 1) add("div", `Combined ${good.length} files into one story, in chapter order: ` + story.chapters.map(c => c.heading || "untitled part").join(" · "));
+  // the Next chapter bar, right under the file name
+  renderNextBar($("encNext"), story ? nextModel(idx, story.chapters.length, idx.stats) : null, idx);
+  const pre = [];
+  if (good.length > 1) pre.push(`Combined ${good.length} files into one story, in chapter order: ` + story.chapters.map(c => c.heading || "untitled part").join(" · "));
   if (idx.list.length > 1){
     const n = idx.list.length, have = idx.list.filter(c => c.have), curC = idx.list.find(c => c.id === idx.current);
-    if (have.length < n) add("div", good.length === 1 && curC ? `This file is chapter ${curC.num} of ${n}. The links below open the other chapters on AO3.`
-      : `You have ${have.length} of ${n} chapters.`);
-    renderChapterNav(box, idx, "The chapter list is saved inside the encrypted text (with “Keep original formatting” on), so it shows again after decrypting.", { tip: true });
-  } else if (work && good.length > 1){
-    const L = ao3Links({ work }), row = add("div", null, "linkrow"), dl = ao3DownloadUrl(idx);
-    for (const [href, label] of [...(dl ? [[dl, "Download whole work (HTML) ↗"]] : []), [L.full, "Entire work on AO3 ↗"]]){ const a = document.createElement("a"); a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = label; row.appendChild(a); }
-  }
+    if (have.length < n) pre.push(good.length === 1 && curC ? `This file is chapter ${curC.num} of ${n}.` : `You have ${have.length} of ${n} chapters.`);
+    renderChapterNav(box, idx, "The chapter list is saved inside the encrypted text (with “Keep original formatting” on), so it shows again after decrypting.", { tip: true, fold: true, noNav: true, pre });
+  } else if (work) renderChapterNav(box, idx, null, { fold: true, pre });
+  else if (pre.length){ const p = document.createElement("p"); p.className = "hint"; p.textContent = pre[0]; box.appendChild(p); }
   box.hidden = !box.childNodes.length;
 }
 const describeFile = f => `“${f.name || "unnamed file"}” (${fmtBytes(f.size || 0)}, ${f.type ? "type " + f.type : "no file type given"})`;
 function showEncFileError(errs){
   encBytes = null; encStoryText = ""; encStory = null; encIndex = null; $("encOut").hidden = true;
   const one = errs[0];
-  $("encInfo").classList.remove("show"); $("encChapters").hidden = true;
+  $("encInfo").classList.remove("show"); $("encChapters").hidden = true; $("encNext").hidden = true; markDropLoaded(false);
   const pk = $("encPicked"); pk.hidden = false; pk.classList.add("err"); pk.textContent = one.e.message + " Received: " + errs.map(x => describeFile(x.f)).join(", ") + ".";
   setStatus($("encStatus"), (errs.length > 1 ? `None of the ${errs.length} files could be used. ` : "") + one.e.message + " Received: " + errs.map(x => describeFile(x.f)).join(", ") + ".", "err");
   updateEncBtn();
 }
 async function loadEncFiles(files){
   files = [...(files || [])].filter(Boolean); if (!files.length) return;
-  const pk = $("encPicked"); pk.hidden = false; pk.classList.remove("err"); pk.textContent = "Received " + files.map(describeFile).join(", ");
+  const pk = $("encPicked"); pk.hidden = false; pk.classList.remove("err", "quiet"); pk.textContent = "Received " + files.map(describeFile).join(", ");
   setStatus($("encStatus"), "Reading " + (files.length > 1 ? files.length + " files" : "the file") + "…", "busy");
   const srcs = [], errs = [];
   try {
@@ -2820,8 +2969,9 @@ async function loadEncSources(srcs){
   $("encOut").hidden = true; setStatus($("encStatus"), "Reading the story…", "busy"); await nextFrame();
   const parts = srcs.map(src => {
     let doc = null, story = null, index = null;
-    try { doc = new DOMParser().parseFromString(src.text, "text/html"); index = chapterIndexOf(doc, src.text); story = extractStory(doc); } catch(e){}
-    return { src, story, index };
+    let stats = null;
+    try { doc = new DOMParser().parseFromString(src.text, "text/html"); index = chapterIndexOf(doc, src.text); stats = workStats(doc); story = extractStory(doc); } catch(e){}
+    return { src, story, index, stats };
   });
   const good = parts.filter(p => p.story), size = srcs.reduce((n, x) => n + x.size, 0);
   const label = srcs.length > 1 ? srcs.length + " files" : srcs[0].name;
@@ -2831,7 +2981,7 @@ async function loadEncSources(srcs){
   $("encTitle").textContent = title || label;
   $("encInfo").classList.add("show");
   if (!story){
-    $("encMeta").textContent = label + " · " + fmtBytes(size); showChapterBox([], null, parts);
+    $("encMeta").textContent = label + " · " + fmtBytes(size); showChapterBox([], null, parts); markDropLoaded(false);
     setStatus($("encStatus"), "Couldn't find a story in " + (srcs.length > 1 ? "these files" : "this file") + ". Use the HTML file from AO3's Download button on the work page (Download → HTML); the story text is expected inside its chapters section." +
       " Received: " + srcs.map(x => `${describeFile(x)}, read as ${x.kind || "text"}`).join("; ") + ".", "err");
     updateEncBtn(); return;
@@ -2844,7 +2994,13 @@ async function loadEncSources(srcs){
   setStatus($("encStatus"), "Found the story: " + encStats + ". Tags, summary, notes and AO3's extra text are left out." +
     (good.length > 1 ? ` Combined ${good.length} files in chapter order.` : "") + (skipped ? ` ${skipped} file${skipped > 1 ? "s" : ""} had no story and ${skipped > 1 ? "were" : "was"} skipped.` : ""), "ok");
   showChapterBox(good, story, parts);
+  markDropLoaded(true); $("encPicked").classList.add("quiet");
   updateEncBtn();
+}
+// after a file is in, the upload area shrinks to one line ("Choose another file")
+function markDropLoaded(on){
+  $("encDrop").classList.toggle("loaded", on);
+  $("encDropT").textContent = on ? "Choose another file" : "Choose your AO3 .html file";
 }
 const drop = $("encDrop");
 // The tap goes straight to the real <input type=file> (it covers the drop zone; the basic picker is a plain one).
@@ -2864,7 +3020,7 @@ $("encPasteBtn").addEventListener("click", () => {
   if (!/\S/.test(t)){ setStatus($("encStatus"), "The paste box is empty. Paste the story text or the page's HTML first.", "err"); return; }
   if (/^\s*AO3SUB\$\d/.test(t)){ setStatus($("encStatus"), STORY_FILE_HELP.cipher, "err"); return; }
   const html = looksLikeHtml(t) ? t : storyTextToHtml(t, "Pasted story");
-  $("encPicked").hidden = false; $("encPicked").classList.remove("err"); $("encPicked").textContent = `Pasted ${t.length.toLocaleString()} characters · read as ${looksLikeHtml(t) ? "HTML" : "plain text"}`;
+  $("encPicked").hidden = false; $("encPicked").classList.remove("err", "quiet"); $("encPicked").textContent = `Pasted ${t.length.toLocaleString()} characters · read as ${looksLikeHtml(t) ? "HTML" : "plain text"}`;
   loadEncSources([{ name: "pasted text", size: enc.encode(t).length, type: "", text: html, kind: looksLikeHtml(t) ? "HTML" : "plain text" }]);
 });
 ["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
@@ -2966,6 +3122,7 @@ $("encSimplify").checked = prefs.simplify;
 $("encSimplify").addEventListener("change", e => { setPref("simplify", e.target.checked); showEncOpts(); });
 // the Encrypt tab shows a one-line summary of these options; they live in Settings → Encryption
 function showEncOpts(){
+  $("encOptsBtn").title = "Encryption options (Settings): " + [$("encFormat").checked ? "keep formatting" : "plain text only", $("encSimplify").checked ? "simplify characters" : "exact characters"].join(", ");
   $("encOptsText").textContent = [$("encFormat").checked ? "Keep formatting" : "Plain text only", $("encSimplify").checked ? "Simplify characters" : "Exact characters"].join(" · ");
 }
 showEncOpts();
@@ -2999,11 +3156,21 @@ $("dlTxtBtn").addEventListener("click", () => download($("encText").value, encNa
 
 // ---------- decrypt UI ----------
 let decIndex = null;
-function showDecChapters(){
-  const box = $("decChapters"); box.textContent = "";
-  if (decIndex && decIndex.list.length > 1) renderChapterNav(box, decIndex);
-  else if (decIndex && decIndex.work){ const L = ao3Links({ work: decIndex.work }), row = document.createElement("div"); row.className = "linkrow"; for (const [h, t] of [[L.dl, "Download whole work (HTML) \u2197"], [L.full, "Entire work on AO3 \u2197"]]){ const a = document.createElement("a"); a.href = h; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = t; row.appendChild(a); } box.appendChild(row); }
+function showDecChapters(nChapters){
+  const box = $("decChapters"); box.textContent = ""; box.classList.remove("collapsed");
+  const m = decIndex ? nextModel(decIndex, nChapters || 0, decIndex.stats) : null;
+  renderNextBar($("decNext"), m && m.kind !== "none" ? m : null, decIndex);
+  const rn = $("rdNext"); rn.hidden = !(m && (m.kind === "next" || m.kind === "dlnext"));
+  if (m && m.kind === "next"){ rn.href = chapterUrl(decIndex, m.next) || ao3Links({ work: decIndex.work }).index; rn.title = `Next chapter: ${m.next.num}. ${m.next.title}`; }
+  else if (m && m.kind === "dlnext"){ rn.href = m.href; rn.title = `Next chapter: Chapter ${m.num}` + (m.direct ? "" : " (opens the chapter list on AO3)"); }
+  if (decIndex && decIndex.list.length > 1) renderChapterNav(box, decIndex, null, { fold: true, noNav: true });
+  else if (decIndex && decIndex.work) renderChapterNav(box, decIndex, null, { fold: true });
   box.hidden = !box.childNodes.length;
+}
+// after decrypting, bring the Next chapter bar up into view if it landed low on the screen (phones)
+function revealDecNext(){
+  const b = $("decNext"); if (b.hidden || !b.querySelector(".cn-next")) return;   // only when there is a button to press
+  const r = b.getBoundingClientRect(); if (r.bottom > innerHeight * 0.75 || r.top < 0) scrollBy(0, r.top - innerHeight * 0.3);
 }
 let decHtml = null, decText = "", decName = "work", decStory = "", decLegacy = false, decFormatted = false, decStoryId = "", pendingResume = -1;
 let pastedKey = null;
@@ -3039,12 +3206,12 @@ async function runDecrypt(force, restoring){
   try{
     const src = $("decText").value;
     let m, bytes = null, plain = "";
-    decFormatted = isFormattedText(src); decIndex = null;
+    decFormatted = isFormattedText(src); decIndex = null; let decNch = 0;
     if (decFormatted){
       const doc = decodeStoryFormatted(src, key, { force }); decIndex = takeChapterIndex(doc); if (decIndex) decIndex.title = oneLine((doc.querySelector("h1") || {}).textContent) || null; const stx = extractStory(doc);
       decLegacy = false; decText = fmtDocToPage(doc, decIndex); decHtml = enc.encode(decText); decStory = stx ? storyText(stx) : doc.body.textContent;
       m = { title: stx ? stx.title : "", author: stx ? stx.author : "" };
-      const nch = stx ? stx.chapters.length : 1;
+      const nch = stx ? stx.chapters.length : 1; decNch = nch;
       $("decCount").textContent = nch.toLocaleString() + (nch === 1 ? " chapter" : " chapters") + " · " + (stx ? stx.words : 0).toLocaleString() + " words · formatting kept";
     } else {
       bytes = decodeText(src, key, { force }); plain = dec.decode(bytes); decLegacy = looksLikeHtmlFile(plain);
@@ -3068,7 +3235,7 @@ async function runDecrypt(force, restoring){
     $("decOut").hidden = false; $("reader").hidden = false; $("previewBtn").textContent = "Hide preview";
     decStoryId = "s" + hashStr(decStory || decText);
     const pos = positions[decStoryId]; pendingResume = pos && pos.i > 0 ? pos.i : -1;
-    renderPreview(); renderBookmarks(); showDecChapters();
+    renderPreview(); renderBookmarks(); showDecChapters(decNch); revealDecNext();
     if (prefs.remember && !restoring) idb.set("lastDec", { ct: src, at: new Date().toISOString() });
     const sh = analyzeKey(key).injective ? [] : sharedOutputs(key);
     setStatus(st, sh.length ? (restoring ? "Reopened your last story (remembered on this device). " : "Decrypted. ") + "This cipher has shared outputs, so characters in those groups came back as the first of each (" +
@@ -3389,13 +3556,13 @@ function savePlaylist(){
 }
 $("plSave").addEventListener("click", savePlaylist);
 [$("plUrl"), $("plName")].forEach(i => i.addEventListener("keydown", e => { if (e.key === "Enter") savePlaylist(); }));
-function setMin(min){
+function setMin(min, save = true){
   $("player").classList.toggle("min", min); $("plMin").textContent = min ? "+" : "–";
   $("plMin").setAttribute("aria-expanded", String(!min)); $("plMin").setAttribute("aria-label", min ? "Expand player" : "Minimize player");
-  store.set("ao3enc.playerMin", min);
+  if (save) store.set("ao3enc.playerMin", min);
 }
 $("playerHead").addEventListener("click", () => setMin(!$("player").classList.contains("min")));
-setMin(!!store.get("ao3enc.playerMin", window.innerWidth < 600)); // small screens start minimized
+setMin(!!store.get("ao3enc.playerMin", true), false); // starts as a small floating button until you open it
 renderPlaylists();
 // keep the player clear of badges some free hosts pin to the bottom-right corner
 function dodgeHostBadges(){
@@ -3680,8 +3847,11 @@ async function wipeAll(){
   setTimeout(() => location.reload(), 300);
 }
 // ---------- first-visit tips (the reference walked new users through it) ----------
-$("intro").hidden = !!prefs.seenIntro;
-$("introClose").addEventListener("click", () => { setPref("seenIntro", true); $("intro").hidden = true; });
+// the tips stay folded behind the "?" button in the header
+function showIntro(open){ $("intro").hidden = !open; $("helpBtn").setAttribute("aria-expanded", String(open)); }
+showIntro(false);
+$("helpBtn").addEventListener("click", () => showIntro($("intro").hidden));
+$("introClose").addEventListener("click", () => { setPref("seenIntro", true); showIntro(false); });
 // ---------- other tabs of this page stay in sync ----------
 addEventListener("storage", e => {
   if (!e.key || !e.key.startsWith("ao3enc.")) return;
