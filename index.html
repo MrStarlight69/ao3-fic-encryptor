@@ -245,6 +245,25 @@ details.box .row{margin-top:8px}
 .bmlist .bm .where{display:block;font-weight:700;font-size:.85rem}.bmlist .bm .snip{display:block;font-size:.82rem;opacity:.8}
 .bmlist .empty{font-size:.88rem;opacity:.8;padding:6px}
 .datalist{margin:8px 0 0;padding-left:1.2em;font-size:.92rem}
+.chapnav{margin-top:8px}
+.chapnav .cn-head{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}.chapnav .cn-head .cn-have{color:var(--muted);font-size:.88rem}
+.chapnav .cn-np{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}.chapnav .cn-np a{text-decoration:none}
+.chapnav .cn-list{list-style:none;padding:0;margin:8px 0 0;max-height:240px;overflow:auto;border-radius:10px;border:1px solid var(--field-border);background:var(--field-bg)}
+.chapnav .cn-list li{display:flex;gap:8px;align-items:baseline;padding:5px 10px;border-top:1px solid var(--field-border)}.chapnav .cn-list li:first-child{border-top:0}
+.chapnav .cn-list .n{min-width:2.2em;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.chapnav .cn-list .t{flex:1;color:var(--accent);font-weight:600;overflow-wrap:anywhere}.chapnav .cn-list span.t{color:var(--field-ink);font-weight:400}
+.chapnav .cn-list li.have{background:var(--chip)}.chapnav .cn-list li.now .t{font-weight:800}
+.chapnav .cn-list .tag{font-size:.75rem;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--accent);color:var(--btn-ink,#fff);white-space:nowrap}
+.chapnav .linkrow .btn{margin-left:auto}
+.cstory .ao3-index{display:none}
+.cstory .esc{opacity:.5;font-size:.84em;border-bottom:1px dotted currentColor;cursor:help;letter-spacing:0}
+.fontgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.fontcard{padding:12px 14px 14px;border-radius:14px;border:1px solid var(--field-border);background:var(--chip)}
+.fontcard select{width:100%}
+.fontcard input[type=range]{width:100%;accent-color:var(--accent);margin:0}
+.fontcard label output{font-weight:400;color:var(--muted);margin-left:6px}
+.fontprev{margin-top:12px;padding:12px 14px;border-radius:12px;border:1px solid var(--field-border);background:var(--field-bg);color:var(--field-ink);min-height:4.4em;overflow-wrap:anywhere}
+#fontEncPrev{font-family:var(--mono)}
 .datalist li{margin:2px 0}
 .cstory{max-height:min(72vh,680px);overflow:auto;padding:22px clamp(14px,4vw,36px);border-radius:12px;border:1px solid var(--field-border);background:var(--field-bg);
   color:var(--field-ink);box-shadow:var(--field-shadow);font:14px/1.75 var(--mono);overflow-wrap:anywhere;word-break:break-word}
@@ -386,7 +405,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
   .btn{transition:none}
 }
 /* ---------- cipher UI ---------- */
-.tabs{max-width:620px}
+.tabs{max-width:760px}
 .cipherline{margin-top:16px}
 .cipherline .row{gap:8px}
 .cipherline select{flex:1 1 220px}
@@ -436,6 +455,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
 .legend .l-empty::before{border-color:var(--err);border-style:dotted}
 @media (max-width:600px){ .cgrid{grid-template-columns:repeat(auto-fill,minmax(46px,1fr));max-height:360px} .presets{grid-template-columns:1fr} }
 </style>
+<style id="fontCss"></style>
 </head>
 <body>
 <div class="scene" aria-hidden="true"><div class="b"></div><div class="a"></div><div class="c"></div><div id="bubbles"></div></div>
@@ -462,6 +482,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
     <button class="tab" role="tab" id="tab-enc" aria-selected="true" aria-controls="panel-enc">Encrypt</button>
     <button class="tab" role="tab" id="tab-dec" aria-selected="false" aria-controls="panel-dec">Decrypt</button>
     <button class="tab" role="tab" id="tab-cip" aria-selected="false" aria-controls="panel-cip">Cipher</button>
+    <button class="tab" role="tab" id="tab-opt" aria-selected="false" aria-controls="panel-opt">Settings</button>
     <button class="tab" role="tab" id="tab-set" aria-selected="false" aria-controls="panel-set">Saved</button>
   </div>
 
@@ -509,7 +530,9 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
       </div>
       <p class="hint" id="encHint"></p>
     </div>
-    <div class="optrow"><label class="check"><input type="checkbox" id="encFormat"> Keep original formatting (italics, bold, lists, quotes&hellip;)</label></div>
+    <div class="optrow"><label class="check"><input type="checkbox" id="encFormat"> Keep original formatting (italics, bold, lists, quotes&hellip;)</label>
+      <label class="check"><input type="checkbox" id="encSimplify"> Simplify punctuation</label></div>
+    <p class="hint" id="simplifyHelp">Simplify punctuation turns curly quotes (&ldquo; &rdquo; &lsquo; &rsquo;), dashes (&ndash; &mdash;), &hellip;, bullets and special spaces into plain keyboard characters (" ' - -- ... *) before encrypting, so the encrypted text looks clean. Turn it off to keep every character exactly: characters that aren't on a keyboard are then stored as short escape codes (for some ciphers they look like <code>~{201C}</code>), and decrypting turns them back into the exact character.</p>
     <div class="actions"><button class="btn primary" id="encBtn" disabled>Encrypt</button></div>
     <div class="status" id="encStatus" aria-live="polite"></div>
 
@@ -561,6 +584,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
 
     <div class="out" id="decOut" hidden>
       <div class="outhead"><strong id="decTitle">Decrypted work</strong><span class="count" id="decCount"></span></div>
+      <div class="chapbox" id="decChapters" hidden></div>
       <div class="actions">
         <button class="btn" id="dlStoryTxtBtn">Download .txt</button>
         <button class="btn" id="dlHtmlBtn">Download .html</button>
@@ -594,6 +618,54 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
         <iframe id="preview" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" title="Sandboxed preview of the decrypted work"></iframe>
       </div>
     </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="panel glass" id="panel-opt" role="tabpanel" aria-labelledby="tab-opt" hidden>
+    <div class="sub" style="margin-top:0">Fonts</div>
+    <p class="hint" style="margin-top:0">Use any font you like for reading and for the encrypted text: pick one from the list, type the name of any font installed on this device, upload a font file, or load one from Google Fonts.</p>
+    <div class="fontgrid">
+      <div class="fontcard">
+        <div class="sub" style="margin-top:0">Reading text</div>
+        <label for="fontReadSel">Font</label>
+        <select id="fontReadSel"></select>
+        <div class="row" style="margin-top:8px"><input type="text" id="fontReadName" spellcheck="false" autocomplete="off" placeholder="Any installed font, e.g. Atkinson Hyperlegible" aria-label="Font name for reading text"><button class="btn small" id="fontReadUse">Use</button></div>
+        <p class="hint" id="fontReadHint"></p>
+        <label for="readSize">Size <output id="readSizeOut"></output></label><input type="range" id="readSize" min="13" max="30" step="1">
+        <label for="readLh">Line height <output id="readLhOut"></output></label><input type="range" id="readLh" min="1.2" max="2.6" step="0.05">
+        <div class="fontprev" id="fontReadPrev"><b>The Keeper of Small Lights</b><br>&ldquo;Not yet,&rdquo; she whispered &mdash; and the tide came in&hellip; <i>slowly</i>. 0123456789</div>
+        <div class="actions"><button class="btn small" id="fontReadReset">Reset to theme default</button></div>
+      </div>
+      <div class="fontcard">
+        <div class="sub" style="margin-top:0">Encrypted text</div>
+        <label for="fontEncSel">Font</label>
+        <select id="fontEncSel"></select>
+        <div class="row" style="margin-top:8px"><input type="text" id="fontEncName" spellcheck="false" autocomplete="off" placeholder="Any installed font, e.g. Courier New" aria-label="Font name for encrypted text"><button class="btn small" id="fontEncUse">Use</button></div>
+        <p class="hint" id="fontEncHint"></p>
+        <label for="encSize">Size <output id="encSizeOut"></output></label><input type="range" id="encSize" min="10" max="24" step="1">
+        <label for="encLh">Line height <output id="encLhOut"></output></label><input type="range" id="encLh" min="1.1" max="2.4" step="0.05">
+        <div class="fontprev" id="fontEncPrev">&amp;;} "}}-}( _\ *.+,, ,:|;&amp;*<br>;},,_L $_(,]Z pic ~{2615}</div>
+        <div class="actions"><button class="btn small" id="fontEncReset">Reset to theme default</button></div>
+      </div>
+    </div>
+    <div class="sub">Add a font</div>
+    <div class="actions" style="margin-top:4px">
+      <button class="btn small" id="fontUpBtn">Upload a font file (.ttf, .otf, .woff, .woff2)</button>
+      <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2" hidden>
+    </div>
+    <ul class="datalist" id="fontUpList"></ul>
+    <p class="hint">Uploaded fonts stay in this browser (IndexedDB) and come back every time; they're included in backups and removed by Wipe.</p>
+    <div class="optrow"><label class="check"><input type="checkbox" id="allowGoogle"> Allow loading fonts from Google Fonts</label></div>
+    <div class="row" style="margin-top:8px"><input type="text" id="gfName" spellcheck="false" autocomplete="off" placeholder="Google Font name, e.g. Lora or Open Sans" aria-label="Google Font name"><button class="btn small" id="gfLoad" disabled>Load from Google Fonts</button></div>
+    <p class="hint">Off by default: loading a Google Font contacts Google's servers (they see your IP address and which font you asked for). Nothing else on this page talks to Google.</p>
+    <div class="status" id="fontStatus" aria-live="polite"></div>
+    <div class="sub">Reading page</div>
+    <div class="optrow">
+      <select id="optPaper" aria-label="Page colour" style="flex:0 0 auto;width:auto"><option value="light">Light page</option><option value="sepia">Sepia page</option><option value="dark">Dark page</option><option value="original">Original style</option></select>
+      <select id="optSpacing" aria-label="Spacing" style="flex:0 0 auto;width:auto"><option value="normal">Normal spacing</option><option value="wide">Wide spacing</option><option value="wider">Wider spacing</option></select>
+      <label class="check"><input type="checkbox" id="optReadTags"> Tag colours in the reader</label>
+    </div>
+    <p class="hint">These are the same settings as in the reading view's toolbar; changing them in either place changes both.</p>
   </section>
 
   <!-- SAVED DATA -->
@@ -1089,6 +1161,50 @@ function ao3Meta(html){
   }catch(e){ return {title:"", author:""}; }
 }
 
+// ---------- characters: leftover HTML entities, typographic punctuation ----------
+// Some AO3 pages contain entities that were escaped twice (the text literally says "&rsquo;"); decode those too.
+const ENT_RE = /&(?:#\d{1,7}|#x[0-9a-f]{1,6}|[a-z][a-z0-9]{1,31});/gi, entCache = new Map();
+function fixEntities(s){
+  if (!s || s.indexOf("&") < 0) return s;
+  return s.replace(ENT_RE, m => {
+    let v = entCache.get(m);
+    if (v === undefined){
+      try { v = new DOMParser().parseFromString("<!DOCTYPE html><textarea>" + m + "</textarea>", "text/html").querySelector("textarea").value; } catch(e){ v = m; }
+      if (!v || v.length > 2 || /[\u0000-\u0008\u000b-\u001f\u007f]/.test(v)) v = m;   // unknown entity, or a control character: leave it
+      entCache.set(m, v);
+    }
+    return v;
+  });
+}
+// "Simplify punctuation": typographic characters -> keyboard equivalents, so the encrypted text needs no escape codes
+const PUNCT_MAP = {
+  "\u201C": '"', "\u201D": '"', "\u201E": '"', "\u201F": '"', "\u2033": '"', "\u2036": '"', "\u301D": '"', "\u301E": '"', "\uFF02": '"', "\u00AB": '"', "\u00BB": '"',
+  "\u2018": "'", "\u2019": "'", "\u201A": "'", "\u201B": "'", "\u2032": "'", "\u2035": "'", "\uFF07": "'", "\u02BC": "'", "\u2039": "'", "\u203A": "'",
+  "\u2010": "-", "\u2011": "-", "\u2012": "-", "\u2013": "-", "\u2212": "-", "\uFE63": "-", "\uFF0D": "-", "\u2014": "--", "\u2015": "--",
+  "\u2026": "...", "\u2022": "*", "\u2023": "*", "\u2043": "*", "\u25E6": "*", "\u2219": "*", "\u2044": "/", "\u2215": "/",
+  "\u203C": "!!", "\u2047": "??", "\u2048": "?!", "\u2049": "!?",
+  "\u00A0": " ", "\u2000": " ", "\u2001": " ", "\u2002": " ", "\u2003": " ", "\u2004": " ", "\u2005": " ", "\u2006": " ", "\u2007": " ", "\u2008": " ", "\u2009": " ", "\u200A": " ",
+  "\u202F": " ", "\u205F": " ", "\u3000": " ", "\u1680": " ", "\u2028": " ", "\u2029": " ",
+  "\u00AD": "", "\u200B": "", "\u2060": "", "\uFEFF": ""
+};
+const PUNCT_RE = new RegExp("[" + Object.keys(PUNCT_MAP).map(c => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0")).join("") + "]", "g");
+function simplifyPunct(s, cnt){ return s.replace(PUNCT_RE, c => { if (cnt) cnt.n++; return PUNCT_MAP[c]; }); }
+function simplifyStory(story, cnt){
+  const f = t => t == null ? t : oneLine(simplifyPunct(t, cnt));
+  return Object.assign({}, story, { title: f(story.title), author: f(story.author), chapters: story.chapters.map(c => Object.assign({}, c, {
+    heading: c.heading == null ? null : f(c.heading),
+    blocks: c.blocks.map(b => b.type !== "p" ? b : Object.assign({}, b, { text: simplifyPunct(b.text, cnt).split("\n").map(l => l.replace(/^ +| +$/g, "")).filter(Boolean).join("\n") })).filter(b => b.type !== "p" || b.text)
+  })) });
+}
+function simplifyDoc(root, cnt){       // formatted stories: same, on the text nodes; a paragraph that only holds &nbsp; becomes an empty line (<br>)
+  for (const t of fmtTextNodes(root)){
+    const par = t.parentNode;
+    if (/\u00a0/.test(t.data) && !/[^\s\u00a0]/.test(t.data) && par !== root && fmtIsBlock(par) && par.childNodes.length === 1){ par.replaceChild(root.ownerDocument.createElement("br"), t); if (cnt) cnt.n++; continue; }
+    const v = simplifyPunct(t.data, cnt); if (v) t.data = v; else t.remove();
+  }
+  root.normalize();
+}
+
 // ---------- story extraction (AO3 download format) ----------
 // AO3's download template: #preface (tags, stats, summary, notes) · #chapters · #afterword (end notes, comment prompt).
 // Inside #chapters, each chapter is a div.meta (h2.heading + chapter summary/notes) followed by the div.userstuff
@@ -1107,7 +1223,7 @@ function storyBlocks(root){
   };
   const walk = (node, pre) => {
     for (const ch of node.childNodes){
-      if (ch.nodeType === 3){ buf += pre ? ch.data : ch.data.replace(/[\s\n]+/g, " "); continue; }
+      if (ch.nodeType === 3){ const d = fixEntities(ch.data); buf += pre ? d : d.replace(/[\s\n]+/g, " "); continue; }
       if (ch.nodeType !== 1) continue;
       const tag = ch.tagName.toUpperCase();
       if (SKIP_TAGS.has(tag) || (ch.classList && ch.classList.contains("landmark"))) continue;
@@ -1131,12 +1247,12 @@ function extractStory(html){
     for (const el of root.children){
       if (el.matches("div.chapter")){ // AO3's normal web page (Save Page As), not the download
         const h = el.querySelector(".chapter.preface .title, h3.title"), us = [...el.querySelectorAll(".userstuff")].find(u => !u.closest(".preface, .notes, .summary, .end, blockquote"));
-        chapters.push(cur = { heading: h ? oneLine(h.textContent) : null, blocks: us ? storyBlocks(us) : [], els: us ? [us] : [] }); cur = null; continue;
+        chapters.push(cur = { heading: h ? oneLine(fixEntities(h.textContent)) : null, blocks: us ? storyBlocks(us) : [], els: us ? [us] : [] }); cur = null; continue;
       }
       if (el.matches(".meta, .chapter-head")){
         if (/^endnotes/.test(el.id || "")) continue;            // chapter end notes
         const h = el.querySelector("h2.heading, .heading");
-        if (h){ chapters.push(cur = { heading: oneLine(h.textContent), blocks: [], els: [] }); }
+        if (h){ chapters.push(cur = { heading: oneLine(fixEntities(h.textContent)), blocks: [], els: [] }); }
         continue;                                                // chapter summary / notes live in here
       }
       if (el.matches(".toc-heading")) continue;
@@ -1158,7 +1274,7 @@ function extractStory(html){
   if (!chapters.some(c => c.blocks.length)) return null;
   let words = 0;
   for (const c of chapters) for (const b of c.blocks) if (b.type === "p") words += (b.text.match(/\S+/g) || []).length;
-  return { title: meta.title, author: meta.author, chapters, words };
+  return { title: oneLine(fixEntities(meta.title)), author: oneLine(fixEntities(meta.author)), chapters, words };
 }
 // Story text format (what gets encrypted): blocks separated by one blank line.
 //   "# Title", "by Author", "## Chapter heading", "* * *" = scene break, anything else = a paragraph
@@ -1222,7 +1338,7 @@ const FMT_VOID = new Set(["br", "hr"]);
 const FMT_BLOCK = new Set("p div blockquote h1 h2 h3 h4 h5 h6 ul ol li dl dt dd pre center table thead tbody tfoot tr td th caption figure figcaption details summary hr address section article aside header footer".split(" "));
 const FMT_DROP = new Set("script style noscript template iframe frame frameset object embed applet link meta base title head form input button select option textarea svg math video audio source track canvas map area picture".split(" "));
 const FMT_NO_TEXT = new Set("table thead tbody tfoot tr ul ol dl colgroup".split(" "));   // whitespace text here is meaningless
-const FMT_CLASSES = new Set(["byline", "chapter-head", "heading", "chapter", "userstuff"]);
+const FMT_CLASSES = new Set(["byline", "chapter-head", "heading", "chapter", "userstuff", "ao3-index", "have"]);
 function fmtAttrs(src, dst){
   const tag = dst.tagName.toLowerCase();
   const al = (src.getAttribute("align") || "").toLowerCase();
@@ -1241,8 +1357,9 @@ function fmtSanitize(from, into, opts, pre){
   for (const n of from.childNodes){
     if (n.nodeType === 3){
       if (opts && opts.raw){ into.appendChild(doc.createTextNode(n.data)); continue; }
-      if (pre){ n.data.split(/\r\n?|\n/).forEach((part, i) => { if (i) into.appendChild(doc.createElement("br")); if (part) into.appendChild(doc.createTextNode(part)); }); }
-      else { const t = n.data.replace(/[ \t\n\r\f]+/g, " "); if (t) into.appendChild(doc.createTextNode(t)); }
+      const data = fixEntities(n.data);
+      if (pre){ data.split(/\r\n?|\n/).forEach((part, i) => { if (i) into.appendChild(doc.createElement("br")); if (part) into.appendChild(doc.createTextNode(part)); }); }
+      else { const t = data.replace(/[ \t\n\r\f]+/g, " "); if (t) into.appendChild(doc.createTextNode(t)); }
       continue;
     }
     if (n.nodeType !== 1) continue;
@@ -1281,11 +1398,17 @@ function fmtTidy(root){          // drop whitespace-only text where it means not
   }
 }
 // story (from extractStory) -> clean AO3-shaped document body (also what Download .html contains)
-function storyToFmtDoc(story){
+function storyToFmtDoc(story, index){
   const doc = document.implementation.createHTMLDocument(""), b = doc.body;
   const add = (par, tag, attrs, text) => { const e = doc.createElement(tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; par.appendChild(e); return e; };
   if (story.title) add(b, "h1", {}, oneLine(story.title));
   if (story.author) add(b, "p", { class: "byline" }, "by " + oneLine(story.author));
+  // the work's chapter list (ids + names) travels inside the encrypted text, ciphered like everything else
+  if (index && (index.work || index.list.length > 1)){
+    const ol = add(b, "ol", { class: "ao3-index" });
+    if (index.work) add(ol, "li", {}, "work " + index.work);
+    for (const c of index.list) add(ol, "li", c.have ? { class: "have" } : {}, (c.id || "-") + " " + c.num + ". " + (oneLine(c.title) || "Chapter " + c.num));
+  }
   const chs = add(b, "div", { id: "chapters" });
   for (const c of story.chapters){
     if (c.heading) add(add(chs, "div", { class: "chapter-head" }), "h2", { class: "heading chapter" }, c.heading);
@@ -1320,8 +1443,11 @@ function fmtParse(html){         // cipher HTML -> sanitized body (works for cip
   fmtSanitize(src.body, doc.body, { raw: true });
   return doc;
 }
-function encodeStoryFormatted(story, key){
-  const doc = storyToFmtDoc(story), nodes = fmtTextNodes(doc.body);
+function encodeStoryFormatted(story, key, opts){
+  opts = opts || {};
+  const doc = storyToFmtDoc(story, opts.index);
+  if (opts.simplify) simplifyDoc(doc.body, opts.count);
+  const nodes = fmtTextNodes(doc.body);
   const plain = nodes.map(t => t.data);
   const joined = plain.join("\n");
   const ct = encodeBytes(new TextEncoder().encode(joined), key);
@@ -1351,15 +1477,44 @@ function decodeStoryFormatted(text, key, opts){
   for (const t of fmtTextNodes(doc.body)) if (t.data.includes("\n") && !/\S/.test(t.data)) t.remove();   // our line breaks between blocks
   return doc;
 }
+// decrypted document -> { work, list: [{ id, num, title, have }] } (and the list is removed from the story)
+function takeChapterIndex(doc){
+  const ol = doc.querySelector("ol.ao3-index"); if (!ol) return null;
+  const idx = { work: null, list: [], current: null };
+  for (const li of ol.querySelectorAll("li")){
+    const t = oneLine(li.textContent), w = /^work (\d{1,10})$/i.exec(t);
+    if (w){ idx.work = w[1]; continue; }
+    const m = /^(\S+) (\d{1,5})\.\s*(.*)$/.exec(t); if (!m) continue;
+    idx.list.push({ id: /^\d{1,12}$/.test(m[1]) ? m[1] : null, num: +m[2], title: m[3] || "Chapter " + m[2], have: li.classList.contains("have") });
+  }
+  ol.remove();
+  idx.list.sort((a, b) => a.num - b.num);
+  return idx;
+}
+function chapterNextPrev(idx){
+  const nums = idx.list.filter(c => c.have).map(c => c.num);
+  if (!nums.length) return { next: null, prev: null };
+  const lo = Math.min(...nums);   // next = the first chapter you don't have yet after the first one you have (fills gaps first)
+  return { next: idx.list.find(c => c.num > lo && !c.have) || null, prev: [...idx.list].reverse().find(c => c.num < lo) || null };
+}
+const chapterUrl = (idx, c) => idx.work && c.id ? `https://archiveofourown.org/works/${idx.work}/chapters/${c.id}` : null;
 const isFormattedText = t => { try { return !!FMT_BASE[readHeader(t).version]; } catch(e){ return false; } };
 // full clean page for reading / Download .html (same shape as an AO3 download, so it can be encrypted again)
-function fmtDocToPage(doc){
+function fmtDocToPage(doc, idx){
   const t = doc.querySelector("h1"), by = doc.querySelector(".byline");
+  let nav = "";
+  if (idx && idx.list.length > 1){
+    const { next } = chapterNextPrev(idx), link = (c, label) => { const u = chapterUrl(idx, c); return u ? `<a href="${u}">${escHtml(label)}</a>` : escHtml(label); };
+    nav = `<nav class="ao3-chapters"><p><strong>Chapters of this work</strong></p>\n<ol class="chapter index">` +
+      idx.list.map(c => `<li${c.have ? ' class="have"' : ""}>${link(c, c.num + ". " + c.title)}</li>`).join("") + "</ol>\n" +
+      (next ? `<p class="next">${link(next, "Next chapter: " + next.num + ". " + next.title + " \u2192")}</p>\n` : "") + "</nav>\n";
+  }
   return `<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n<title>${escHtml(t ? t.textContent : "Story")}${by ? " - " + escHtml(by.textContent.replace(/^by\s+/, "")) : ""}</title>
 <style>body{max-width:38em;margin:0 auto;padding:2em 1.3em;font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif;line-height:1.7}
 h1{line-height:1.2;margin-bottom:.2em}.byline{margin-top:0;opacity:.75}h2.chapter{margin-top:2.6em;padding-top:1em;border-top:1px solid rgba(128,128,128,.35)}
 blockquote{margin-left:0;padding-left:1em;border-left:3px solid rgba(128,128,128,.35)}
-hr{border:0 !important;height:auto;text-align:center;margin:1.6em 0;overflow:visible}hr::after{content:"\\2042";opacity:.7}</style>\n</head>\n<body>\n${fmtSerialize(doc.body)}\n</body>\n</html>\n`;
+hr{border:0 !important;height:auto;text-align:center;margin:1.6em 0;overflow:visible}hr::after{content:"\\2042";opacity:.7}
+nav.ao3-chapters{margin-top:3em;padding-top:1em;border-top:1px solid rgba(128,128,128,.35);font-size:.9em}nav.ao3-chapters li.have{font-weight:700}</style>\n</head>\n<body>\n${fmtSerialize(doc.body)}\n${nav}</body>\n</html>\n`;
 }
 
 // ---------- helpers ----------
@@ -1382,7 +1537,8 @@ const store = {
 const COOKIE = "ao3enc", COOKIE_MIRROR = new Set(["ao3enc.currentCipher", "ao3enc.reader", "ao3enc.prefs"]);
 function readCookie(){ try { const m = /(?:^|; )ao3enc=([^;]*)/.exec(document.cookie); return m ? JSON.parse(decodeURIComponent(m[1])) || {} : {}; } catch(e){ return {}; } }
 const cookieState = readCookie();
-const PREF_DEFAULTS = { format: true, tagColors: true, readTags: false, spacing: "normal", remember: true, proxy: "", seenIntro: false };
+const PREF_DEFAULTS = { format: true, simplify: true, tagColors: true, readTags: false, spacing: "normal", remember: true, proxy: "", seenIntro: false,
+  encFont: "", encSize: 0, encLh: 0, allowGoogle: false, gfonts: [] };
 const prefs = Object.assign({}, PREF_DEFAULTS, cookieState.p || {}, store.get("ao3enc.prefs", {}));
 let cookieTimer = 0;
 function writeCookie(){ clearTimeout(cookieTimer); cookieTimer = setTimeout(writeCookieNow, 30); }
@@ -1412,7 +1568,7 @@ const idb = (() => {
 function hashStr(str){ let h = 0x811c9dc5; for (let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h.toString(36) + "-" + str.length.toString(36); }
 
 // ---------- tabs ----------
-const TABS = [["tab-enc","panel-enc"],["tab-dec","panel-dec"],["tab-cip","panel-cip"],["tab-set","panel-set"]];
+const TABS = [["tab-enc","panel-enc"],["tab-dec","panel-dec"],["tab-cip","panel-cip"],["tab-opt","panel-opt"],["tab-set","panel-set"]];
 function showTab(id){
   for (const [t, p] of TABS){ $(t).setAttribute("aria-selected", String(t === id)); $(p).hidden = t !== id; }
   try { if (!window.__ao3wiping) sessionStorage.setItem("ao3enc.tab", id); } catch(e){}
@@ -1641,17 +1797,120 @@ function showAo3Links(w){
   $("ao3Links").hidden = !w; if (!w) return;
   const L = ao3Links(w); $("ao3DlLink").href = L.dl; $("ao3FullLink").href = L.full; $("ao3IndexLink").href = L.index;
 }
-// AO3's chapter pages carry a chapter menu (select#selected_id); downloads mention the work's address
+// AO3 chapter lists. Chapter pages have the chapter menu (works/_work_header_navigation: select#selected_id, one
+// <option value="CHAPTER_ID">N. Title</option> per chapter, the current one selected; titles over 50 characters are cut
+// with "..."), the full-page index (works/navigate: ol.chapter.index > li > a[href=/works/W/chapters/C]), chapter
+// headings (div.chapter#chapter-N > .preface h3.title > a[href=/works/W/chapters/C] + ": Title") and Previous/Next links.
+const CH_HREF = /(?:archiveofourown\.org)?\/works\/(\d{1,10})\/chapters\/(\d{1,12})/i;
 function chapterIndexOf(doc, raw){
-  const m = /archiveofourown\.org\/works\/(\d+)/.exec(raw) || /href="\/works\/(\d+)/.exec(raw);
+  raw = raw || "";
+  const byId = new Map(), loaded = new Set();
+  let work = null, current = null, prevId = null, nextId = null;
+  const better = (a, b) => { if (!a) return b; if (!b) return a; const ta = /\.\.\.$|…$/.test(a), tb = /\.\.\.$|…$/.test(b); if (ta !== tb) return ta ? b : a; return b.length > a.length ? b : a; };
+  const put = (id, num, title) => {
+    if (!/^\d{1,12}$/.test(id || "")) return;
+    const e = byId.get(id) || { id, num: null, title: "" };
+    if (num && !e.num) e.num = num;
+    if (title) e.title = better(e.title, oneLine(fixEntities(title)));
+    byId.set(id, e);
+  };
+  const hrefOf = a => CH_HREF.exec(a.getAttribute("href") || "");
+  const numTitle = t => { const m = /^(\d{1,5})\.\s*(.*)$/.exec(oneLine(t)); return m ? [+m[1], m[2]] : [null, oneLine(t)]; };
+  // 1. the chapter menu
   const sel = doc.querySelector("select#selected_id, select[name='selected_id']");
-  const list = sel ? [...sel.options].map(o => ({ id: o.value, title: oneLine(o.textContent) })) : [];
-  return { work: m ? m[1] : null, list, current: sel && sel.selectedIndex >= 0 ? sel.selectedIndex + 1 : 0 };
+  if (sel) [...sel.options].forEach((o, i) => { const [n, t] = numTitle(o.textContent); put(o.value, n || i + 1, t); if (o.defaultSelected) current = o.value; });
+  // 2. the full-page index (also what this page's own decrypted .html contains)
+  for (const a of doc.querySelectorAll("ol.chapter.index a[href], ol.index a[href]")){
+    const h = hrefOf(a); if (!h) continue; work = work || h[1];
+    const [n, t] = numTitle(a.textContent); put(h[2], n, t);
+    if (a.closest("li.have")) loaded.add(h[2]);
+  }
+  // 3. chapter headings of the chapters in this file (one on a chapter page, all of them on "Entire Work")
+  for (const d of doc.querySelectorAll("#chapters div.chapter[id^='chapter-']")){
+    const num = +((/^chapter-(\d+)$/.exec(d.id) || [])[1] || 0); if (!num) continue;
+    const h3 = d.querySelector("h3.title"), a = h3 && h3.querySelector("a[href]"), h = a && hrefOf(a); if (!h) continue;
+    work = work || h[1];
+    const full = oneLine(h3.textContent), rest = full.replace(/^Chapter\s+\d+\s*/i, "");
+    put(h[2], num, /^:\s*\S/.test(rest) ? rest.replace(/^:\s*/, "") : "Chapter " + num);
+    loaded.add(h[2]);
+  }
+  // 4. Previous / Next chapter links
+  const pn = (q) => { const a = doc.querySelector(q), h = a && hrefOf(a); if (h){ work = work || h[1]; put(h[2], null, ""); return h[2]; } return null; };
+  prevId = pn("li.chapter.previous a[href]"); nextId = pn("li.chapter.next a[href]");
+  // 5. any other chapter links on the page
+  for (const a of doc.querySelectorAll("a[href*='/chapters/']")){ const h = hrefOf(a); if (h && (!work || h[1] === work)){ work = work || h[1]; put(h[2], null, ""); } }
+  // work id from the page's own address (Chrome's "saved from url" note, canonical link) or any work link
+  const self = /saved from url=\(\d+\)(\S+)/i.exec(raw.slice(0, 600));
+  const canon = doc.querySelector("link[rel='canonical'][href], meta[property='og:url'][content]");
+  for (const u of [self && self[1], canon && (canon.getAttribute("href") || canon.getAttribute("content"))]){
+    const w = u && parseAo3Url(u); if (w){ work = work || w.work; if (w.chapter && !current && byId.size) current = w.chapter; }
+  }
+  if (!work){ const m = /archiveofourown\.org\/works\/(\d+)/.exec(raw) || /href="\/works\/(\d+)/.exec(raw); if (m) work = m[1]; }
+  if (!current && loaded.size === 1) current = [...loaded][0];
+  if (current) loaded.add(current);
+  // numbers for links that only had an id: neighbours of the current chapter, then chapter-id order
+  const cur = current && byId.get(current);
+  if (cur && cur.num){ if (prevId && byId.get(prevId) && !byId.get(prevId).num) byId.get(prevId).num = cur.num - 1; if (nextId && byId.get(nextId) && !byId.get(nextId).num) byId.get(nextId).num = cur.num + 1; }
+  let list = [...byId.values()];
+  const maxNum = Math.max(0, ...list.map(c => c.num || 0));
+  list.filter(c => !c.num).sort((a, b) => a.id.length - b.id.length || (a.id < b.id ? -1 : 1)).forEach((c, i) => { c.num = maxNum + i + 1; });
+  list.forEach(c => { if (!c.title) c.title = "Chapter " + c.num; });
+  list.sort((a, b) => a.num - b.num);
+  return { work, list, current, loaded: [...loaded] };
+}
+// one list for several uploaded files (each file's own chapter is marked as loaded)
+function mergeIndexes(idxs){
+  const out = { work: null, list: [], current: null }, byId = new Map(), loaded = new Set();
+  for (const x of idxs.filter(Boolean)){
+    out.work = out.work || x.work;
+    for (const c of x.list){
+      const e = byId.get(c.id);
+      if (!e) byId.set(c.id, Object.assign({}, c));
+      else { if (/\.\.\.$|…$/.test(e.title) && !/\.\.\.$|…$/.test(c.title)) e.title = c.title; if (/^Chapter \d+$/.test(e.title) && !/^Chapter \d+$/.test(c.title)) e.title = c.title; }
+    }
+    x.loaded.forEach(id => loaded.add(id));
+  }
+  out.list = [...byId.values()].sort((a, b) => a.num - b.num).map(c => Object.assign(c, { have: loaded.has(c.id) }));
+  const cur = idxs.filter(x => x && x.current); if (cur.length === 1 && idxs.filter(Boolean).length === 1) out.current = cur[0].current;
+  return out;
 }
 function chapterNumber(part){
-  if (part.index && part.index.list.length && part.index.current) return part.index.current;
+  const ix = part.index;
+  if (ix && ix.list.length){
+    const ids = ix.current ? [ix.current] : ix.loaded, nums = ids.map(id => (ix.list.find(c => c.id === id) || {}).num).filter(Boolean);
+    if (nums.length) return Math.min(...nums);
+  }
   const h = part.story.chapters[0] && part.story.chapters[0].heading, m = h && /chapter\s+(\d+)/i.exec(h);
   return m ? +m[1] : Infinity;
+}
+// the chapter list on the page: number, name (linked to AO3), which ones you have, Previous / Next, copy all links
+function renderChapterNav(box, idx, note){
+  const el = (tag, cls, text, par) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; (par || box).appendChild(e); return e; };
+  const link = (par, href, text, cls) => { const a = el(href ? "a" : "span", cls, text, par); if (href){ a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; } return a; };
+  const nav = el("div", "chapnav"), L = idx.work ? ao3Links({ work: idx.work }) : null;
+  const n = idx.list.length, have = idx.list.filter(c => c.have).length;
+  const head = el("div", "cn-head", null, nav);
+  el("strong", null, `Chapters of this work (${n})`, head);
+  el("span", "cn-have", have === n ? `You have all ${n}.` : have ? `You have ${have} of ${n}.` : "", head);
+  const { next, prev } = chapterNextPrev(idx);
+  if (next || prev){
+    const np = el("div", "cn-np", null, nav);
+    if (prev) link(np, chapterUrl(idx, prev) || (L && L.index), `\u2190 Previous: ${prev.num}. ${prev.title}`, "btn small cn-prev");
+    if (next) link(np, chapterUrl(idx, next) || (L && L.index), `Next chapter: ${next.num}. ${next.title} \u2192`, "btn primary cn-next");
+  }
+  const ol = el("ol", "cn-list", null, nav);
+  for (const c of idx.list){
+    const li = el("li", c.id && c.id === idx.current ? "now have" : c.have ? "have" : "", null, ol);
+    el("span", "n", c.num + ".", li);
+    link(li, chapterUrl(idx, c), c.title, "t");
+    if (c.have) el("span", "tag", c.id && c.id === idx.current ? "this file" : "loaded", li);
+  }
+  const row = el("div", "linkrow", null, nav);
+  if (L) for (const [href, label] of [[L.dl, "Download whole work (HTML) \u2197"], [L.full, "Entire work on AO3 \u2197"], [L.index, "Chapter index on AO3 \u2197"]]) link(row, href, label);
+  const cp = el("button", "btn small cn-copy", "Copy all chapter links", row);
+  cp.addEventListener("click", () => copyText(idx.list.map(c => `${c.num}. ${c.title}` + (chapterUrl(idx, c) ? " \u2014 " + chapterUrl(idx, c) : "")).join("\n") +
+    (L ? `\n\nWhole work (HTML download): ${L.dl}\nEntire work on AO3: ${L.full}\n` : "\n"), cp));
+  if (note) el("p", "hint cn-note", note, nav);
 }
 function combineStories(parts){
   const sorted = parts.map((p, i) => ({ p, i, n: chapterNumber(p) })).sort((a, b) => a.n - b.n || a.i - b.i).map(x => x.p);
@@ -1664,22 +1923,21 @@ function combineStories(parts){
   let words = 0; for (const c of chapters) for (const b of c.blocks) if (b.type === "p") words += (b.text.match(/\S+/g) || []).length;
   return { title: head.story.title, author: head.story.author, chapters, words, order: sorted };
 }
-let encWork = null;
-function showChapterBox(good, story){
+let encWork = null, encIndex = null;
+function showChapterBox(good, story, parts){
   const box = $("encChapters"); box.textContent = ""; box.hidden = true;
-  const idx = good.map(p => p.index).find(x => x && x.list.length);
-  const work = (good.map(p => p.index).find(x => x && x.work) || {}).work || null;
-  encWork = work;
+  const idx = mergeIndexes((parts || good).map(p => p.index));
+  const work = idx.work;
+  encWork = work; encIndex = idx.work || idx.list.length > 1 ? idx : null;
   if (work && !$("ao3Url").value){ $("ao3Url").value = "https://archiveofourown.org/works/" + work; showAo3Links({ work, chapter: null }); }
   const add = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; box.appendChild(e); return e; };
   if (good.length > 1) add("div", `Combined ${good.length} files into one story, in chapter order: ` + story.chapters.map(c => c.heading || "untitled part").join(" · "));
-  if (idx && idx.list.length > story.chapters.length){
-    const have = new Set(good.map(p => p.index && p.index.current).filter(Boolean));
-    add("div", good.length === 1 ? `This file is chapter ${idx.current} of ${idx.list.length}. To encrypt every chapter, get the whole work in one file (links below) or drop all the chapter files here together.`
-      : `You have ${have.size} of ${idx.list.length} chapters.`);
-    const ol = add("ol"); idx.list.forEach((c, i) => { const li = document.createElement("li"); li.textContent = c.title.replace(/^\d+\.\s*/, ""); if (have.has(i + 1)) li.className = "now"; ol.appendChild(li); });
-  }
-  if (work && (good.length > 1 || (idx && idx.list.length > story.chapters.length))){
+  if (idx.list.length > 1){
+    const n = idx.list.length, have = idx.list.filter(c => c.have), curC = idx.list.find(c => c.id === idx.current);
+    if (have.length < n) add("div", good.length === 1 && curC ? `This file is chapter ${curC.num} of ${n}. To encrypt every chapter, get the whole work in one file (links below) or drop all the chapter files here together.`
+      : `You have ${have.length} of ${n} chapters.`);
+    renderChapterNav(box, idx, "The chapter list is saved inside the encrypted text (with “Keep original formatting” on), so it shows again after decrypting.");
+  } else if (work && good.length > 1){
     const L = ao3Links({ work }), row = add("div", null, "linkrow");
     for (const [href, label] of [[L.dl, "Download whole work (HTML) ↗"], [L.full, "Entire work on AO3 ↗"]]){ const a = document.createElement("a"); a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = label; row.appendChild(a); }
   }
@@ -1692,7 +1950,7 @@ async function loadEncFiles(files){
   return loadEncSources(srcs);
 }
 async function loadEncSources(srcs){
-  encBytes = null; encStoryText = ""; encStory = null;
+  encBytes = null; encStoryText = ""; encStory = null; encIndex = null;
   $("encOut").hidden = true; setStatus($("encStatus"), "Reading the story…", "busy"); await nextFrame();
   const parts = srcs.map(src => {
     let doc = null, story = null, index = null;
@@ -1707,7 +1965,7 @@ async function loadEncSources(srcs){
   $("encTitle").textContent = title || label;
   $("encInfo").classList.add("show");
   if (!story){
-    $("encMeta").textContent = label + " · " + fmtBytes(size); $("encChapters").hidden = true;
+    $("encMeta").textContent = label + " · " + fmtBytes(size); showChapterBox([], null, parts);
     setStatus($("encStatus"), "Couldn't find a story in " + (srcs.length > 1 ? "these files" : "this file") + ". Use the HTML file from AO3's Download button on the work page (Download → HTML); the story text is expected inside its chapters section.", "err");
     updateEncBtn(); return;
   }
@@ -1718,7 +1976,7 @@ async function loadEncSources(srcs){
   const skipped = parts.length - good.length;
   setStatus($("encStatus"), "Found the story: " + encStats + ". Tags, summary, notes and AO3's extra text are left out." +
     (good.length > 1 ? ` Combined ${good.length} files in chapter order.` : "") + (skipped ? ` ${skipped} file${skipped > 1 ? "s" : ""} had no story and ${skipped > 1 ? "were" : "was"} skipped.` : ""), "ok");
-  showChapterBox(good, story);
+  showChapterBox(good, story, parts);
   updateEncBtn();
 }
 const drop = $("encDrop");
@@ -1733,11 +1991,15 @@ $("encBtn").addEventListener("click", async () => {
   $("encBtn").disabled = true; setStatus(st, "Encrypting…", "busy"); await nextFrame();
   try{
     const t0 = performance.now();
-    let out = null, note = "";
-    if ($("encFormat").checked){ try { out = encodeStoryFormatted(encStory, c.key); } catch(e){ note = " The formatting of this file couldn't be kept safely, so it was encrypted as plain text."; } }
-    if (!out) out = encodeBytes(encBytes, c.key);
-    showEncrypted(out, encStory.title, encStory.author, encStats);
-    setStatus(st, `Done in ${((performance.now() - t0)/1000).toFixed(1)}s with “${c.name}” (ID ${fingerprint(c.key)})` + (isFormattedText(out) ? ", formatting kept." : ".") + note, "ok");
+    let out = null, note = "", plainTxt = encStoryText;
+    const simp = $("encSimplify").checked; let cnt = { n: 0 };
+    if ($("encFormat").checked){ try { out = encodeStoryFormatted(encStory, c.key, { simplify: simp, index: encIndex, count: cnt }); } catch(e){ note = " The formatting of this file couldn't be kept safely, so it was encrypted as plain text."; } }
+    if (!out){ cnt = { n: 0 }; if (simp){ plainTxt = storyText(simplifyStory(encStory, cnt)); out = encodeBytes(enc.encode(plainTxt), c.key); } else out = encodeBytes(encBytes, c.key); }
+    showEncrypted(out, encStory.title, encStory.author, encStats, c.key, plainTxt);
+    const nEsc = $("encStory").querySelectorAll(".esc").length;
+    setStatus(st, `Done in ${((performance.now() - t0)/1000).toFixed(1)}s with “${c.name}” (ID ${fingerprint(c.key)})` + (isFormattedText(out) ? ", formatting kept." : ".") +
+      (simp && cnt.n ? ` Simplified ${cnt.n.toLocaleString()} typographic character${cnt.n === 1 ? "" : "s"} (curly quotes, dashes, …) to keyboard ones.` : "") +
+      (nEsc ? ` ${nEsc.toLocaleString()} special character${nEsc === 1 ? " is" : "s are"} kept exactly as escape codes (shown faded).` : "") + note, "ok");
     if (prefs.remember) idb.set("lastEnc", { ct: out, title: encStory.title || "", author: encStory.author || "", stats: encStats, at: new Date().toISOString() });
   }catch(e){ setStatus(st, "Encryption failed: " + e.message, "err"); }
   updateEncBtn();
@@ -1745,12 +2007,13 @@ $("encBtn").addEventListener("click", async () => {
 $("copyBtn").addEventListener("click", () => copyText($("encText").value, $("copyBtn")));
 // The cipher keeps every line break, so line N of the encrypted body is line N of the story text:
 // use the plain structure to lay the encrypted lines out as title / chapters / paragraphs.
-function showEncrypted(out, title, author, stats){
+function showEncrypted(out, title, author, stats, key, plainTxt){
   $("encText").value = out;
   $("encCount").textContent = out.length.toLocaleString() + " characters";
   $("encHeadTitle").textContent = title || "Untitled work";
   $("encHeadMeta").textContent = (author ? "by " + author + " · " : "") + (stats || "");
-  if (isFormattedText(out)) renderCipherHtml(out); else renderCipherStory(out);
+  if (isFormattedText(out)) renderCipherHtml(out); else renderCipherStory(out, plainTxt);
+  if (key){ try { markEscapes($("encStory"), key, readHeader(out).version); } catch(e){} }
   applyTagColors();
   $("encOut").hidden = false;
 }
@@ -1769,11 +2032,41 @@ function applyTagColors(){
   $("tagLegend").hidden = !(prefs.tagColors && $("encStory").classList.contains("fmt"));
 }
 $("tagColors").addEventListener("change", e => { setPref("tagColors", e.target.checked); applyTagColors(); });
+// escape codes (characters that aren't on a keyboard) in the encrypted view: shown faded with an explanation, not as noise
+function escapeMatcher(key, version){
+  const q = c => c.replace(/[\\^$.*+?()[\]{}|\/-]/g, "\\$&");
+  if (version === "2" || version === "4") return new RegExp(q(key[94]) + "(?:~|\\{[0-9A-F]{1,6}\\}|[0-9A-F]{2})", "g");
+  const e = c => q(key[c.charCodeAt(0) - 32]), hex = "(?:" + [..."0123456789ABCDEF"].map(e).join("|") + ")";
+  return new RegExp(e("~") + "(?:" + e("~") + "|" + e("{") + hex + "{1,6}" + e("}") + "|" + hex + "{2})", "g");
+}
+function markEscapes(root, key, version){
+  const re = escapeMatcher(key, version), shared = version === "2" || version === "4";
+  const w = document.createTreeWalker(root, 4), nodes = [];
+  for (let t = w.nextNode(); t; t = w.nextNode()){ re.lastIndex = 0; if (re.test(t.data)) nodes.push(t); }
+  for (const t of nodes){
+    const frag = document.createDocumentFragment(); let last = 0; re.lastIndex = 0;
+    for (let m; (m = re.exec(t.data)); ){
+      if (m.index > last) frag.appendChild(document.createTextNode(t.data.slice(last, m.index)));
+      const sp = document.createElement("span"); sp.className = "esc"; sp.textContent = m[0];
+      let tip = "A character that isn't on the keyboard, kept exactly as an escape code. Decrypting turns it back into the real character.";
+      if (shared){
+        const b = m[0].slice(1); let cp = null;
+        if (b[0] === "{") cp = parseInt(b.slice(1, -1), 16); else if (b !== "~") cp = parseInt(b, 16);
+        if (cp != null && cp >= 0xA0) tip = `“${String.fromCodePoint(cp)}” (U+${cp.toString(16).toUpperCase().padStart(4, "0")}) kept exactly as an escape code; decrypting turns it back into this character.`;
+      }
+      sp.title = tip; frag.appendChild(sp); last = m.index + m[0].length;
+    }
+    if (last < t.data.length) frag.appendChild(document.createTextNode(t.data.slice(last)));
+    t.parentNode.replaceChild(frag, t);
+  }
+}
 $("encFormat").checked = prefs.format;
 $("encFormat").addEventListener("change", e => setPref("format", e.target.checked));
-function renderCipherStory(out){
+$("encSimplify").checked = prefs.simplify;
+$("encSimplify").addEventListener("change", e => setPref("simplify", e.target.checked));
+function renderCipherStory(out, plainTxt){
   const box = $("encStory"); box.textContent = ""; box.classList.remove("fmt");
-  const body = out.slice(out.indexOf("\n") + 1), plain = parseStoryText(encStoryText), ct = splitBlocks(body);
+  const body = out.slice(out.indexOf("\n") + 1), plain = parseStoryText(plainTxt == null ? encStoryText : plainTxt), ct = splitBlocks(body);
   const frag = document.createDocumentFragment(), mk = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; e.textContent = txt; frag.appendChild(e); };
   if (ct.length !== plain.length){ ct.forEach(b => mk("p", "", b)); }
   else plain.forEach((b, i) => {
@@ -1794,6 +2087,13 @@ $("rawBtn").addEventListener("click", () => {
 $("dlTxtBtn").addEventListener("click", () => download($("encText").value, encName + ".cipher.txt", "text/plain"));
 
 // ---------- decrypt UI ----------
+let decIndex = null;
+function showDecChapters(){
+  const box = $("decChapters"); box.textContent = "";
+  if (decIndex && decIndex.list.length > 1) renderChapterNav(box, decIndex);
+  else if (decIndex && decIndex.work){ const L = ao3Links({ work: decIndex.work }), row = document.createElement("div"); row.className = "linkrow"; for (const [h, t] of [[L.dl, "Download whole work (HTML) \u2197"], [L.full, "Entire work on AO3 \u2197"]]){ const a = document.createElement("a"); a.href = h; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = t; row.appendChild(a); } box.appendChild(row); }
+  box.hidden = !box.childNodes.length;
+}
 let decHtml = null, decText = "", decName = "work", decStory = "", decLegacy = false, decFormatted = false, decStoryId = "", pendingResume = -1;
 let pastedKey = null;
 function updateDecKey(){
@@ -1828,10 +2128,10 @@ async function runDecrypt(force, restoring){
   try{
     const src = $("decText").value;
     let m, bytes = null, plain = "";
-    decFormatted = isFormattedText(src);
+    decFormatted = isFormattedText(src); decIndex = null;
     if (decFormatted){
-      const doc = decodeStoryFormatted(src, key, { force }), stx = extractStory(doc);
-      decLegacy = false; decText = fmtDocToPage(doc); decHtml = enc.encode(decText); decStory = stx ? storyText(stx) : doc.body.textContent;
+      const doc = decodeStoryFormatted(src, key, { force }); decIndex = takeChapterIndex(doc); const stx = extractStory(doc);
+      decLegacy = false; decText = fmtDocToPage(doc, decIndex); decHtml = enc.encode(decText); decStory = stx ? storyText(stx) : doc.body.textContent;
       m = { title: stx ? stx.title : "", author: stx ? stx.author : "" };
       const nch = stx ? stx.chapters.length : 1;
       $("decCount").textContent = nch.toLocaleString() + (nch === 1 ? " chapter" : " chapters") + " · " + (stx ? stx.words : 0).toLocaleString() + " words · formatting kept";
@@ -1857,7 +2157,7 @@ async function runDecrypt(force, restoring){
     $("decOut").hidden = false; $("reader").hidden = false; $("previewBtn").textContent = "Hide preview";
     decStoryId = "s" + hashStr(decStory || decText);
     const pos = positions[decStoryId]; pendingResume = pos && pos.i > 0 ? pos.i : -1;
-    renderPreview(); renderBookmarks();
+    renderPreview(); renderBookmarks(); showDecChapters();
     if (prefs.remember && !restoring) idb.set("lastDec", { ct: src, at: new Date().toISOString() });
     const sh = analyzeKey(key).injective ? [] : sharedOutputs(key);
     setStatus(st, sh.length ? (restoring ? "Reopened your last story (remembered on this device). " : "Decrypted. ") + "This cipher has shared outputs, so characters in those groups came back as the first of each (" +
@@ -1906,11 +2206,11 @@ u,ins{color:${P.u} !important}blockquote,blockquote p{color:${P.q} !important}li
   return css;
 }
 function readerCss(){
-  const base = `a{}img{max-width:100%;height:auto}body{padding-bottom:280px !important}` + readerExtraCss();
-  if (reader.paper === "original") return base + `body{font-size:${reader.size}px !important}`;
+  const base = fontImportsCss() + `a{}img{max-width:100%;height:auto}body{padding-bottom:280px !important}` + readerExtraCss();
+  if (reader.paper === "original") return base + `body{font-size:${reader.size}px !important}` + (reader.font ? `body,body *{font-family:${fontStack(reader.font, "read")} !important}` : "") + (reader.lh ? `body,body p{line-height:${reader.lh} !important}` : "");
   const [bg, ink, link] = PAPERS[reader.paper] || PAPERS.light;
   return base + `html,body{background:${bg} !important;color:${ink} !important}
-body{font-family:Georgia,"Iowan Old Style","Palatino Linotype",Charter,serif !important;font-size:${reader.size}px !important;line-height:1.72 !important;
+body{font-family:${fontStack(reader.font, "read")} !important;font-size:${reader.size}px !important;line-height:${reader.lh || 1.72} !important;
 max-width:38em !important;margin:0 auto !important;padding:2em 1.3em 280px !important}
 a{color:${link} !important} p{margin:0 0 1em !important}
 h1,h2,h3{line-height:1.25 !important} blockquote{margin-left:0 !important;padding-left:1em !important;border-left:3px solid rgba(128,128,128,.35) !important}
@@ -1922,7 +2222,7 @@ function renderPreview(){
   $("preview").srcdoc = html;
 }
 function applyReader(){
-  store.set("ao3enc.reader", reader);
+  store.set("ao3enc.reader", reader); syncReaderControls();
   try {
     const el = $("preview").contentDocument && $("preview").contentDocument.getElementById("koa-reader");
     if (el){ el.textContent = readerCss(); return; }
@@ -2000,7 +2300,7 @@ function savePosition(){
 }
 $("preview").addEventListener("load", () => {
   const d = pdoc(); if (!d || !d.body) return;
-  previewEls = [...d.querySelectorAll(BOOKABLE)].filter(e => e.textContent.trim());
+  previewEls = [...d.querySelectorAll(BOOKABLE)].filter(e => e.textContent.trim() && !e.closest("nav"));
   markBookmarks();
   d.addEventListener("dblclick", e => { const el = e.target.closest && e.target.closest(BOOKABLE); const i = previewEls.indexOf(el); if (i >= 0){ try { d.getSelection().removeAllRanges(); } catch(err){} const has = bookItems().some(b => b.i === i); has ? removeBookmark(i) : addBookmark(i); } });
   d.addEventListener("keydown", readerKeys);
@@ -2212,6 +2512,169 @@ $("rlClear").addEventListener("click", () => {
 });
 renderRL();
 
+// ---------- Settings: fonts ----------
+const FONT_DEFAULT = { read: 'Georgia,"Iowan Old Style","Palatino Linotype",Charter,serif', enc: "var(--mono)" };
+const GENERIC_FONTS = new Set(["serif", "sans-serif", "monospace", "cursive", "fantasy", "system-ui", "ui-serif", "ui-sans-serif", "ui-monospace", "ui-rounded"]);
+const FONT_LIST = [
+  ["Serif", ["Georgia", "Times New Roman", "Palatino Linotype", "Book Antiqua", "Garamond", "Cambria", "Charter", "Iowan Old Style", "Baskerville", "Liberation Serif", "DejaVu Serif", "Noto Serif", "serif"]],
+  ["Sans-serif", ["Arial", "Helvetica", "Verdana", "Tahoma", "Trebuchet MS", "Segoe UI", "Calibri", "Gill Sans", "Liberation Sans", "DejaVu Sans", "Noto Sans", "Atkinson Hyperlegible", "system-ui", "sans-serif"]],
+  ["Monospace", ["Courier New", "Consolas", "Menlo", "Monaco", "Cascadia Mono", "Liberation Mono", "DejaVu Sans Mono", "Noto Sans Mono", "ui-monospace", "monospace"]],
+  ["Easy reading / fun", ["OpenDyslexic", "Lexend", "Comic Sans MS", "cursive"]]
+];
+const cleanFontName = v => String(v || "").replace(/[^\p{L}\p{N} _\-.&'()+]/gu, "").replace(/\s+/g, " ").trim().slice(0, 80);
+let upFonts = store.get("ao3enc.fonts", []);                 // uploaded fonts: [{ id, name, type, size }]; the files are in IndexedDB ("font:<id>")
+if (!Array.isArray(upFonts)) upFonts = [];
+const upUrls = new Map();                                    // id -> blob: URL of the font file
+if (!reader.font) reader.font = ""; if (!reader.lh) reader.lh = 0;
+function fontStack(v, kind){
+  const fb = FONT_DEFAULT[kind]; if (!v) return fb;
+  const i = v.indexOf(":"), t = v.slice(0, i), name = v.slice(i + 1);
+  if (t === "u"){ const f = upFonts.find(x => x.id === name); return f && /^[a-z0-9]{1,16}$/.test(f.id) ? `"ao3u-${f.id}", ${fb}` : fb; }
+  const n = cleanFontName(name); if (!n) return fb;
+  if (t === "g") return prefs.allowGoogle && (prefs.gfonts || []).some(g => g.name === n) ? `"${n}", ${fb}` : fb;
+  return GENERIC_FONTS.has(n) ? `${n}, ${fb}` : `"${n}", ${fb}`;
+}
+function fontLabel(v){
+  if (!v) return "theme default";
+  const i = v.indexOf(":"), t = v.slice(0, i), name = v.slice(i + 1);
+  if (t === "u"){ const f = upFonts.find(x => x.id === name); return f ? f.name + " (uploaded)" : "a removed font"; }
+  return name + (t === "g" ? " (Google Fonts)" : "");
+}
+function fontImportsCss(){       // @import must come first in a style sheet
+  const g = prefs.allowGoogle ? (prefs.gfonts || []).filter(x => /^https:\/\/fonts\.googleapis\.com\/css2\?family=[A-Za-z0-9+:,;@.&=]+$/.test(x.url)).map(x => `@import url("${x.url}");`) : [];
+  const u = upFonts.filter(f => upUrls.has(f.id) && /^[a-z0-9]{1,16}$/.test(f.id)).map(f => `@font-face{font-family:"ao3u-${f.id}";src:url("${upUrls.get(f.id)}");font-display:swap}`);
+  return g.concat(u).join("\n") + "\n";
+}
+let fontCanvas = null;
+function fontInstalled(name){
+  if (GENERIC_FONTS.has(name)) return true;
+  try {
+    fontCanvas = fontCanvas || document.createElement("canvas").getContext("2d");
+    const T = "mmmmmmmmmmlli10WQ@#ÅgÉ", w = f => { fontCanvas.font = f; return fontCanvas.measureText(T).width; };
+    return ["monospace", "serif", "sans-serif"].some(g => w(`40px "${name}", ${g}`) !== w(`40px ${g}`));
+  } catch(e){ return true; }
+}
+const installedCache = new Map();
+const isInstalled = n => { if (!installedCache.has(n)) installedCache.set(n, fontInstalled(n)); return installedCache.get(n); };
+function renderFontSelect(sel, kind, value){
+  sel.textContent = "";
+  const opt = (par, v, label) => { const o = document.createElement("option"); o.value = v; o.textContent = label; o.style.fontFamily = fontStack(v, kind); par.appendChild(o); return o; };
+  const group = label => { const g = document.createElement("optgroup"); g.label = label; sel.appendChild(g); return g; };
+  opt(sel, "", kind === "read" ? "Theme default (Georgia, serif)" : "Theme default (monospace)");
+  if (upFonts.length){ const g = group("Your uploaded fonts"); upFonts.forEach(f => opt(g, "u:" + f.id, f.name)); }
+  if (prefs.allowGoogle && (prefs.gfonts || []).length){ const g = group("Google Fonts you loaded"); prefs.gfonts.forEach(f => opt(g, "g:" + f.name, f.name)); }
+  const listed = new Set();
+  for (const [label, names] of FONT_LIST){ const g = group(label); for (const n of names){ listed.add("s:" + n); opt(g, "s:" + n, n + (isInstalled(n) ? "" : " (not on this device)")); } }
+  if (value && value.startsWith("s:") && !listed.has(value)) opt(group("Typed by you"), value, value.slice(2));
+  sel.value = [...sel.options].some(o => o.value === value) ? value : "";
+}
+function fontHint(v){
+  if (!v) return "";
+  if (v.startsWith("s:")){ const n = v.slice(2); return isInstalled(n) ? `Using “${n}”.` : `“${n}” doesn't seem to be installed on this device, so a fallback font is showing. Check the exact name, upload the font file, or load it from Google Fonts below.`; }
+  if (v.startsWith("g:") && !prefs.allowGoogle) return "Google Fonts are switched off below, so a fallback font is showing.";
+  return "Using " + fontLabel(v) + ".";
+}
+function applyFonts(){
+  const encRule = (prefs.encFont ? `font-family:${fontStack(prefs.encFont, "enc")} !important;` : "") + (prefs.encSize ? `font-size:${prefs.encSize}px !important;` : "") + (prefs.encLh ? `line-height:${prefs.encLh} !important;` : "");
+  const [bg, ink] = PAPERS[reader.paper] || ["", ""];
+  $("fontCss").textContent = fontImportsCss() +
+    (encRule ? `.cstory,#encText{${encRule}}\n` : "") +
+    `#fontReadPrev{font-family:${fontStack(reader.font, "read")};font-size:${reader.size}px;line-height:${reader.lh || 1.72}${bg ? `;background:${bg};color:${ink}` : ""}}
+#fontEncPrev{font-family:${fontStack(prefs.encFont, "enc")};font-size:${prefs.encSize || 14}px;line-height:${prefs.encLh || 1.75}}`;
+}
+function syncReaderControls(){
+  if (!$("readSize")) return;
+  $("readSize").value = reader.size; $("readSizeOut").textContent = reader.size + "px";
+  $("readLh").value = reader.lh || 1.72; $("readLhOut").textContent = reader.lh ? String(reader.lh) : "1.72 (default)";
+  $("encSize").value = prefs.encSize || 14; $("encSizeOut").textContent = (prefs.encSize || 14) + "px" + (prefs.encSize ? "" : " (default)");
+  $("encLh").value = prefs.encLh || 1.75; $("encLhOut").textContent = prefs.encLh ? String(prefs.encLh) : "1.75 (default)";
+  $("paper").value = $("optPaper").value = reader.paper; $("spacing").value = $("optSpacing").value = reader.spacing; $("readTags").checked = $("optReadTags").checked = !!reader.tags;
+  $("fontReadHint").textContent = fontHint(reader.font); $("fontEncHint").textContent = fontHint(prefs.encFont);
+  $("allowGoogle").checked = !!prefs.allowGoogle; $("gfLoad").disabled = !prefs.allowGoogle;
+  applyFonts();
+}
+function renderFontSelects(){
+  renderFontSelect($("fontReadSel"), "read", reader.font); renderFontSelect($("fontEncSel"), "enc", prefs.encFont);
+  const ul = $("fontUpList"); ul.textContent = "";
+  for (const f of upFonts){
+    const li = document.createElement("li"); li.className = "upfont";
+    const nm = document.createElement("span"); nm.textContent = `${f.name} · ${fmtBytes(f.size || 0)}${upUrls.has(f.id) ? "" : " (file missing)"} `; nm.style.fontFamily = fontStack("u:" + f.id, "read");
+    const x = document.createElement("button"); x.className = "btn small"; x.textContent = "Remove"; x.addEventListener("click", () => removeFont(f.id));
+    li.append(nm, x); ul.appendChild(li);
+  }
+  syncReaderControls();
+}
+function setReadFont(v){ reader.font = v; applyReader(); renderFontSelects(); }
+function setEncFont(v){ setPref("encFont", v); renderFontSelects(); }
+$("fontReadSel").addEventListener("change", e => setReadFont(e.target.value));
+$("fontEncSel").addEventListener("change", e => setEncFont(e.target.value));
+for (const [inp, btn, set] of [["fontReadName", "fontReadUse", setReadFont], ["fontEncName", "fontEncUse", setEncFont]]){
+  const go = () => { const n = cleanFontName($(inp).value); if (!n){ setStatus($("fontStatus"), "Type the name of a font installed on this device first.", "err"); return; } installedCache.delete(n); set("s:" + n); setStatus($("fontStatus"), fontHint("s:" + n), isInstalled(n) ? "ok" : "err"); };
+  $(btn).addEventListener("click", go); $(inp).addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+}
+$("readSize").addEventListener("input", e => { reader.size = +e.target.value; applyReader(); });
+$("readLh").addEventListener("input", e => { reader.lh = +e.target.value; applyReader(); });
+$("encSize").addEventListener("input", e => { setPref("encSize", +e.target.value); syncReaderControls(); });
+$("encLh").addEventListener("input", e => { setPref("encLh", +e.target.value); syncReaderControls(); });
+$("fontReadReset").addEventListener("click", () => { reader.font = ""; reader.lh = 0; reader.size = 19; applyReader(); renderFontSelects(); setStatus($("fontStatus"), "Reading text is back to the theme's font.", "ok"); });
+$("fontEncReset").addEventListener("click", () => { prefs.encSize = 0; prefs.encLh = 0; setEncFont(""); setStatus($("fontStatus"), "Encrypted text is back to the theme's font.", "ok"); });
+$("optPaper").addEventListener("change", e => { reader.paper = e.target.value; applyReader(); });
+$("optSpacing").addEventListener("change", e => { reader.spacing = e.target.value; applyReader(); });
+$("optReadTags").addEventListener("change", e => { reader.tags = e.target.checked; applyReader(); });
+// uploaded font files (kept in IndexedDB, re-applied on every visit)
+const FONT_MAGIC = [[0, 1, 0, 0], [0x4F, 0x54, 0x54, 0x4F], [0x74, 0x72, 0x75, 0x65], [0x77, 0x4F, 0x46, 0x46], [0x77, 0x4F, 0x46, 0x32], [0x74, 0x74, 0x63, 0x66]];
+const FONT_TYPES = { ttf: "font/ttf", otf: "font/otf", woff: "font/woff", woff2: "font/woff2" };
+$("fontUpBtn").addEventListener("click", () => $("fontFile").click());
+$("fontFile").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  const st = $("fontStatus"), ext = (/\.([a-z0-9]+)$/i.exec(f.name) || [])[1];
+  if (!ext || !FONT_TYPES[ext.toLowerCase()]){ setStatus(st, `${f.name} isn't a font file (.ttf, .otf, .woff or .woff2).`, "err"); return; }
+  if (f.size > 20 * 1048576){ setStatus(st, `${f.name} is too big (${fmtBytes(f.size)}); fonts up to 20 MB are supported.`, "err"); return; }
+  const buf = await f.arrayBuffer(), b = new Uint8Array(buf.slice(0, 4));
+  if (!FONT_MAGIC.some(m => m.every((x, i) => b[i] === x))){ setStatus(st, `${f.name} doesn't look like a font file.`, "err"); return; }
+  const id = Math.random().toString(36).slice(2, 10).replace(/[^a-z0-9]/g, "") || String(Date.now() % 1e8);
+  try { const ff = new FontFace("ao3t-" + id, buf); await ff.load(); } catch(err){ setStatus(st, `The browser couldn't use ${f.name} as a font.`, "err"); return; }
+  const name = cleanFontName(f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2")) || "Uploaded font";
+  const type = FONT_TYPES[ext.toLowerCase()];
+  try { await new Promise((res, rej) => { idb.set("font:" + id, { name, type, data: buf }).then(res, rej); }); } catch(err){}
+  upFonts.push({ id, name, type, size: f.size, at: new Date().toISOString() }); store.set("ao3enc.fonts", upFonts);
+  upUrls.set(id, URL.createObjectURL(new Blob([buf], { type })));
+  setReadFont("u:" + id);
+  setStatus(st, `Added “${name}”. It's now the reading font; you can also choose it for the encrypted text.`, "ok");
+});
+function removeFont(id){
+  idb.del("font:" + id); const u = upUrls.get(id); if (u) URL.revokeObjectURL(u); upUrls.delete(id);
+  upFonts = upFonts.filter(f => f.id !== id); store.set("ao3enc.fonts", upFonts);
+  if (reader.font === "u:" + id){ reader.font = ""; applyReader(); }
+  if (prefs.encFont === "u:" + id) setPref("encFont", "");
+  renderFontSelects(); setStatus($("fontStatus"), "Font removed.", "ok");
+}
+async function loadUploadedFonts(){
+  for (const f of upFonts){ try { const v = await idb.get("font:" + f.id); if (v && v.data && !upUrls.has(f.id)) upUrls.set(f.id, URL.createObjectURL(new Blob([v.data], { type: v.type || f.type || "font/ttf" }))); } catch(e){} }
+  renderFontSelects(); if (decText) applyReader();
+}
+// Google Fonts (opt-in: contacts Google)
+$("allowGoogle").addEventListener("change", e => { setPref("allowGoogle", e.target.checked); renderFontSelects(); if (decText) applyReader(); });
+$("gfLoad").addEventListener("click", async () => {
+  const st = $("fontStatus"), name = cleanFontName($("gfName").value);
+  if (!prefs.allowGoogle) return;
+  if (!/^[A-Za-z0-9 ]{1,60}$/.test(name)){ setStatus(st, "Type a Google Font name, like Lora or Open Sans (letters, digits and spaces).", "err"); return; }
+  const fam = name.replace(/ /g, "+");
+  setStatus(st, `Asking Google Fonts for “${name}”…`, "busy"); $("gfLoad").disabled = true;
+  let url = null, reached = false;
+  for (const u of [`https://fonts.googleapis.com/css2?family=${fam}:ital,wght@0,400;0,700;1,400;1,700&display=swap`, `https://fonts.googleapis.com/css2?family=${fam}&display=swap`]){
+    try { const r = await fetch(u, { credentials: "omit" }); reached = true; if (r.ok && /@font-face/.test(await r.text())){ url = u; break; } } catch(e){}
+  }
+  $("gfLoad").disabled = false;
+  if (!url){ setStatus(st, reached ? `Google Fonts doesn't have a font called “${name}”. Names are case-sensitive, e.g. “Lora”, “Open Sans”.` : "Couldn't reach Google Fonts (offline, or blocked).", "err"); return; }
+  setPref("gfonts", (prefs.gfonts || []).filter(g => g.name !== name).concat({ name, url }).slice(-12));
+  setReadFont("g:" + name);
+  try { await document.fonts.load(`16px "${name}"`); } catch(e){}
+  setStatus(st, `Loaded “${name}” from Google Fonts. It's now the reading font; you can also choose it for the encrypted text.`, "ok");
+});
+renderFontSelects();
+const fontsReady = loadUploadedFonts().catch(() => {});
+
 // ---------- saved data: overview, backup, restore, wipe ----------
 $("remember").checked = prefs.remember;
 $("remember").addEventListener("change", e => { setPref("remember", e.target.checked); if (!e.target.checked){ idb.del("lastEnc"); idb.del("lastDec"); } renderData(); });
@@ -2224,8 +2687,9 @@ async function renderData(){
   items.push(`Music playlists: ${store.get("ao3enc.playlists", []).length}.`);
   items.push(`Bookmarks: ${nb} in ${Object.keys(bookmarks).length} ${Object.keys(bookmarks).length === 1 ? "story" : "stories"}; reading positions: ${Object.keys(positions).length}.`);
   items.push(`Reading list: ${readingList.length} link${readingList.length === 1 ? "" : "s"}.`);
+  items.push(`Fonts: reading text ${fontLabel(reader.font)}, encrypted text ${fontLabel(prefs.encFont)}; ${upFonts.length} uploaded font file${upFonts.length === 1 ? "" : "s"} (IndexedDB)` + ((prefs.gfonts || []).length ? `; Google Fonts: ${prefs.gfonts.map(g => g.name).join(", ")}${prefs.allowGoogle ? "" : " (switched off)"}` : "") + ".");
   let texts = "none";
-  try { const ks = await idb.keys(); const parts = []; for (const k of ks){ const v = await idb.get(k); if (v && v.ct) parts.push((k === "lastEnc" ? "last encrypted story" : k === "lastDec" ? "last pasted text" : k) + " (" + fmtBytes(v.ct.length) + ")"); } if (parts.length) texts = parts.join(", "); } catch(e){}
+  try { const ks = await idb.keys(); const parts = []; for (const k of ks){ if (String(k).startsWith("font:")) continue; const v = await idb.get(k); if (v && v.ct) parts.push((k === "lastEnc" ? "last encrypted story" : k === "lastDec" ? "last pasted text" : k) + " (" + fmtBytes(v.ct.length) + ")"); } if (parts.length) texts = parts.join(", "); } catch(e){}
   items.push(`Remembered texts (IndexedDB): ${texts}.`);
   items.push(`This browser session: the open tab.`);
   ul.textContent = ""; for (const t of items){ const li = document.createElement("li"); li.textContent = t; ul.appendChild(li); }
@@ -2233,7 +2697,12 @@ async function renderData(){
 async function makeBackup(){
   const ls = {};
   for (let i = 0; i < localStorage.length; i++){ const k = localStorage.key(i); if (k && k.startsWith("ao3enc.")) ls[k] = localStorage.getItem(k); }
-  const texts = {}; for (const k of await idb.keys()) texts[k] = await idb.get(k);
+  const texts = {};
+  for (const k of await idb.keys()){
+    const v = await idb.get(k);
+    if (String(k).startsWith("font:")){ if (v && v.data){ const u8 = new Uint8Array(v.data); let bin = ""; for (let i = 0; i < u8.length; i += 32768) bin += String.fromCharCode.apply(null, u8.subarray(i, i + 32768)); texts[k] = { name: v.name, type: v.type, b64: btoa(bin) }; } }
+    else texts[k] = v;
+  }
   return { format: "ao3-encryptor-backup", version: 1, created: new Date().toISOString(), note: "Everything this page saved in this browser. Restore it from the Saved tab.", localStorage: ls, texts };
 }
 $("backupBtn").addEventListener("click", async () => {
@@ -2248,7 +2717,10 @@ $("restoreFile").addEventListener("change", async e => {
   if (!b || b.format !== "ao3-encryptor-backup" || typeof b.localStorage !== "object"){ setStatus($("dataStatus"), f.name + " isn't a backup from this page.", "err"); return; }
   let n = 0;
   for (const [k, v] of Object.entries(b.localStorage)) if (k.startsWith("ao3enc.") && typeof v === "string"){ try { if (k !== "ao3enc.theme") JSON.parse(v); localStorage.setItem(k, v); n++; } catch(err){} }
-  for (const [k, v] of Object.entries(b.texts || {})) if ((k === "lastEnc" || k === "lastDec") && v && typeof v.ct === "string") await idb.set(k, v);
+  for (const [k, v] of Object.entries(b.texts || {})){
+    if ((k === "lastEnc" || k === "lastDec") && v && typeof v.ct === "string") await idb.set(k, v);
+    else if (/^font:[a-z0-9]{1,16}$/.test(k) && v && typeof v.b64 === "string"){ try { const bin = atob(v.b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); await idb.set(k, { name: cleanFontName(v.name) || "Uploaded font", type: FONT_TYPES[String(v.type || "").replace("font/", "")] || "font/ttf", data: u8.buffer }); } catch(err){} }
+  }
   setStatus($("dataStatus"), `Restored ${n} saved item${n === 1 ? "" : "s"}. Reloading…`, "ok");
   setTimeout(() => location.reload(), 700);
 });
@@ -2286,11 +2758,9 @@ async function restoreLast(){
   if (le && typeof le.ct === "string" && $("encOut").hidden && !encBytes){
     try {
       const h = readHeader(le.ct);
-      if (!isFormattedText(le.ct)){
-        const c = ciphers.find(x => fingerprint(x.key) === h.fp);
-        encStoryText = c ? dec.decode(decodeText(le.ct, c.key)) : "";
-      }
-      showEncrypted(le.ct, le.title, le.author, le.stats);
+      const c = ciphers.find(x => fingerprint(x.key) === h.fp);
+      if (!isFormattedText(le.ct)) encStoryText = c ? dec.decode(decodeText(le.ct, c.key)) : "";
+      showEncrypted(le.ct, le.title, le.author, le.stats, c && c.key);
       if (!isFormattedText(le.ct) && !encStoryText){ $("encText").hidden = false; $("encStory").hidden = true; }
       setStatus($("encStatus"), "Showing the last story you encrypted (remembered on this device).", "ok");
     } catch(e){}
@@ -2300,8 +2770,8 @@ async function restoreLast(){
     try { if (readHeader(ld.ct).fp === fingerprint(cur().key)) await runDecrypt(false, true); } catch(e){}
   }
 }
-window.AO3Ready = restoreLast().catch(() => {});
-window.AO3Cipher = { ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, juniperKey, DEC_ORDER, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta, extractStory, storyText, parseStoryText, storyToHtml, looksLikeHtmlFile, storyToFmtDoc, parseAo3Url, ao3Links, encodeStoryFormatted, decodeStoryFormatted, fmtSerialize, fmtParse, fmtDocToPage, isFormattedText };
+window.AO3Ready = Promise.all([restoreLast().catch(() => {}), fontsReady]);
+window.AO3Cipher = { fixEntities, simplifyPunct, simplifyStory, chapterIndexOf, mergeIndexes, takeChapterIndex, chapterNextPrev, ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, juniperKey, DEC_ORDER, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta, extractStory, storyText, parseStoryText, storyToHtml, looksLikeHtmlFile, storyToFmtDoc, parseAo3Url, ao3Links, encodeStoryFormatted, decodeStoryFormatted, fmtSerialize, fmtParse, fmtDocToPage, isFormattedText };
 window.KoaYT = { parseYouTube, embedUrl, watchUrl };
 </script>
 </body>
