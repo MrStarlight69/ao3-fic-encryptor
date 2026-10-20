@@ -831,8 +831,8 @@ input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;paddi
       <p class="hint" id="encHint"></p>
     </div>
     <div class="optrow"><label class="check"><input type="checkbox" id="encFormat"> Keep original formatting (italics, bold, lists, quotes&hellip;)</label>
-      <label class="check"><input type="checkbox" id="encSimplify"> Simplify punctuation</label></div>
-    <p class="hint" id="simplifyHelp">Simplify punctuation turns curly quotes (&ldquo; &rdquo; &lsquo; &rsquo;), dashes (&ndash; &mdash;), &hellip;, bullets and special spaces into plain keyboard characters (" ' - -- ... *) before encrypting, so the encrypted text looks clean. Turn it off to keep every character exactly: characters that aren't on a keyboard are then stored as short escape codes (for some ciphers they look like <code>~{201C}</code>), and decrypting turns them back into the exact character.</p>
+      <label class="check"><input type="checkbox" id="encSimplify"> Simplify characters</label></div>
+    <p class="hint" id="simplifyHelp">Simplify characters turns everything that isn't on a keyboard into the closest keyboard spelling before encrypting: accents are dropped (&eacute; &ntilde; &uuml; &ccedil; &rarr; e n u c), letters like &szlig; &aelig; &oslash; &#322; become ss ae o l, ligatures and fancy or fullwidth letters become normal ones, Greek and Cyrillic are spelled in Latin letters, curly quotes, dashes, &hellip;, &laquo; &raquo;, &times; &trade; &copy; &deg; become " -- ... x (TM) (c) deg, and invisible control characters are removed. Emoji and other scripts (Chinese, Japanese, Arabic&hellip;) can't be spelled on a keyboard, so they are kept exactly either way. Turn it off to keep every character exactly as it is. Either way the encrypted text only uses keyboard characters and never shows escape codes: special characters are written as a few extra cipher characters, and decrypting turns them back.</p>
     <div class="actions"><button class="btn primary" id="encBtn" disabled>Encrypt</button></div>
     <div class="status" id="encStatus" aria-live="polite"></div>
 
@@ -946,7 +946,7 @@ input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;paddi
         <p class="hint" id="fontEncHint"></p>
         <label for="encSize">Size <output id="encSizeOut"></output></label><input type="range" id="encSize" min="10" max="24" step="1">
         <label for="encLh">Line height <output id="encLhOut"></output></label><input type="range" id="encLh" min="1.1" max="2.4" step="0.05">
-        <div class="fontprev" id="fontEncPrev">&amp;;} "}}-}( _\ *.+,, ,:|;&amp;*<br>;},,_L $_(,]Z pic ~{2615}</div>
+        <div class="fontprev" id="fontEncPrev">&amp;;} "}}-}( _\ *.+,, ,:|;&amp;*<br>;},,_L $_(,]Z pic U[d?</div>
         <div class="actions"><button class="btn small" id="fontEncReset">Reset to theme default</button></div>
       </div>
     </div>
@@ -1100,20 +1100,17 @@ const enc = new TextEncoder(), dec = new TextDecoder();
 // =====================================================================
 // SUBSTITUTION CIPHER ENGINE
 // Alphabet: the 95 printable ASCII characters (space .. ~). A cipher is a
-// 95-char string: key[i] is what ALPHA[i] turns into. Outputs may repeat; a
-// one-to-one cipher uses format version 1 (below), one with shared outputs
-// uses version 2 (see "version 2" further down).
+// 95-char string: key[i] is what ALPHA[i] turns into. Outputs may repeat (then decrypting picks one original,
+// see "version 2" further down).
 //
-// Encrypted text format:
-//   line 1:  AO3SUB$1$<6-char cipher ID>$<original byte length>
-//   rest:    the escaped file, with every printable char substituted.
-// Escape scheme (applied BEFORE substitution, so escapes are scrambled too):
-//   printable ASCII except "~"  -> itself
-//   "~"                         -> "~~"
-//   newline (LF, 0x0A)          -> kept as a real newline (not substituted)
-//   valid UTF-8 character       -> "~{HEX}"  (Unicode code point, e.g. ~{2014})
-//   any other single byte       -> "~XX"     (2 hex digits; CR = ~0D, tab = ~09,
-//                                             invalid UTF-8 bytes too)
+// Encrypted text format (current, all ciphers): see "format version 5" below.
+//   line 1:  AO3SUB$5$<6-char cipher ID>$<original byte length>    (6 = with formatting)
+//   rest:    every keyboard character substituted, newlines kept, and every other character written as a
+//            marker + digits taken from the cipher's own characters, so nothing looks like an escape code.
+// Old texts (still decrypted): version 1 (one-to-one cipher), escapes applied BEFORE substitution:
+//   "~" -> "~~", newline kept, valid UTF-8 character -> "~{HEX}", any other byte -> "~XX" (CR = ~0D, tab = ~09);
+//   version 2 (shared outputs): same idea but the codes after the marker were written unsubstituted;
+//   versions 3/4: the formatted variants of 1/2.
 // =====================================================================
 const ALPHA = Array.from({ length: 95 }, (_, i) => String.fromCharCode(32 + i)).join("");
 // Decrypt preference when several originals share an output: lowercase a-z first, then the rest in keyboard order.
@@ -1363,7 +1360,8 @@ function parseJsonFirstWins(text){
   return val();
 }
 
-function encodeBytes(bytes, key){
+// Legacy encoder (format 1/2): no longer used for new texts, kept so old texts can be re-created in tests.
+function encodeBytesLegacy(bytes, key){
   if (!analyzeKey(key).injective){
     const text = [TEXT_MAGIC, TEXT_VERSION_SHARED, fingerprint(key), String(bytes.length)].join("$") + "\n" + encodeBytesV2(bytes, key);
     for (let i = 0; i < text.length; i++){ const c = text.charCodeAt(i); if (c !== 10 && (c < 32 || c > 126)) throw new Error("Internal error: non-keyboard character produced"); }
@@ -1400,6 +1398,107 @@ function encodeBytes(bytes, key){
   return text;
 }
 
+// ---------- format version 5 (all ciphers): "blended" escapes ----------
+// Versions 1-4 wrote a character with no keyboard equivalent as a visible code such as ~{201C} (in version 2/4,
+// the format used by ciphers with shared outputs like Juniper, the code was not even scrambled). Version 5 writes
+// it as a marker character M plus 1-5 "digit" characters, all taken from the cipher's own output alphabet, so an
+// é or an emoji just looks like a few more cipher letters and still decrypts exactly.
+//   M        = the output of one rarely used keyboard character (first good one of ^ ` | \ { } ~ @ # < >),
+//              chosen from the cipher itself; any plain character that encrypts to M is escaped too.
+//   payload  = the Unicode code point (or 0x110000 + byte for a byte that is not valid UTF-8), big-endian in
+//              base 32: every digit but the last is one of 32 "continue" characters, the last one of 32 "final" ones.
+//              The 64 digit characters are cipher outputs of common letters first, so they blend in.
+//   newline  = kept as a real newline. CR in pasted cipher text is ignored.
+const TEXT_VERSION_V5 = "5";
+const V5_MARK = "^`|\\{}~@#<>", V5_RARE = new Set("^`|\\{}~@#<>_=+*$%&[]");
+const V5_FREQ = "etaoinshrdlucmfwypvbgkjqxzETAOINSHRDLUCMFWYPVBGKJQXZ0123456789.,'\"-!?;:()";
+const v5Cache = new Map();
+function v5Plan(key){
+  let P = v5Cache.get(key); if (P) return P;
+  const { enc } = makeMaps(key), groups = new Map();
+  for (let i = 0; i < 95; i++){ const o = key.charCodeAt(i); if (!groups.has(o)) groups.set(o, []); groups.get(o).push(ALPHA[i]); }
+  let best = null;
+  for (const ch of V5_MARK){
+    const o = enc[ch.charCodeAt(0)]; if (o === 32) continue;
+    const g = groups.get(o), s = (g.every(x => V5_RARE.has(x)) ? 0 : 1000) + g.length;
+    if (!best || s < best.s) best = { o, s };
+  }
+  let M = best ? best.o : 0;
+  if (!M){ M = 126; for (let c = 126; c > 32; c--) if (!groups.has(c)){ M = c; break; } }   // every candidate encrypts to a space
+  const dec = new Uint8Array(128).fill(255);
+  for (const i of DEC_ORDER){ const c = enc[32 + i]; if (c !== M && dec[c] === 255) dec[c] = 32 + i; }
+  const seen = new Set([M, 32]), list = [], add = c => { if (!seen.has(c)){ seen.add(c); list.push(c); } };
+  for (const ch of V5_FREQ) add(enc[ch.charCodeAt(0)]);
+  for (let i = 0; i < 95; i++) add(enc[32 + i]);
+  for (let c = 33; c < 127; c++) add(c);
+  const fin = new Uint8Array(32), cont = new Uint8Array(32), digit = new Int16Array(128).fill(-1);
+  for (let k = 0; k < 32; k++){ fin[k] = list[2 * k]; cont[k] = list[2 * k + 1]; digit[fin[k]] = 32 + k; digit[cont[k]] = k; }
+  P = { M, enc, dec, fin, cont, digit };
+  if (v5Cache.size > 20) v5Cache.clear();
+  v5Cache.set(key, P);
+  return P;
+}
+function encodeBytes(bytes, key, stats){
+  const P = v5Plan(key), { enc, M, fin, cont } = P, n = bytes.length;
+  const out = new Uint8Array(n * 6 + 16);   // worst case: marker + 5 digits for one byte
+  let o = 0, escaped = 0;
+  const putVal = v => {
+    out[o++] = M;
+    let k = 0; const ds = [];
+    do { ds.push(v & 31); v = Math.floor(v / 32); } while (v > 0);
+    for (k = ds.length - 1; k > 0; k--) out[o++] = cont[ds[k]];
+    out[o++] = fin[ds[0]];
+  };
+  for (let i = 0; i < n; ){
+    const b = bytes[i];
+    if (b === 10){ out[o++] = 10; i++; continue; }
+    if (b >= 32 && b <= 126){ if (enc[b] !== M) out[o++] = enc[b]; else putVal(b); i++; continue; }
+    let len = 0, cp = 0;
+    const c1 = bytes[i + 1], c2 = bytes[i + 2], c3 = bytes[i + 3];
+    const isc = x => x !== undefined && (x & 0xC0) === 0x80;
+    if (b < 0x80){ len = 1; cp = b; }
+    else if (b >= 0xC2 && b <= 0xDF && isc(c1)){ len = 2; cp = ((b & 31) << 6) | (c1 & 63); }
+    else if (b >= 0xE0 && b <= 0xEF && isc(c1) && isc(c2) && !(b === 0xE0 && c1 < 0xA0) && !(b === 0xED && c1 > 0x9F)){ len = 3; cp = ((b & 15) << 12) | ((c1 & 63) << 6) | (c2 & 63); }
+    else if (b >= 0xF0 && b <= 0xF4 && isc(c1) && isc(c2) && isc(c3) && !(b === 0xF0 && c1 < 0x90) && !(b === 0xF4 && c1 > 0x8F)){ len = 4; cp = ((b & 7) << 18) | ((c1 & 63) << 12) | ((c2 & 63) << 6) | (c3 & 63); }
+    if (len){ putVal(cp); i += len; } else { putVal(0x110000 + b); i++; }
+    escaped++;
+  }
+  if (stats) stats.escaped = (stats.escaped || 0) + escaped;
+  const text = [TEXT_MAGIC, TEXT_VERSION_V5, fingerprint(key), String(n)].join("$") + "\n" + new TextDecoder("latin1").decode(out.subarray(0, o));
+  for (let i = 0; i < text.length; i++){ const c = text.charCodeAt(i); if (c !== 10 && (c < 32 || c > 126)) throw new Error("Internal error: non-keyboard character produced"); }
+  return text;
+}
+function decodeBodyV5(src, key, len){
+  const { M, dec, digit } = v5Plan(key), n = src.length;
+  const out = new Uint8Array(Math.max(n, len) + 4);
+  let o = 0, i = 0;
+  const bad = () => cipherError("BADTEXT");
+  while (i < n){
+    const c = src[i++];
+    if (c === 13) continue;
+    if (c === 10){ out[o++] = 10; continue; }
+    if (c > 126) throw cipherError("NONKEY");
+    if (c !== M){ out[o++] = dec[c] === 255 ? c : dec[c]; continue; }   // characters nothing maps to stay as they are
+    let v = 0, nd = 0;
+    for (;;){
+      while (i < n && src[i] === 13) i++;
+      if (i >= n) throw cipherError("INCOMPLETE");   // cut off in the middle of a character
+      const d = src[i++]; if (d > 126) throw cipherError("NONKEY");
+      const x = digit[d]; if (x < 0 || ++nd > 5) throw bad();
+      v = v * 32 + (x & 31);
+      if (x >= 32) break;
+    }
+    if (v >= 0x110000){ if (v > 0x1100FF) throw bad(); out[o++] = v - 0x110000; continue; }
+    if (v >= 0xD800 && v <= 0xDFFF) throw bad();
+    if (v < 0x80) out[o++] = v;
+    else if (v < 0x800){ out[o++] = 0xC0 | (v >> 6); out[o++] = 0x80 | (v & 63); }
+    else if (v < 0x10000){ out[o++] = 0xE0 | (v >> 12); out[o++] = 0x80 | ((v >> 6) & 63); out[o++] = 0x80 | (v & 63); }
+    else { out[o++] = 0xF0 | (v >> 18); out[o++] = 0x80 | ((v >> 12) & 63); out[o++] = 0x80 | ((v >> 6) & 63); out[o++] = 0x80 | (v & 63); }
+    if (o > out.length - 4) throw bad();
+  }
+  return { out, o };
+}
+
 function cipherError(code, extra){ const e = new Error(code); Object.assign(e, extra || {}); return e; }
 function readHeader(text){
   const t = String(text).replace(/^\s+/, "");
@@ -1408,13 +1507,19 @@ function readHeader(text){
   if (head.startsWith("AO3ENC$")) throw cipherError("OLDFORMAT");
   const m = /^AO3SUB\$(\d+)\$([0-9A-Z]{6})\$(\d+)$/.exec(head);
   if (!m) throw cipherError("FORMAT");
-  if (!["1", "2", "3", "4"].includes(m[1])) throw cipherError("VERSION");
+  if (!["1", "2", "3", "4", "5", "6"].includes(m[1])) throw cipherError("VERSION");
   return { version: m[1], fp: m[2], len: +m[3], body: nl < 0 ? "" : t.slice(nl + 1) };
 }
 function decodeText(text, key, opts){
   const h = readHeader(text);
-  if (h.version === "3" || h.version === "4") throw cipherError("FORMATTED");
+  if (FMT_BASE[h.version]) throw cipherError("FORMATTED");
   if (h.fp !== fingerprint(key) && !(opts && opts.force)) throw cipherError("FINGERPRINT", { textFp: h.fp });
+  if (h.version === TEXT_VERSION_V5){
+    const { out, o } = decodeBodyV5(new TextEncoder().encode(h.body), key, h.len);
+    if (o < h.len) throw cipherError("INCOMPLETE");
+    for (let k = h.len; k < o; k++) if (out[k] !== 10) throw cipherError("BADTEXT");
+    return out.slice(0, h.len);
+  }
   if (h.version === TEXT_VERSION_SHARED){
     const { out, o } = decodeBodyV2(new TextEncoder().encode(h.body), key, h.len);
     if (o < h.len) throw cipherError("INCOMPLETE");
@@ -1490,7 +1595,7 @@ function fixEntities(s){
     return v;
   });
 }
-// "Simplify punctuation": typographic characters -> keyboard equivalents, so the encrypted text needs no escape codes
+// typographic punctuation and special spaces -> keyboard equivalents (part of "Simplify characters" below)
 const PUNCT_MAP = {
   "\u201C": '"', "\u201D": '"', "\u201E": '"', "\u201F": '"', "\u2033": '"', "\u2036": '"', "\u301D": '"', "\u301E": '"', "\uFF02": '"', "\u00AB": '"', "\u00BB": '"',
   "\u2018": "'", "\u2019": "'", "\u201A": "'", "\u201B": "'", "\u2032": "'", "\u2035": "'", "\uFF07": "'", "\u02BC": "'", "\u2039": "'", "\u203A": "'",
@@ -1501,20 +1606,98 @@ const PUNCT_MAP = {
   "\u202F": " ", "\u205F": " ", "\u3000": " ", "\u1680": " ", "\u2028": " ", "\u2029": " ",
   "\u00AD": "", "\u200B": "", "\u2060": "", "\uFEFF": ""
 };
-const PUNCT_RE = new RegExp("[" + Object.keys(PUNCT_MAP).map(c => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0")).join("") + "]", "g");
-function simplifyPunct(s, cnt){ return s.replace(PUNCT_RE, c => { if (cnt) cnt.n++; return PUNCT_MAP[c]; }); }
+// "Simplify characters": anything that is not on a keyboard -> the closest keyboard spelling, so the encrypted
+// text stays short and decrypts to plain keyboard text. Accents are dropped (é -> e), ligatures and stylized or
+// fullwidth letters are taken apart (ﬁ -> fi, 𝐁 -> B, Ｆ -> F), Greek and Cyrillic are transliterated, typographic
+// punctuation and symbols get keyboard spellings (« -> ", × -> x, ™ -> (TM)), CR/CRLF -> LF, tab -> 4 spaces,
+// and invisible control/format characters are removed. What is left (emoji, CJK, …) is kept exactly; format 5
+// writes it in cipher characters, so it never shows up as an escape code either.
+const CHAR_MAP = Object.assign({}, PUNCT_MAP, {
+  "\t": "    ",
+  "ß": "ss", "ẞ": "SS", "æ": "ae", "Æ": "AE", "œ": "oe", "Œ": "OE", "ø": "o", "Ø": "O", "ł": "l", "Ł": "L",
+  "đ": "d", "Đ": "D", "þ": "th", "Þ": "Th", "ð": "d", "Ð": "D", "ı": "i", "ĸ": "k", "ŋ": "ng", "Ŋ": "Ng",
+  "ħ": "h", "Ħ": "H", "ŧ": "t", "Ŧ": "T", "ſ": "s", "ə": "e", "Ə": "E", "ǝ": "e", "ɛ": "e", "Ɛ": "E", "ɔ": "o", "Ɔ": "O",
+  "ʃ": "sh", "ʒ": "zh", "ƒ": "f", "ɑ": "a", "ɪ": "i", "ʊ": "u", "ʌ": "u", "ɡ": "g", "ɲ": "ny", "ʔ": "'", "ʻ": "'", "ʿ": "'", "ʾ": "'",
+  "«": '"', "»": '"', "‹": "'", "›": "'", "×": "x", "÷": "/", "·": ".", "™": "(TM)", "©": "(c)", "®": "(R)", "℗": "(P)", "℠": "(SM)",
+  "°": "deg", "º": "o", "ª": "a", "¶": "P.", "§": "S.", "†": "+", "‡": "++", "‰": "%o", "‱": "%oo", "¡": "!", "¿": "?",
+  "⁂": "***", "※": "*", "⁎": "*", "⁑": "**", "⁕": "*", "⁃": "-", "⁓": "~", "〜": "~", "～": "~", "˜": "~", "´": "'", "`": "`",
+  "¸": ",", "¯": "-", "¨": '"', "ˆ": "^", "˚": "o", "˙": ".", "˝": '"', "˘": "u", "ˇ": "v", "˛": ",", "¦": "|", "‖": "||",
+  "⸺": "--", "⸻": "---", "‴": "'''", "‵": "'", "‶": '"', "‐": "-", "‒": "-", "―": "--", "⹀": "=", "‧": ".", "⁘": "*", "⁙": "*",
+  "→": "->", "←": "<-", "↔": "<->", "⇒": "=>", "⇐": "<=", "⇔": "<=>", "↑": "^", "↓": "v", "⟶": "-->", "⟵": "<--", "➔": "->", "➜": "->",
+  "±": "+/-", "∓": "-/+", "≠": "!=", "≤": "<=", "≥": ">=", "≈": "~", "≡": "=", "∞": "inf", "√": "sqrt", "∑": "sum", "∏": "prod",
+  "∆": "delta", "µ": "u", "¬": "!", "∗": "*", "∕": "/", "∖": "\\", "∣": "|", "∼": "~", "⋅": ".", "∘": "o", "∙": "*",
+  "€": "EUR", "£": "GBP", "¥": "JPY", "¢": "c", "₹": "Rs", "₽": "RUB", "₩": "KRW", "₺": "TRY", "₿": "BTC", "¤": "$", "₱": "PHP", "₪": "ILS",
+  "♥": "<3", "❤": "<3", "♡": "<3", "❥": "<3", "★": "*", "☆": "*", "✦": "*", "✧": "*", "✩": "*", "✪": "*", "✫": "*", "✬": "*", "✭": "*", "✮": "*", "✯": "*", "✰": "*",
+  "✓": "v", "✔": "v", "✗": "x", "✘": "x", "♪": "#", "♫": "#", "♬": "#", "■": "#", "□": "[]", "▪": "*", "▫": "*", "●": "*", "○": "o", "◆": "*", "◇": "*",
+  "「": '"', "」": '"', "『": '"', "』": '"', "【": "[", "】": "]", "〈": "<", "〉": ">", "《": "<<", "》": ">>", "、": ",", "。": ".", "・": ".",
+  "ˋ": "`", "ˊ": "'", "ˈ": "'", "ˌ": ",", "ː": ":", "ʹ": "'", "ʺ": '"'
+});
+// Greek and Cyrillic -> Latin (lowercase table; capitals follow the case of the original)
+const SCRIPT_MAP = (() => {
+  const m = {};
+  const add = (from, to) => { const f = [...from], t = to.split(" "); f.forEach((c, i) => { m[c] = t[i] === "-" ? "" : t[i]; }); };
+  add("αβγδεζηθικλμνξοπρσςτυφχψω", "a v g d e z i th i k l m n x o p r s s t y f ch ps o");
+  add("ϐϑϕϖϰϱϲϵϝϛϟϡ", "v th f p k r s e w st q s");
+  add("абвгдеёжзийклмнопрстуфхцчшщъыьэюя", "a b v g d e yo zh z i y k l m n o p r s t u f kh ts ch sh shch - y - e yu ya");
+  add("іїєґўђјљњћџѓќѕѣѳѵ", "i yi ye g u dj j lj nj c dz g k dz e f i");
+  return m;
+})();
+function scriptChar(ch, next){
+  const low = ch.toLowerCase(), t = SCRIPT_MAP[low];
+  if (t === undefined) return null;
+  if (ch === low || !t) return t;
+  if (t.length === 1) return t.toUpperCase();
+  return next && next !== next.toLowerCase() ? t.toUpperCase() : t[0].toUpperCase() + t.slice(1);
+}
+const isKeyChar = c => (c >= 32 && c <= 126) || c === 10;
+function translitChar(ch, next){
+  if (ch === "\u00B0" && /^[CFK]$/.test(next || "")) return "";   // 37°C -> 37C
+  let m = CHAR_MAP[ch]; if (m !== undefined) return m;
+  m = scriptChar(ch, next); if (m !== null) return m;
+  const d = ch.normalize("NFKD");
+  let r = "", any = false;
+  for (const x of d){
+    if (/\p{M}/u.test(x)) continue;
+    any = true;
+    if (isKeyChar(x.codePointAt(0))){ r += x; continue; }
+    let y = CHAR_MAP[x]; if (y === undefined) y = scriptChar(x, next);
+    if (y === null) return null;
+    r += y;
+  }
+  return any ? r : null;
+}
+const KEYBOARD_ONLY = /^[\x20-\x7e\n]*$/;
+function simplifyChars(s, cnt){
+  if (s == null || KEYBOARD_ONLY.test(s)) return s;
+  const bump = () => { if (cnt) cnt.n++; };
+  s = s.replace(/\r\n?/g, () => { bump(); return "\n"; });
+  const cps = Array.from(s); let out = "", prevKey = true;
+  for (let i = 0; i < cps.length; i++){
+    const ch = cps[i], c = ch.codePointAt(0);
+    if (isKeyChar(c)){ out += ch; prevKey = true; continue; }
+    const r = translitChar(ch, cps[i + 1]);
+    if (r !== null){ out += r; bump(); prevKey = true; continue; }
+    if (/\p{M}/u.test(ch)){ if (prevKey){ bump(); continue; } out += ch; continue; }   // accent on a keyboard letter: drop; emoji variation selector etc.: keep
+    if (c === 0x200D){ const nx = cps[i + 1]; if (!prevKey && nx && nx.codePointAt(0) > 126){ out += ch; continue; } bump(); continue; }   // zero-width joiner inside an emoji sequence
+    if (c >= 0xE0020 && c <= 0xE007F && !prevKey){ out += ch; continue; }   // emoji flag tags
+    if (/[\p{Cc}\p{Cf}]/u.test(ch)){ bump(); continue; }   // control and invisible format characters
+    out += ch; prevKey = false;
+  }
+  return out;
+}
+const simplifyPunct = simplifyChars;   // old name
 function simplifyStory(story, cnt){
-  const f = t => t == null ? t : oneLine(simplifyPunct(t, cnt));
+  const f = t => t == null ? t : oneLine(simplifyChars(t, cnt));
   return Object.assign({}, story, { title: f(story.title), author: f(story.author), chapters: story.chapters.map(c => Object.assign({}, c, {
     heading: c.heading == null ? null : f(c.heading),
-    blocks: c.blocks.map(b => b.type !== "p" ? b : Object.assign({}, b, { text: simplifyPunct(b.text, cnt).split("\n").map(l => l.replace(/^ +| +$/g, "")).filter(Boolean).join("\n") })).filter(b => b.type !== "p" || b.text)
+    blocks: c.blocks.map(b => b.type !== "p" ? b : Object.assign({}, b, { text: simplifyChars(b.text, cnt).split("\n").map(l => l.replace(/^ +| +$/g, "")).filter(Boolean).join("\n") })).filter(b => b.type !== "p" || b.text)
   })) });
 }
 function simplifyDoc(root, cnt){       // formatted stories: same, on the text nodes; a paragraph that only holds &nbsp; becomes an empty line (<br>)
   for (const t of fmtTextNodes(root)){
     const par = t.parentNode;
     if (/\u00a0/.test(t.data) && !/[^\s\u00a0]/.test(t.data) && par !== root && fmtIsBlock(par) && par.childNodes.length === 1){ par.replaceChild(root.ownerDocument.createElement("br"), t); if (cnt) cnt.n++; continue; }
-    const v = simplifyPunct(t.data, cnt); if (v) t.data = v; else t.remove();
+    const v = simplifyChars(t.data, cnt).replace(/\n/g, " "); if (v) t.data = v; else t.remove();
   }
   root.normalize();
 }
@@ -1646,7 +1829,7 @@ const looksLikeHtmlFile = t => /^\s*(<!doctype|<html|<\?xml|<head)/i.test(t.slic
 // Text: header line "AO3SUB$3$ID$LEN" (4 = cipher with shared outputs), then a cleaned copy of the story's HTML in
 // which every text node has been replaced by its cipher text. All the text nodes, joined with "\n", form an ordinary
 // format-1/2 body, so the escape scheme and duplicate rules are exactly the same as for plain text.
-const FMT_VERSION = { "1": "3", "2": "4" }, FMT_BASE = { "3": "1", "4": "2" };
+const FMT_VERSION = { "1": "3", "2": "4", "5": "6" }, FMT_BASE = { "3": "1", "4": "2", "6": "5" };
 const FMT_TAGS = new Set("p div blockquote h1 h2 h3 h4 h5 h6 ul ol li dl dt dd em i strong b u s strike del ins sub sup small big mark cite q abbr dfn code pre kbd samp var tt center table thead tbody tfoot tr td th caption figure figcaption details summary ruby rt rp hr br address section article aside header footer".split(" "));
 const FMT_VOID = new Set(["br", "hr"]);
 const FMT_BLOCK = new Set("p div blockquote h1 h2 h3 h4 h5 h6 ul ol li dl dt dd pre center table thead tbody tfoot tr td th caption figure figcaption details summary hr address section article aside header footer".split(" "));
@@ -1764,7 +1947,7 @@ function encodeStoryFormatted(story, key, opts){
   const nodes = fmtTextNodes(doc.body);
   const plain = nodes.map(t => t.data);
   const joined = plain.join("\n");
-  const ct = encodeBytes(new TextEncoder().encode(joined), key);
+  const ct = encodeBytes(new TextEncoder().encode(joined), key, opts.stats);
   const nl = ct.indexOf("\n"), head = ct.slice(0, nl).split("$"), pieces = ct.slice(nl + 1).split("\n");
   if (nodes.length && pieces.length !== nodes.length) throw new Error("FMTSPLIT");
   nodes.forEach((t, i) => { t.data = pieces[i]; });
@@ -2333,13 +2516,14 @@ $("encBtn").addEventListener("click", async () => {
     const t0 = performance.now();
     let out = null, note = "", plainTxt = encStoryText;
     const simp = $("encSimplify").checked; let cnt = { n: 0 };
-    if ($("encFormat").checked){ try { out = encodeStoryFormatted(encStory, c.key, { simplify: simp, index: encIndex, count: cnt }); } catch(e){ note = " The formatting of this file couldn't be kept safely, so it was encrypted as plain text."; } }
-    if (!out){ cnt = { n: 0 }; if (simp){ plainTxt = storyText(simplifyStory(encStory, cnt)); out = encodeBytes(enc.encode(plainTxt), c.key); } else out = encodeBytes(encBytes, c.key); }
+    const es = { escaped: 0 };
+    if ($("encFormat").checked){ try { out = encodeStoryFormatted(encStory, c.key, { simplify: simp, index: encIndex, count: cnt, stats: es }); } catch(e){ es.escaped = 0; note = " The formatting of this file couldn't be kept safely, so it was encrypted as plain text."; } }
+    if (!out){ cnt = { n: 0 }; if (simp){ plainTxt = storyText(simplifyStory(encStory, cnt)); out = encodeBytes(enc.encode(plainTxt), c.key, es); } else out = encodeBytes(encBytes, c.key, es); }
     showEncrypted(out, encStory.title, encStory.author, encStats, c.key, plainTxt);
-    const nEsc = $("encStory").querySelectorAll(".esc").length;
+    const nEsc = es.escaped;
     setStatus(st, `Done in ${((performance.now() - t0)/1000).toFixed(1)}s with “${c.name}” (ID ${fingerprint(c.key)})` + (isFormattedText(out) ? ", formatting kept." : ".") +
-      (simp && cnt.n ? ` Simplified ${cnt.n.toLocaleString()} typographic character${cnt.n === 1 ? "" : "s"} (curly quotes, dashes, …) to keyboard ones.` : "") +
-      (nEsc ? ` ${nEsc.toLocaleString()} special character${nEsc === 1 ? " is" : "s are"} kept exactly as escape codes (shown faded).` : "") + note, "ok");
+      (simp && cnt.n ? ` Simplified ${cnt.n.toLocaleString()} character${cnt.n === 1 ? "" : "s"} (accents, curly quotes, dashes, other alphabets, …) to keyboard ones.` : "") +
+      (nEsc ? ` ${nEsc.toLocaleString()} character${nEsc === 1 ? "" : "s"} with no keyboard spelling (emoji, other scripts, …) ${nEsc === 1 ? "is" : "are"} written in cipher characters and ${nEsc === 1 ? "comes" : "come"} back exactly when decrypting.` : "") + note, "ok");
     if (prefs.remember) idb.set("lastEnc", { ct: out, title: encStory.title || "", author: encStory.author || "", stats: encStats, at: new Date().toISOString() });
   }catch(e){ setStatus(st, "Encryption failed: " + e.message, "err"); }
   updateEncBtn();
@@ -2372,7 +2556,7 @@ function applyTagColors(){
   $("tagLegend").hidden = !(prefs.tagColors && $("encStory").classList.contains("fmt"));
 }
 $("tagColors").addEventListener("change", e => { setPref("tagColors", e.target.checked); applyTagColors(); });
-// escape codes (characters that aren't on a keyboard) in the encrypted view: shown faded with an explanation, not as noise
+// Old texts only (format 1-4): their escape codes (~{201C} …) are shown faded with an explanation. Format 5/6 has no visible escapes.
 function escapeMatcher(key, version){
   const q = c => c.replace(/[\\^$.*+?()[\]{}|\/-]/g, "\\$&");
   if (version === "2" || version === "4") return new RegExp(q(key[94]) + "(?:~|\\{[0-9A-F]{1,6}\\}|[0-9A-F]{2})", "g");
@@ -2389,9 +2573,12 @@ function showEscPop(sp){
   pop.style.top = (r.bottom + 6 + h > innerHeight - 8 ? Math.max(8, r.top - h - 6) : r.bottom + 6) + "px";
 }
 document.addEventListener("click", e => { const sp = e.target.closest && e.target.closest("#encStory .esc"); showEscPop(sp || null); });
+// iOS doesn't send "click" for taps on plain text, so also close the note on any touch/pointer press elsewhere
+document.addEventListener("pointerdown", e => { if ($("escPop") && !(e.target.closest && e.target.closest("#encStory .esc, #escPop"))) showEscPop(null); }, { passive: true });
 window.addEventListener("scroll", () => showEscPop(null), { passive: true });
 $("encStory").addEventListener("scroll", () => showEscPop(null), { passive: true });
 function markEscapes(root, key, version){
+  if (!["1", "2", "3", "4"].includes(version)) return;
   const re = escapeMatcher(key, version), shared = version === "2" || version === "4";
   const w = document.createTreeWalker(root, 4), nodes = [];
   for (let t = w.nextNode(); t; t = w.nextNode()){ re.lastIndex = 0; if (re.test(t.data)) nodes.push(t); }
@@ -3179,7 +3366,7 @@ async function restoreLast(){
   }
 }
 window.AO3Ready = Promise.all([restoreLast().catch(() => {}), fontsReady]);
-window.AO3Cipher = { fixEntities, simplifyPunct, simplifyStory, chapterIndexOf, mergeIndexes, takeChapterIndex, chapterNextPrev, ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, juniperKey, DEC_ORDER, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta, extractStory, storyText, parseStoryText, storyToHtml, looksLikeHtmlFile, storyToFmtDoc, parseAo3Url, ao3Links, encodeStoryFormatted, decodeStoryFormatted, fmtSerialize, fmtParse, fmtDocToPage, isFormattedText };
+window.AO3Cipher = { fixEntities, simplifyPunct, simplifyChars, encodeBytesLegacy, v5Plan, decodeBodyV5, escapeMatcher, simplifyStory, chapterIndexOf, mergeIndexes, takeChapterIndex, chapterNextPrev, ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, juniperKey, DEC_ORDER, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta, extractStory, storyText, parseStoryText, storyToHtml, looksLikeHtmlFile, storyToFmtDoc, parseAo3Url, ao3Links, encodeStoryFormatted, decodeStoryFormatted, fmtSerialize, fmtParse, fmtDocToPage, isFormattedText };
 window.KoaYT = { parseYouTube, embedUrl, watchUrl };
 </script>
 </body>
