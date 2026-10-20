@@ -6,7 +6,7 @@
 <title>AO3 Fic Encryptor</title>
 <script>
   // apply saved theme before paint (no flash)
-  try { var t = localStorage.getItem("ao3enc.theme"); if (!t) { var m = /(?:^|; )ao3enc=([^;]*)/.exec(document.cookie); if (m) t = JSON.parse(decodeURIComponent(m[1])).t; } var legacy = { aero: "gerald", night: "quadrangle", evil: "lettuce", holy: "barometer" }; if (legacy[t]) { t = legacy[t]; localStorage.setItem("ao3enc.theme", t); } if (/^(gerald|barometer|amoled|quadrangle|lettuce)$/.test(t)) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+  try { var t = localStorage.getItem("ao3enc.theme"); if (!t) { var m = /(?:^|; )ao3enc=([^;]*)/.exec(document.cookie); if (m) t = JSON.parse(decodeURIComponent(m[1])).t; } var legacy = { aero: "gerald", night: "quadrangle", evil: "lettuce", holy: "barometer" }; if (legacy[t]) { t = legacy[t]; localStorage.setItem("ao3enc.theme", t); } if (/^(gerald|barometer|amoled|quadrangle|lettuce|doorknob|pamphlet|wednesday|spork|gravel)$/.test(t)) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
 </script>
 <style>
 /* =====================================================================
@@ -454,6 +454,301 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
 .legend .l-dup::before{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent)}
 .legend .l-empty::before{border-color:var(--err);border-style:dotted}
 @media (max-width:600px){ .cgrid{grid-template-columns:repeat(auto-fill,minmax(46px,1fr));max-height:360px} .presets{grid-template-columns:1fr} }
+/* =====================================================================
+   NEW THEMES (round 11): Doorknob, Pamphlet, Wednesday, Spork, Gravel
+   ===================================================================== */
+/* Doorknob: Metro-era phone UI. Flat square tiles, light Segoe-style type,
+   loud accent tiles, all mixed with a sunny glossy sky. */
+[data-theme="doorknob"]{
+  --ink:#1b1b1b; --muted:#4f4f4f; --accent:#0050ef; --ok:#0a7a12; --err:#c50023;
+  --head-ink:#0050ef; --head-shadow:none; --sub-ink:#1b1b1b;
+  --page-bg: radial-gradient(ellipse 70% 40% at 85% -6%, rgba(255,255,255,.95), rgba(255,255,255,0) 70%), linear-gradient(180deg,#bfe7fb 0%,#e6f6ff 38%,#f7fbff 64%,#e4f5d8 100%);
+  --panel-bg: linear-gradient(rgba(255,255,255,.95),rgba(255,255,255,.95)); --spec: linear-gradient(transparent,transparent);
+  --panel-border:#d0d0d0; --panel-shadow: 0 1px 0 rgba(0,0,0,.06); --blur:0px; --radius:0px;
+  --field-bg:#ffffff; --field-border:#8a8a8a; --field-ink:#1b1b1b; --field-shadow:none;
+  --btn-bg:#ffffff; --btn-ink:#1b1b1b; --btn-border:#1b1b1b; --btn-shadow:none;
+  --primary-bg:#0050ef; --primary-ink:#fff; --primary-border:#0050ef; --primary-tshadow:none; --primary-shadow:none;
+  --tab-bg:transparent; --tab-ink:#595959; --tab-active-bg:#0050ef; --tab-active-ink:#fff; --tab-active-shadow:none;
+  --font: "Segoe UI", "Segoe WP", "Selawik", "Open Sans", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --head-font: "Segoe UI Light", "Segoe WP Light", "Segoe UI", "Selawik", "Open Sans", "Helvetica Neue", Arial, sans-serif;
+  --focus: 0 0 0 3px #d80073; --chip:#f2f2f2;
+  --esc-ink:#d80073; --esc-op:.7; --esc-line:#d80073;
+  --t-p:#0046c8;--t-em:#c4004f;--t-strong:#a14000;--t-b:#2a6a00;--t-i:#7a1fb0;--t-u:#5b3aa8;--t-s:#666;--t-h:#a20025;--t-q:#00707a;--t-li:#9a4d00;--t-code:#333
+}
+/* Pamphlet: empty fluorescent hallway. Mono-yellow wallpaper, buzzing ceiling
+   panels, damp mustard carpet, nobody here. */
+[data-theme="pamphlet"]{
+  --ink:#2b2614; --muted:#5a5130; --accent:#6e5200; --ok:#3c5f12; --err:#9c2a14;
+  --head-ink:#3d3517; --head-shadow:0 0 18px rgba(255,251,214,.9), 0 1px 0 rgba(255,255,240,.8); --sub-ink:#2f2914;
+  --page-bg: linear-gradient(180deg,#f3efd6 0%,#e9dfa6 16%,#e2d491 55%,#d8c97d 80%,#a99a52 92%,#8d7f3e 100%);
+  --panel-bg: linear-gradient(rgba(255,253,236,.86),rgba(250,244,212,.84));
+  --spec: linear-gradient(180deg,rgba(255,255,250,.75) 0%,rgba(255,255,250,0) 22%);
+  --panel-border:#cdbf7e; --panel-shadow: 0 0 0 1px rgba(255,255,240,.6) inset, 0 10px 30px rgba(110,95,30,.18), 0 0 60px rgba(255,252,220,.35);
+  --blur:6px; --radius:4px;
+  --field-bg:#fffdf0; --field-border:#b9aa66; --field-ink:#2b2614; --field-shadow: inset 0 1px 3px rgba(110,95,30,.15);
+  --btn-bg: linear-gradient(180deg,#fbf6dc 0%,#efe6bb 100%); --btn-ink:#2b2614; --btn-border:#b3a462; --btn-shadow: 0 1px 0 rgba(255,255,245,.9) inset;
+  --primary-bg: linear-gradient(180deg,#7b6a25 0%,#5d4f17 100%); --primary-ink:#fffbe6; --primary-border:#4e4212; --primary-tshadow:0 1px 1px rgba(0,0,0,.35); --primary-shadow: 0 2px 8px rgba(90,75,20,.3);
+  --tab-bg: rgba(255,251,226,.55); --tab-ink:#4a4222;
+  --tab-active-bg: linear-gradient(180deg,#ffffff 0%,#fffbe8 100%); --tab-active-ink:#2b2614; --tab-active-shadow: 0 0 16px rgba(255,252,215,.95), 0 0 0 1px #d8cb8a inset;
+  --font: "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif;
+  --head-font: "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif;
+  --focus: 0 0 0 3px rgba(110,82,0,.45); --chip: rgba(255,250,220,.6);
+  --esc-ink:#7d6f3c; --esc-op:.7; --esc-line:#a8975a;
+  --t-p:#30557a;--t-em:#9a2f1f;--t-strong:#6e4c00;--t-b:#45601a;--t-i:#883a68;--t-u:#56478a;--t-s:#6d6750;--t-h:#6b3b10;--t-q:#2c6459;--t-li:#7e4a14;--t-code:#3b3826
+}
+/* Wednesday: calm tech-minimal. Raked-sand circles, sage and stone greys,
+   hairline borders, lots of air. */
+[data-theme="wednesday"]{
+  --ink:#1f2b25; --muted:#52605a; --accent:#33664a; --ok:#2f6a3c; --err:#a33a2f;
+  --head-ink:#22332a; --head-shadow:none; --sub-ink:#2b3a32;
+  --page-bg: radial-gradient(ellipse 60% 45% at 78% 88%, rgba(170,190,168,.45), rgba(170,190,168,0) 70%), linear-gradient(180deg,#f3f4f0 0%,#e9ece6 55%,#dde4da 100%);
+  --panel-bg: linear-gradient(rgba(251,252,249,.88),rgba(246,248,244,.88)); --spec: linear-gradient(transparent,transparent);
+  --panel-border:#c3ccbf; --panel-shadow: 0 1px 2px rgba(40,60,50,.06), 0 12px 40px rgba(40,60,50,.07); --blur:12px; --radius:6px;
+  --field-bg:#fcfdfb; --field-border:#b9c4b5; --field-ink:#1f2b25; --field-shadow:none;
+  --btn-bg: transparent; --btn-ink:#1f3a2b; --btn-border:#9fae9b; --btn-shadow:none;
+  --primary-bg:#33664a; --primary-ink:#fff; --primary-border:#2a573e; --primary-tshadow:none; --primary-shadow: 0 1px 0 rgba(255,255,255,.25) inset;
+  --tab-bg: transparent; --tab-ink:#52605a; --tab-active-bg: #e6ede3; --tab-active-ink:#1f3a2b; --tab-active-shadow: inset 0 -2px 0 #33664a;
+  --font: "Inter", "Helvetica Neue", "Segoe UI", system-ui, -apple-system, Arial, sans-serif; --head-font: var(--font);
+  --focus: 0 0 0 2px #33664a; --chip: rgba(232,237,229,.65);
+  --esc-ink:#5d7a68; --esc-op:.7; --esc-line:#8fa597;
+  --t-p:#2b5a78;--t-em:#a0413a;--t-strong:#735510;--t-b:#386428;--t-i:#873a66;--t-u:#574d8c;--t-s:#666d68;--t-h:#33664a;--t-q:#2a6660;--t-li:#83561c;--t-code:#2f3833
+}
+/* Spork: glacier. Icy blues, frosted glass, snow, aqua highlights. */
+[data-theme="spork"]{
+  --ink:#0b2c42; --muted:#2f566d; --accent:#00668f; --ok:#126434; --err:#b0182a;
+  --head-ink:#ffffff; --head-shadow:0 1px 0 rgba(0,90,140,.35), 0 0 22px rgba(120,220,255,.9), 0 2px 16px rgba(0,110,170,.45); --sub-ink:#0b2c42;
+  --page-bg: radial-gradient(ellipse 80% 45% at 50% -10%, #ffffff 0%, rgba(255,255,255,0) 70%), linear-gradient(180deg,#a9dcf7 0%,#d4effd 30%,#eef9ff 58%,#ffffff 78%,#e3f4fb 100%);
+  --panel-bg: linear-gradient(rgba(255,255,255,.62),rgba(236,248,255,.55));
+  --spec: linear-gradient(180deg,rgba(255,255,255,.85) 0%,rgba(255,255,255,.2) 20%,rgba(255,255,255,0) 40%);
+  --panel-border: rgba(255,255,255,.95);
+  --panel-shadow: inset 0 1px 0 #fff, inset 0 0 0 1px rgba(160,230,255,.35), inset 0 -18px 36px rgba(140,225,255,.25), 0 16px 44px rgba(20,100,150,.18);
+  --blur:24px; --radius:16px;
+  --field-bg: rgba(255,255,255,.82); --field-border: rgba(0,120,170,.3); --field-ink:#0b2c42; --field-shadow: inset 0 2px 6px rgba(0,80,130,.1);
+  --btn-bg: linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(240,250,255,.8) 49%,rgba(200,238,252,.85) 51%,rgba(244,252,255,.95) 100%);
+  --btn-ink:#0b3a55; --btn-border: rgba(0,130,180,.35); --btn-shadow: 0 2px 8px rgba(0,110,170,.15), inset 0 1px 0 #fff;
+  --primary-bg: linear-gradient(180deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.06) 49%,rgba(255,255,255,0) 51%), linear-gradient(180deg,#0a7ea3 0%,#03445c 100%);
+  --primary-ink:#fff; --primary-border:#045a78; --primary-tshadow:0 1px 1px rgba(0,40,60,.55); --primary-shadow: 0 3px 12px rgba(0,140,190,.35), inset 0 1px 0 rgba(255,255,255,.85);
+  --tab-bg: rgba(255,255,255,.4); --tab-ink:#0d3a55;
+  --tab-active-bg: linear-gradient(180deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.06) 49%,rgba(255,255,255,0) 51%), linear-gradient(180deg,#0a7ea3 0%,#03445c 100%);
+  --tab-active-ink:#fff; --tab-active-shadow: 0 0 14px rgba(80,210,255,.55), inset 0 1px 0 rgba(255,255,255,.8);
+  --focus: 0 0 0 3px rgba(0,170,220,.45); --chip: rgba(255,255,255,.5);
+  --esc-ink:#2f7f9e; --esc-op:.7; --esc-line:#62bcdc;
+  --t-p:#0a5596;--t-em:#b3203a;--t-strong:#7d5a00;--t-b:#1f6a3a;--t-i:#a3175d;--t-u:#5236a8;--t-s:#5e6b73;--t-h:#1d4f8f;--t-q:#006a75;--t-li:#8a4a12;--t-code:#2c3e4a
+}
+/* Gravel: underwater. Deep teal to cyan, light rays from the surface,
+   glossy bubbles everywhere. */
+[data-theme="gravel"]{
+  --ink:#effdff; --muted:#b9e6ee; --accent:#7ff0ff; --ok:#8af0b6; --err:#ffa3a3;
+  --head-ink:#f3feff; --head-shadow:0 0 14px rgba(120,240,255,.8), 0 2px 0 rgba(0,60,80,.4); --sub-ink:#eafcff;
+  --page-bg: radial-gradient(ellipse 80% 35% at 50% -8%, rgba(120,230,240,.22), rgba(120,230,240,0) 70%), linear-gradient(180deg,#07606f 0%,#054e5e 30%,#033d4b 62%,#022630 100%);
+  --panel-bg: linear-gradient(rgba(3,52,64,.74),rgba(2,32,42,.8));
+  --spec: linear-gradient(180deg,rgba(170,250,255,.13) 0%,rgba(170,250,255,.04) 24%,rgba(170,250,255,0) 45%);
+  --panel-border: rgba(130,235,255,.45);
+  --panel-shadow: inset 0 1px 0 rgba(190,250,255,.55), inset 0 -20px 40px rgba(0,180,210,.12), 0 0 30px rgba(40,200,230,.18), 0 18px 44px rgba(0,20,30,.5);
+  --blur:16px; --radius:18px;
+  --field-bg: rgba(1,30,40,.7); --field-border: rgba(110,225,245,.4); --field-ink:#e9fbff; --field-shadow: inset 0 2px 8px rgba(0,0,0,.4);
+  --btn-bg: linear-gradient(180deg,rgba(180,250,255,.3) 0%,rgba(180,250,255,.08) 49%,rgba(0,120,140,.2) 51%,rgba(40,190,210,.32) 100%);
+  --btn-ink:#effdff; --btn-border: rgba(120,235,255,.5); --btn-shadow: 0 0 12px rgba(40,210,230,.18), inset 0 1px 0 rgba(200,250,255,.5);
+  --primary-bg: linear-gradient(180deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,.14) 49%,rgba(255,255,255,0) 51%), linear-gradient(180deg,#8ff6ff 0%,#11b7cf 100%);
+  --primary-ink:#00262e; --primary-border:#62e8f6; --primary-tshadow:0 1px 0 rgba(255,255,255,.4); --primary-shadow: 0 0 18px rgba(60,230,250,.5), inset 0 1px 0 rgba(255,255,255,.85);
+  --tab-bg: rgba(2,50,62,.45); --tab-ink:#c9f1f7;
+  --tab-active-bg: linear-gradient(180deg,rgba(255,255,255,.3) 0%,rgba(255,255,255,.06) 49%,rgba(255,255,255,0) 51%), linear-gradient(180deg,#0b7f92 0%,#02434f 100%);
+  --tab-active-ink:#fff; --tab-active-shadow: 0 0 16px rgba(60,220,245,.5), inset 0 1px 0 rgba(200,250,255,.7);
+  --focus: 0 0 0 3px rgba(127,240,255,.55); --chip: rgba(2,60,74,.45);
+  --esc-ink:#8fd7e2; --esc-op:.7; --esc-line:#57c6d8;
+  --t-p:#8fd3ff;--t-em:#ff9a9a;--t-strong:#ffe07a;--t-b:#b8f27a;--t-i:#ffa3e2;--t-u:#c9b8ff;--t-s:#a9c4ca;--t-h:#d6b0ff;--t-q:#7ff0d8;--t-li:#ffc285;--t-code:#d8eef2
+}
+.sw.doorknob{border-radius:3px;background:linear-gradient(90deg,#0050ef 0 50%,#d80073 50%) top/100% 50% no-repeat,linear-gradient(90deg,#60a917 0 50%,#fa6800 50%) bottom/100% 50% no-repeat}
+.sw.pamphlet{background:radial-gradient(ellipse 60% 18% at 50% 22%,#fffef4 0 60%,transparent 62%),linear-gradient(180deg,#efe6b4 0%,#d9c97d 70%,#8d7f3e 100%)}
+.sw.wednesday{background:repeating-radial-gradient(circle at 30% 70%,#e9ece6 0 2px,#b9c4b5 2px 3px),#e9ece6}
+.sw.spork{background:radial-gradient(circle at 35% 30%,#fff 0 12%,transparent 13%),linear-gradient(135deg,#ffffff 0%,#bfe9fb 45%,#22b8d8 100%)}
+.sw.gravel{background:radial-gradient(circle at 35% 30%,#fff 0 12%,transparent 13%),radial-gradient(circle at 70% 72%,rgba(255,255,255,.7) 0 8%,transparent 9%),linear-gradient(180deg,#36d6e8 0%,#057a8e 55%,#022a35 100%)}
+[data-theme="gravel"] select option{background:#111}
+
+/* ---- Doorknob extras ---- */
+[data-theme="doorknob"] :where(.glass,.panel,.tab,.btn,.themes,.themes button,input,select,textarea,.drop,.fileinfo,.chapbox,details.box,.intro,.cstory,.reader,.player,.pframe,.fontcard,.fontprev,.preset,.cgrid,.cell,.savebar,.warnbox,.badge,.bmlist,.taglegend span,.pnote,.chapnav .cn-list,.chapnav .cn-list .tag){border-radius:0 !important}
+[data-theme="doorknob"] header h1{font-weight:300;text-transform:lowercase;letter-spacing:-.5px;font-size:clamp(2rem,6vw,3.2rem)}
+[data-theme="doorknob"] .tabs{background:rgba(255,255,255,.92);border:0;box-shadow:none}
+[data-theme="doorknob"] .tab{text-transform:lowercase;font-weight:400;font-size:1.08rem;font-family:var(--head-font)}
+[data-theme="doorknob"] .tab:nth-child(1)[aria-selected="true"]{background:#0050ef}
+[data-theme="doorknob"] .tab:nth-child(2)[aria-selected="true"]{background:#d80073}
+[data-theme="doorknob"] .tab:nth-child(3)[aria-selected="true"]{background:#a20025}
+[data-theme="doorknob"] .tab:nth-child(4)[aria-selected="true"]{background:#6a00ff}
+[data-theme="doorknob"] .tab:nth-child(5)[aria-selected="true"]{background:#007a33}
+[data-theme="doorknob"] .btn{border-width:2px;text-transform:lowercase;font-weight:600}
+[data-theme="doorknob"] .btn.primary{border-color:#0050ef}
+[data-theme="doorknob"] .themes{background:rgba(255,255,255,.92);border:0;box-shadow:none}
+[data-theme="doorknob"] .themes button[aria-checked="true"]{background:#0050ef;color:#fff}
+[data-theme="doorknob"] .panel{border-top:4px solid #0050ef}
+[data-theme="doorknob"] .player .ph{background:#0050ef;color:#fff}
+[data-theme="doorknob"] .player .ph .btn{background:transparent;color:#fff;border-color:#fff}
+[data-theme="doorknob"] .sub{font-weight:300;font-size:1.4rem;text-transform:lowercase}
+[data-theme="doorknob"] .scene .a{inset:auto;left:0;top:0;width:100%;height:100%;opacity:.55;
+  background:
+   linear-gradient(#0050ef,#0050ef) 4% 18%/120px 120px no-repeat,
+   linear-gradient(#d80073,#d80073) 12% 33%/58px 58px no-repeat,
+   linear-gradient(#60a917,#60a917) 4% 46%/120px 58px no-repeat,
+   linear-gradient(#fa6800,#fa6800) 93% 14%/58px 58px no-repeat,
+   linear-gradient(#1ba1e2,#1ba1e2) 98% 30%/120px 120px no-repeat,
+   linear-gradient(#6a00ff,#6a00ff) 91% 52%/58px 58px no-repeat,
+   linear-gradient(#e3c800,#e3c800) 99% 52%/58px 58px no-repeat,
+   linear-gradient(#00aba9,#00aba9) 6% 78%/58px 120px no-repeat,
+   linear-gradient(#a20025,#a20025) 95% 84%/120px 58px no-repeat;
+  animation:tiles 9s ease-in-out infinite}
+@keyframes tiles{0%,100%{opacity:.5}50%{opacity:.62}}
+[data-theme="doorknob"] .scene .b{inset:auto -10% -6% -10%;height:26%;opacity:.8;
+  background:radial-gradient(ellipse 45% 70% at 25% 100%,#a8e27a 0%,#66c03c 55%,rgba(102,192,60,0) 72%),radial-gradient(ellipse 50% 65% at 78% 105%,#bdee8c 0%,#72c94a 50%,rgba(114,201,74,0) 72%)}
+[data-theme="doorknob"] .scene .c{background:radial-gradient(ellipse 40% 25% at 85% 0%,rgba(255,255,255,.8),rgba(255,255,255,0) 70%)}
+[data-theme="doorknob"] .bubble{--o:.6;background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.95) 0 9%,rgba(255,255,255,.25) 10%,rgba(255,255,255,0) 32%),
+  radial-gradient(circle,rgba(255,255,255,0) 55%,rgba(27,161,226,.4) 72%,rgba(255,255,255,.85) 100%)}
+[data-theme="doorknob"] .reader.reading{background:#fff}
+
+/* ---- Pamphlet extras ---- */
+[data-theme="pamphlet"] header h1{font-weight:400;letter-spacing:.12em;text-transform:uppercase;font-size:clamp(1.4rem,4vw,2.2rem)}
+[data-theme="pamphlet"] header h1 span{opacity:.8}
+[data-theme="pamphlet"] .tab{font-weight:600;letter-spacing:.03em}
+/* ceiling grid with fluorescent panels, slowly buzzing */
+[data-theme="pamphlet"] .scene .a{inset:0 0 auto 0;height:180px;
+  background:
+   linear-gradient(90deg,rgba(255,255,255,0) 0 18%,rgba(255,255,248,.95) 18% 32%,rgba(255,255,255,0) 32% 68%,rgba(255,255,248,.95) 68% 82%,rgba(255,255,255,0) 82%) 0 26px/100% 34px no-repeat,
+   linear-gradient(90deg,rgba(255,255,255,0) 0 43%,rgba(255,255,248,.9) 43% 57%,rgba(255,255,255,0) 57%) 0 110px/100% 26px no-repeat,
+   repeating-linear-gradient(90deg,rgba(150,140,95,.35) 0 1px,transparent 1px 120px),
+   repeating-linear-gradient(180deg,rgba(150,140,95,.35) 0 1px,transparent 1px 60px),
+   linear-gradient(180deg,#f2eed7,#ebe3b8);
+  -webkit-mask:linear-gradient(#000 60%,transparent);mask:linear-gradient(#000 60%,transparent);
+  animation:buzz 7s steps(1) infinite}
+@keyframes buzz{0%,100%{opacity:1}61%{opacity:1}62%{opacity:.78}63%{opacity:1}64%{opacity:.86}65%{opacity:1}}
+/* yellow wallpaper with faint chevron pattern */
+[data-theme="pamphlet"] .scene .b{inset:150px 0 0 0;opacity:.3;
+  background:repeating-linear-gradient(45deg,rgba(160,140,60,.25) 0 2px,transparent 2px 18px),repeating-linear-gradient(-45deg,rgba(160,140,60,.25) 0 2px,transparent 2px 18px)}
+/* carpet + vignette */
+[data-theme="pamphlet"] .scene .c{background:radial-gradient(ellipse at center,rgba(0,0,0,0) 55%,rgba(90,75,20,.28) 100%),
+  linear-gradient(180deg,transparent 88%,rgba(120,105,50,.5) 88.3%,rgba(120,105,50,0) 89%) }
+[data-theme="pamphlet"] .bubble{--o:.45;width:3px;height:3px;background:#fffbe0;box-shadow:0 0 6px rgba(255,250,210,.9)}
+[data-theme="pamphlet"] .themes button[aria-checked="true"]{outline:1px solid #cdbf7e}
+
+/* ---- Wednesday extras ---- */
+[data-theme="wednesday"] header h1{font-weight:300;letter-spacing:.14em;font-size:clamp(1.5rem,4.2vw,2.3rem)}
+[data-theme="wednesday"] header h1 span{color:#33664a}
+[data-theme="wednesday"] .tabs{background:rgba(251,252,249,.75);box-shadow:none}
+[data-theme="wednesday"] .tab{font-weight:500;letter-spacing:.04em}
+[data-theme="wednesday"] .tab,[data-theme="wednesday"] .themes button{border-radius:4px}
+[data-theme="wednesday"] .tabs,[data-theme="wednesday"] .themes{border-radius:6px}
+[data-theme="wednesday"] .btn{font-weight:500;letter-spacing:.02em}
+[data-theme="wednesday"] .btn:hover:not(:disabled){transform:none;filter:none;background:#e6ede3}
+[data-theme="wednesday"] .btn.primary:hover:not(:disabled){background:#2a573e}
+[data-theme="wednesday"] .sub{font-weight:500;letter-spacing:.06em;text-transform:uppercase;font-size:.86rem;color:var(--muted)}
+[data-theme="wednesday"] .panel{border-width:1px}
+/* raked sand around a stone, a hairline grid, one slow breath */
+[data-theme="wednesday"] .scene .a{inset:auto;left:78%;top:86%;width:200vmax;height:200vmax;transform:translate(-50%,-50%);opacity:.55;
+  background:radial-gradient(circle,#7d8a80 0 34px,#9aa69c 35px 37px,transparent 38px),repeating-radial-gradient(circle,transparent 0 13px,rgba(120,140,125,.28) 13px 14px);
+  -webkit-mask:radial-gradient(circle,#000 0%,rgba(0,0,0,.6) 18%,transparent 30%);mask:radial-gradient(circle,#000 0%,rgba(0,0,0,.6) 18%,transparent 30%);animation:breathe 14s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.45}50%{opacity:.62}}
+[data-theme="wednesday"] .scene .b{background:repeating-linear-gradient(90deg,rgba(60,90,70,.05) 0 1px,transparent 1px 64px),repeating-linear-gradient(0deg,rgba(60,90,70,.05) 0 1px,transparent 1px 64px)}
+[data-theme="wednesday"] .scene .c{inset:auto;left:12%;top:18%;width:150px;height:150px;border-radius:50%;border:1px solid rgba(51,102,74,.22);box-shadow:0 0 0 22px rgba(51,102,74,.04)}
+[data-theme="wednesday"] .bubble{display:none}
+
+/* ---- Spork extras ---- */
+[data-theme="spork"] .scene .b{inset:auto 0 0 0;height:30%;opacity:.95;
+  background:
+   linear-gradient(160deg,transparent 0 40%,rgba(255,255,255,.95) 40.3% 100%) 0 100%/34% 70% no-repeat,
+   linear-gradient(200deg,transparent 0 45%,rgba(220,244,255,.95) 45.3% 100%) 30% 100%/30% 85% no-repeat,
+   linear-gradient(155deg,transparent 0 38%,rgba(196,236,252,.95) 38.3% 100%) 62% 100%/28% 95% no-repeat,
+   linear-gradient(205deg,transparent 0 42%,rgba(255,255,255,.95) 42.3% 100%) 100% 100%/36% 75% no-repeat,
+   linear-gradient(180deg,rgba(255,255,255,0),#fff 90%)}
+[data-theme="spork"] .scene .a{inset:-10% -20% auto -20%;height:55%;filter:blur(40px);animation:aurora 30s ease-in-out infinite;
+  background:linear-gradient(100deg,rgba(0,0,0,0) 15%,rgba(120,230,255,.45) 35%,rgba(170,245,240,.4) 55%,rgba(0,0,0,0) 80%)}
+[data-theme="spork"] .scene .c{background:radial-gradient(ellipse 60% 30% at 50% -5%,rgba(255,255,255,.7),rgba(255,255,255,0) 70%)}
+/* snowflakes: fall instead of rising */
+[data-theme="spork"] .bubble{--o:.95;width:calc(var(--s) * .14);height:calc(var(--s) * .14);top:-40px;bottom:auto;
+  background:radial-gradient(circle,#fff 0 45%,rgba(255,255,255,0) 72%);box-shadow:0 0 6px rgba(150,220,255,.9);animation-name:snow}
+@keyframes snow{0%{transform:translate(0,0);opacity:0}10%{opacity:var(--o)}50%{transform:translate(var(--sway),55vh)}90%{opacity:var(--o)}100%{transform:translate(0,112vh);opacity:0}}
+[data-theme="spork"] header h1{letter-spacing:.5px}
+
+/* ---- Gravel extras ---- */
+[data-theme="gravel"] .scene .a{inset:auto;left:50%;top:0;width:220vmax;height:220vmax;transform:translate(-50%,-50%);animation:spin 300s linear infinite;
+  background:repeating-conic-gradient(from 0deg,rgba(180,250,255,.13) 0deg 3deg,rgba(180,250,255,0) 3deg 11deg);
+  -webkit-mask:radial-gradient(circle,#000 0%,rgba(0,0,0,.55) 22%,transparent 42%);mask:radial-gradient(circle,#000 0%,rgba(0,0,0,.55) 22%,transparent 42%)}
+[data-theme="gravel"] .scene .b{inset:auto -10% 0 -10%;height:22%;
+  background:radial-gradient(ellipse 20% 40% at 15% 100%,#2d4f45 0%,rgba(45,79,69,0) 70%),radial-gradient(ellipse 25% 50% at 70% 100%,#264538 0%,rgba(38,69,56,0) 70%),
+   radial-gradient(ellipse 60% 30% at 50% 110%,#0b3a3a,rgba(11,58,58,0) 70%)}
+[data-theme="gravel"] .scene .c{background:repeating-radial-gradient(ellipse 120px 40px at 30% 10%,rgba(160,250,255,.05) 0 6px,transparent 6px 22px);animation:pulse 9s ease-in-out infinite}
+[data-theme="gravel"] .bubble{--o:.85;background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.95) 0 9%,rgba(255,255,255,.3) 10%,rgba(255,255,255,0) 30%),
+  radial-gradient(circle,rgba(255,255,255,0) 52%,rgba(90,230,250,.38) 72%,rgba(220,253,255,.9) 100%);box-shadow:0 0 12px rgba(80,230,250,.35),inset -3px -5px 10px rgba(0,160,190,.3)}
+/* =====================================================================
+   MOBILE / TOUCH (round 11)
+   ===================================================================== */
+/* tab bar: equal-width cells that always fit (no sideways overflow) */
+.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch}
+.tab{min-width:0;min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.1;overflow-wrap:anywhere;hyphens:none}
+.cstory .esc{opacity:var(--esc-op,.5);color:var(--esc-ink,inherit);border-bottom-color:var(--esc-line,currentColor)}
+.esc-pop{position:fixed;z-index:80;max-width:min(320px,90vw);padding:10px 12px;border-radius:12px;font:500 .88rem/1.4 var(--font);
+  background:var(--field-bg);color:var(--field-ink);border:1px solid var(--field-border);box-shadow:0 10px 28px rgba(0,0,0,.28);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+/* file inputs stay in the page (not display:none) so mobile browsers open the picker reliably */
+input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;opacity:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);pointer-events:none}
+.pastebox textarea{min-height:110px}
+.reader{position:relative}
+.picklayer{position:absolute;left:0;right:0;z-index:5;cursor:crosshair;display:flex;justify-content:center;align-items:flex-start;padding-top:10px;
+  background:color-mix(in srgb,var(--accent) 8%,transparent);box-shadow:inset 0 0 0 3px color-mix(in srgb,var(--accent) 60%,transparent)}
+.pickmsg{pointer-events:none;padding:8px 14px;border-radius:999px;font:600 .88rem/1.3 var(--font);background:var(--field-bg);color:var(--field-ink);border:1px solid var(--field-border);box-shadow:0 6px 18px rgba(0,0,0,.2);max-width:90%;text-align:center}
+#bmPick[aria-pressed="true"]{background:var(--tab-active-bg);color:var(--tab-active-ink);border-color:transparent}
+.check input{flex:none}
+.presets{grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr))}
+.preset{min-width:0}
+.preset input[type=text]:not(.mono){flex:1 1 0;width:0}
+/* hover effects only where there is a real hover (no sticky hover after a tap) */
+@media (hover:none){
+  .btn:hover:not(:disabled){filter:none;transform:none}
+  .tab:hover{filter:none}
+  .themes button:hover{background:transparent}
+  .themes button[aria-checked="true"]:hover{background:var(--tab-active-bg)}
+  .drop:hover{border-color:var(--field-border);box-shadow:none}
+  .bmlist .bm:hover{background:transparent}
+  [data-theme="amoled"] .btn.primary:hover:not(:disabled){background:#000;color:#3ddcc0}
+  [data-theme="wednesday"] .btn:hover:not(:disabled){background:var(--btn-bg)}
+  [data-theme="wednesday"] .btn.primary:hover:not(:disabled){background:var(--primary-bg)}
+}
+/* touch: every control at least 44px tall */
+@media (pointer:coarse), (max-width:600px){
+  .btn,.btn.small{min-height:44px}
+  .btn.small{padding:10px 12px}
+  input[type=password],input[type=text],input[type=url],input[type=number],select{min-height:44px}
+  .check{min-height:44px}
+  .check input{width:22px;height:22px}
+  .themes button{min-height:44px}
+  details.box>summary,.player summary{min-height:44px;padding:11px 0}
+  details.box{padding-top:0;padding-bottom:0}
+  details.box[open]{padding-bottom:12px}
+  .player .ph{min-height:56px}
+  .player .ph .btn{min-width:44px}
+  .bmlist .bm button.go{min-height:44px}
+  .chapnav .cn-list li{min-height:44px;align-items:center}
+  .chapnav .cn-list a.t{display:block;padding:10px 0}
+  .linkrow a{display:inline-flex;align-items:center;min-height:44px}
+  .plinks a{display:inline-flex;align-items:center;min-height:44px}
+  .cell input{min-height:40px}
+  .cell{cursor:text}
+  .reader select{min-height:44px}
+}
+@media (max-width:600px){
+  main{padding:10px 10px 40px}
+  .tabs{gap:4px;padding:4px;border-radius:22px}
+  .tab{font-size:.8rem;padding:6px 2px;border-radius:18px;letter-spacing:0}
+  [data-theme="doorknob"] .tab{font-size:.9rem}
+  .themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));width:auto;margin:14px 0 0;border-radius:18px}
+  .themes button{justify-content:flex-start}
+  .player.min .ph strong{display:none}
+  .player.min .pbody{width:0}
+  .player.min .ph{padding:6px 8px 6px 14px}
+  .reader .rbar{gap:6px}
+  .reader .rbar .rt{flex-basis:100%}
+  .chapnav .linkrow .btn{margin-left:0}
+}
+@media (max-width:349px){
+  .tabs{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .tab{grid-column:span 2}
+  .tab:nth-child(n+4){grid-column:span 3}
+}
 </style>
 <style id="fontCss"></style>
 </head>
@@ -474,6 +769,11 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
     <button role="radio" data-theme-btn="lettuce"><span class="sw lettuce"></span>Lettuce</button>
     <button role="radio" data-theme-btn="barometer"><span class="sw barometer"></span>Barometer</button>
     <button role="radio" data-theme-btn="amoled"><span class="sw amoled"></span>AMOLED</button>
+    <button role="radio" data-theme-btn="doorknob"><span class="sw doorknob"></span>Doorknob</button>
+    <button role="radio" data-theme-btn="pamphlet"><span class="sw pamphlet"></span>Pamphlet</button>
+    <button role="radio" data-theme-btn="wednesday"><span class="sw wednesday"></span>Wednesday</button>
+    <button role="radio" data-theme-btn="spork"><span class="sw spork"></span>Spork</button>
+    <button role="radio" data-theme-btn="gravel"><span class="sw gravel"></span>Gravel</button>
   </div>
 </header>
 
@@ -492,7 +792,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
       <span class="icon" aria-hidden="true">&#128214;</span>
       <strong>Drop your AO3 .html file here</strong>
       <span>or click to choose one (AO3: Download &rarr; HTML). Only the story itself gets encrypted. Got separate chapter files? Drop them all at once.</span>
-      <input type="file" id="encFile" accept=".html,.htm,text/html" multiple hidden>
+      <input type="file" id="encFile" accept=".html,.htm,.xhtml,text/html,application/xhtml+xml,text/plain,application/octet-stream" multiple class="picker" tabindex="-1" aria-hidden="true">
     </div>
     <div class="fileinfo" id="encInfo"><div class="t" id="encTitle"></div><div class="m" id="encMeta"></div></div>
     <div class="chapbox" id="encChapters" hidden></div>
@@ -500,7 +800,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
       <summary>Get all chapters from AO3</summary>
       <p class="hint">Paste a link to any chapter (or the work). You get links to the whole work in one file; save it and drop it above. Fetching it straight into this page only works through a CORS proxy (see below), because AO3 doesn't let other websites read its pages.</p>
       <div class="row">
-        <input type="text" id="ao3Url" spellcheck="false" autocomplete="off" placeholder="https://archiveofourown.org/works/123456/chapters/7890123" aria-label="AO3 link">
+        <input type="text" id="ao3Url" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="https://archiveofourown.org/works/123456/chapters/7890123" aria-label="AO3 link">
         <button class="btn small primary" id="ao3Fetch">Fetch whole work</button>
       </div>
       <div class="linkrow" id="ao3Links" hidden>
@@ -517,7 +817,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
         <button class="btn small" id="rlClear">Clear list</button>
       </div>
       <div class="sub" style="margin-top:12px">CORS proxy (optional)</div>
-      <div class="row"><input type="text" id="ao3Proxy" spellcheck="false" autocomplete="off" placeholder="e.g. https://my-proxy.example/?url={url}" aria-label="CORS proxy"></div>
+      <div class="row"><input type="text" id="ao3Proxy" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="e.g. https://my-proxy.example/?url={url}" aria-label="CORS proxy"></div>
       <p class="hint">Leave empty to only use the links above. A proxy is someone else's server: it sees which work you fetch. Use <code>{url}</code> where the AO3 link goes, or the link is added to the end.</p>
     </details>
 
@@ -558,7 +858,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
     <textarea id="decText" spellcheck="false" wrap="off" placeholder="Paste the encrypted text (first line starts with AO3SUB$) or drop a .txt file here"></textarea>
     <div class="actions">
       <button class="btn" id="decFileBtn">Upload .txt</button>
-      <input type="file" id="decFile" accept=".txt,text/plain" hidden>
+      <input type="file" id="decFile" accept=".txt,text/plain,application/octet-stream" class="picker" tabindex="-1" aria-hidden="true">
     </div>
     <div class="cipherline">
       <label for="decCipher">Cipher</label>
@@ -567,7 +867,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
         <span class="badge" title="Cipher fingerprint">ID <b id="decFp"></b></span>
       </div>
       <div class="row" style="margin-top:8px">
-        <input type="text" id="decKey" class="mono" spellcheck="false" autocomplete="off" placeholder="…or paste a cipher key someone shared (AO3CIPHER$1$…$)" aria-label="Cipher key">
+        <input type="text" id="decKey" autocapitalize="off" autocorrect="off" class="mono" spellcheck="false" autocomplete="off" placeholder="…or paste a cipher key someone shared (AO3CIPHER$1$…$)" aria-label="Cipher key">
       </div>
       <p class="hint" id="decKeyHint"></p>
       <div class="actions" id="decKeySaveRow" hidden><button class="btn small" id="decKeySave">Save this cipher</button></div>
@@ -607,7 +907,8 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
           <label class="check" style="font-size:.84rem"><input type="checkbox" id="readTags"> Tag colours</label>
           <div class="bmwrap">
             <div class="seg">
-              <button class="btn small" id="bmAdd" title="Bookmark the paragraph at the top of the page (or double-click any paragraph)">&#128278; Bookmark</button>
+              <button class="btn small" id="bmAdd" title="Bookmark the paragraph at the top of the page (or double-click / double-tap any paragraph)">&#128278; Bookmark</button>
+              <button class="btn small" id="bmPick" aria-pressed="false" title="Then tap any paragraph to bookmark it (or remove its bookmark)">&#9757; Pick</button>
               <button class="btn small" id="bmToggle" aria-expanded="false">Bookmarks (<span id="bmCount">0</span>)</button>
             </div>
             <div class="bmlist" id="bmList" hidden></div>
@@ -616,6 +917,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
           <button class="btn small primary exit" id="exitRead">Exit reading (Esc)</button>
         </div>
         <iframe id="preview" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" title="Sandboxed preview of the decrypted work"></iframe>
+        <div class="picklayer" id="pickLayer" hidden><span class="pickmsg" id="pickMsg">Tap the paragraph to bookmark &middot; tap Pick again to cancel</span></div>
       </div>
     </div>
   </section>
@@ -629,7 +931,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
         <div class="sub" style="margin-top:0">Reading text</div>
         <label for="fontReadSel">Font</label>
         <select id="fontReadSel"></select>
-        <div class="row" style="margin-top:8px"><input type="text" id="fontReadName" spellcheck="false" autocomplete="off" placeholder="Any installed font, e.g. Atkinson Hyperlegible" aria-label="Font name for reading text"><button class="btn small" id="fontReadUse">Use</button></div>
+        <div class="row" style="margin-top:8px"><input type="text" id="fontReadName" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="Any installed font, e.g. Atkinson Hyperlegible" aria-label="Font name for reading text"><button class="btn small" id="fontReadUse">Use</button></div>
         <p class="hint" id="fontReadHint"></p>
         <label for="readSize">Size <output id="readSizeOut"></output></label><input type="range" id="readSize" min="13" max="30" step="1">
         <label for="readLh">Line height <output id="readLhOut"></output></label><input type="range" id="readLh" min="1.2" max="2.6" step="0.05">
@@ -640,7 +942,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
         <div class="sub" style="margin-top:0">Encrypted text</div>
         <label for="fontEncSel">Font</label>
         <select id="fontEncSel"></select>
-        <div class="row" style="margin-top:8px"><input type="text" id="fontEncName" spellcheck="false" autocomplete="off" placeholder="Any installed font, e.g. Courier New" aria-label="Font name for encrypted text"><button class="btn small" id="fontEncUse">Use</button></div>
+        <div class="row" style="margin-top:8px"><input type="text" id="fontEncName" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="Any installed font, e.g. Courier New" aria-label="Font name for encrypted text"><button class="btn small" id="fontEncUse">Use</button></div>
         <p class="hint" id="fontEncHint"></p>
         <label for="encSize">Size <output id="encSizeOut"></output></label><input type="range" id="encSize" min="10" max="24" step="1">
         <label for="encLh">Line height <output id="encLhOut"></output></label><input type="range" id="encLh" min="1.1" max="2.4" step="0.05">
@@ -651,12 +953,12 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
     <div class="sub">Add a font</div>
     <div class="actions" style="margin-top:4px">
       <button class="btn small" id="fontUpBtn">Upload a font file (.ttf, .otf, .woff, .woff2)</button>
-      <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2" hidden>
+      <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2,font/sfnt,application/x-font-ttf,application/x-font-otf,application/font-woff,application/font-sfnt,application/vnd.ms-opentype,application/octet-stream" class="picker" tabindex="-1" aria-hidden="true">
     </div>
     <ul class="datalist" id="fontUpList"></ul>
     <p class="hint">Uploaded fonts stay in this browser (IndexedDB) and come back every time; they're included in backups and removed by Wipe.</p>
     <div class="optrow"><label class="check"><input type="checkbox" id="allowGoogle"> Allow loading fonts from Google Fonts</label></div>
-    <div class="row" style="margin-top:8px"><input type="text" id="gfName" spellcheck="false" autocomplete="off" placeholder="Google Font name, e.g. Lora or Open Sans" aria-label="Google Font name"><button class="btn small" id="gfLoad" disabled>Load from Google Fonts</button></div>
+    <div class="row" style="margin-top:8px"><input type="text" id="gfName" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="Google Font name, e.g. Lora or Open Sans" aria-label="Google Font name"><button class="btn small" id="gfLoad" disabled>Load from Google Fonts</button></div>
     <p class="hint">Off by default: loading a Google Font contacts Google's servers (they see your IP address and which font you asked for). Nothing else on this page talks to Google.</p>
     <div class="status" id="fontStatus" aria-live="polite"></div>
     <div class="sub">Reading page</div>
@@ -677,11 +979,17 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
     <div class="actions">
       <button class="btn" id="backupBtn">Download backup (.json)</button>
       <button class="btn" id="restoreBtn">Restore from backup</button>
-      <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+      <input type="file" id="restoreFile" accept=".json,application/json,text/json,text/plain,application/octet-stream" class="picker" tabindex="-1" aria-hidden="true">
       <button class="btn" id="wipeBtn">Wipe all saved data&hellip;</button>
       <button class="btn primary" id="wipeYes" hidden>Yes, wipe everything</button>
       <button class="btn" id="wipeNo" hidden>Cancel</button>
     </div>
+    <details class="box pastebox" id="restorePasteBox">
+      <summary>Paste backup text instead</summary>
+      <p class="hint">If your phone won't let you pick the backup file, open it, copy all of its text and paste it here.</p>
+      <textarea id="restoreText" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder='{"format":"ao3-encryptor-backup", ...}' aria-label="Backup JSON text"></textarea>
+      <div class="actions"><button class="btn small primary" id="restorePaste">Restore pasted backup</button></div>
+    </details>
     <div class="status" id="dataStatus" aria-live="polite"></div>
     <p class="hint">Wiping removes your saved ciphers, playlists, bookmarks, reading positions, reading list, remembered texts and settings from this browser. Export your ciphers first if you want to keep them.</p>
   </section>
@@ -708,9 +1016,9 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
       <div class="preset"><button class="btn small" id="preShuffle">&#127922; Random shuffle</button><span class="lbl">scramble everything</span></div>
       <div class="preset"><button class="btn small" id="preCaesar">Caesar shift</button><span class="lbl k">by</span><input type="number" id="cipShift" value="3" step="1" aria-label="Shift amount"></div>
       <div class="preset"><button class="btn small" id="preReverse">Reverse (Atbash)</button><span class="lbl">space &harr; ~, ! &harr; }</span></div>
-      <div class="preset"><button class="btn small" id="preKeyword">Keyword</button><input type="text" id="cipKeyword" placeholder="e.g. lighthouse" aria-label="Keyword"></div>
+      <div class="preset"><button class="btn small" id="preKeyword">Keyword</button><input type="text" id="cipKeyword" autocapitalize="off" autocorrect="off" placeholder="e.g. lighthouse" aria-label="Keyword"></div>
       <div class="preset"><button class="btn small" id="preIdentity">Reset (no change)</button><span class="lbl">nothing changes</span></div>
-      <div class="preset"><span class="lbl k">Swap</span><input type="text" id="swapA" maxlength="1" class="mono" style="flex:0 0 46px;text-align:center" aria-label="First character"><span class="lbl k">&harr;</span><input type="text" id="swapB" maxlength="1" class="mono" style="flex:0 0 46px;text-align:center" aria-label="Second character"><button class="btn small" id="swapBtn">Swap</button></div>
+      <div class="preset"><span class="lbl k">Swap</span><input type="text" id="swapA" autocapitalize="off" autocorrect="off" maxlength="1" class="mono" style="flex:0 0 46px;text-align:center" aria-label="First character"><span class="lbl k">&harr;</span><input type="text" id="swapB" autocapitalize="off" autocorrect="off" maxlength="1" class="mono" style="flex:0 0 46px;text-align:center" aria-label="Second character"><button class="btn small" id="swapBtn">Swap</button></div>
     </div>
 
     <div class="sub">Substitution table</div>
@@ -727,7 +1035,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
     <div class="sub">Share or back up</div>
     <label for="cipKeyOut" style="margin-top:4px">Cipher key for the saved version (send this to whoever should decrypt)</label>
     <div class="row">
-      <input type="text" id="cipKeyOut" class="mono" readonly spellcheck="false">
+      <input type="text" id="cipKeyOut" autocapitalize="off" autocorrect="off" class="mono" readonly spellcheck="false">
       <button class="btn small" id="cipCopy">Copy</button>
     </div>
     <label>Cipher files (.json)</label>
@@ -735,15 +1043,21 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
       <button class="btn small" id="cipExportJson">&#11015; Export .json</button>
       <button class="btn small" id="cipExportAll">&#11015; Export all ciphers</button>
       <button class="btn small" id="cipImportJsonBtn">&#11014; Import .json</button>
-      <input type="file" id="cipImportFile" accept=".json,application/json" multiple hidden>
+      <input type="file" id="cipImportFile" accept=".json,application/json,text/json,text/plain,application/octet-stream" multiple class="picker" tabindex="-1" aria-hidden="true">
     </div>
     <div class="drop jsondrop" id="cipDrop" tabindex="0" role="button" aria-label="Import cipher .json files">
       <strong>Drop cipher .json files here</strong>
       <span>single ciphers or an "all ciphers" collection</span>
     </div>
+    <details class="box pastebox" id="cipPasteBox">
+      <summary>Paste cipher .json text instead</summary>
+      <p class="hint">Handy on phones: open the .json file (or the message it came in), copy all of its text and paste it here.</p>
+      <textarea id="cipJsonIn" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder='{"format":"ao3-cipher", ...}' aria-label="Cipher JSON text"></textarea>
+      <div class="actions"><button class="btn small primary" id="cipJsonImport">Import pasted JSON</button><button class="btn small" id="cipJsonPaste">Paste from clipboard</button></div>
+    </details>
     <label for="cipKeyIn">Import a cipher key</label>
     <div class="row">
-      <input type="text" id="cipKeyIn" class="mono" spellcheck="false" autocomplete="off" placeholder="AO3CIPHER$1$…$">
+      <input type="text" id="cipKeyIn" autocapitalize="off" autocorrect="off" class="mono" spellcheck="false" autocomplete="off" placeholder="AO3CIPHER$1$…$">
       <button class="btn small" id="cipImport">Import as new</button>
     </div>
     <div class="status" id="cipImportMsg" aria-live="polite"></div>
@@ -1526,6 +1840,18 @@ function download(data, name, type){
   const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
+// File.text()/arrayBuffer() are missing on older mobile browsers: fall back to FileReader
+function readBuf(f){
+  if (f && typeof f.arrayBuffer === "function") return f.arrayBuffer();
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsArrayBuffer(f); });
+}
+async function readText(f){
+  if (f && typeof f.__text === "string") return f.__text;
+  const t = new TextDecoder().decode(new Uint8Array(await readBuf(f)));
+  return t.replace(/^\uFEFF/, "");
+}
+// open a file picker from a tap/click (synchronously, inside the user gesture)
+function openPicker(id){ const el = $(id); try { el.value = ""; } catch(e){} el.click(); }
 function safeName(s){ return (s || "work").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "_").slice(0, 80) || "work"; }
 const nextFrame = () => new Promise(r => setTimeout(r, 30));
 // ---------- storage helpers ----------
@@ -1622,6 +1948,7 @@ const cells = [];
     const cell = document.createElement("div"); cell.className = "cell";
     const p = document.createElement("span"); p.className = "p"; p.textContent = showCh(ALPHA[i]);
     const inp = document.createElement("input"); inp.type = "text"; inp.autocomplete = "off"; inp.spellcheck = false;
+    inp.setAttribute("autocapitalize", "off"); inp.setAttribute("autocorrect", "off"); // phone keyboards would capitalise / autocorrect single characters
     inp.setAttribute("aria-label", "Cipher for " + (ALPHA[i] === " " ? "space" : ALPHA[i]));
     inp.dataset.i = i;
     inp.addEventListener("focus", () => inp.select());
@@ -1638,6 +1965,7 @@ const cells = [];
       if (e.key === "ArrowLeft" && cells[i - 1]){ e.preventDefault(); cells[i - 1].input.focus(); }
       if (e.key === "Backspace" && !inp.value && cells[i - 1]){ e.preventDefault(); cells[i - 1].input.focus(); }
     });
+    cell.addEventListener("click", e => { if (e.target !== inp) inp.focus(); });
     cell.append(p, inp); g.appendChild(cell); cells.push({ cell, input: inp });
   }
 })();
@@ -1742,13 +2070,13 @@ $("cipExportAll").addEventListener("click", () => {
 async function importCipherFiles(files){
   const st = $("cipImportMsg"), lines = []; let added = 0, skipped = 0, failed = 0, lastId = null;
   for (const f of files){
-    let text; try { text = await f.text(); } catch (e){ lines.push(`✗ ${f.name}: couldn't be read.`); failed++; continue; }
+    let text; try { text = await readText(f); } catch (e){ lines.push(`✗ ${f.name}: couldn't be read.`); failed++; continue; }
     const res = parseCipherFile(text);
     if (res.error){ lines.push(`✗ ${f.name} ${res.error}`); failed++; continue; }
     res.items.forEach((it, i) => {
       const label = res.collection ? `${f.name}, cipher #${i + 1}` : f.name;
       if (it.error){ lines.push(`✗ ${label}${it.rawName ? " (“" + it.rawName + "”)" : ""}: ${it.error.replace(/^mapping problems: /, "")}`); failed++; return; }
-      const name = it.name || f.name.replace(/(\.ao3cipher)?\.json$/i, "") || "Imported cipher";
+      const name = it.name || (f.__text != null ? "" : f.name.replace(/(\.ao3cipher)?\.json$/i, "")) || "Imported cipher";
       const existing = ciphers.find(c => c.key === it.key);
       if (existing){ lines.push(`• “${name}” is already saved as “${existing.name}” (ID ${it.id}), so it was skipped.`); skipped++; lastId = existing.id; return; }
       const c = { id: newId(), name: uniqueName(name), key: it.key, created: it.created || new Date().toISOString() };
@@ -1760,11 +2088,22 @@ async function importCipherFiles(files){
   const sum = [added && `${added} imported`, skipped && `${skipped} already saved`, failed && `${failed} couldn't be imported`].filter(Boolean).join(", ");
   setStatus(st, (sum ? sum.charAt(0).toUpperCase() + sum.slice(1) + ".\n" : "") + lines.join("\n"), failed && !added ? "err" : "ok");
 }
-$("cipImportJsonBtn").addEventListener("click", () => $("cipImportFile").click());
-$("cipImportFile").addEventListener("change", e => { importCipherFiles([...e.target.files]); e.target.value = ""; });
+$("cipImportJsonBtn").addEventListener("click", () => openPicker("cipImportFile"));
+$("cipImportFile").addEventListener("change", e => { const fs = [...e.target.files]; e.target.value = ""; if (fs.length) importCipherFiles(fs); });
 const cdrop = $("cipDrop");
-cdrop.addEventListener("click", () => $("cipImportFile").click());
-cdrop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); $("cipImportFile").click(); } });
+cdrop.addEventListener("click", () => openPicker("cipImportFile"));
+cdrop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); openPicker("cipImportFile"); } });
+$("cipJsonImport").addEventListener("click", async () => {
+  const t = $("cipJsonIn").value.trim();
+  if (!t){ setStatus($("cipImportMsg"), "Paste the text of a cipher .json file first.", "err"); return; }
+  if (importKey(t)){ const c = importAsNew(importKey(t)); $("cipJsonIn").value = ""; setStatus($("cipImportMsg"), `That was a cipher key; imported as “${c.name}” (ID ${fingerprint(c.key)}).`, "ok"); return; }
+  await importCipherFiles([{ name: "Pasted JSON", __text: t }]);
+  if ($("cipImportMsg").className.includes("ok")) $("cipJsonIn").value = "";
+});
+$("cipJsonPaste").addEventListener("click", async () => {
+  try { $("cipJsonIn").value = await navigator.clipboard.readText(); $("cipJsonIn").focus(); }
+  catch(e){ $("cipJsonIn").focus(); setStatus($("cipImportMsg"), "This browser didn't allow reading the clipboard; long-press the box above and choose Paste.", "warn"); }
+});
 ["dragenter","dragover"].forEach(ev => cdrop.addEventListener(ev, e => { e.preventDefault(); cdrop.classList.add("over"); }));
 ["dragleave","drop"].forEach(ev => cdrop.addEventListener(ev, e => { e.preventDefault(); cdrop.classList.remove("over"); }));
 cdrop.addEventListener("drop", e => importCipherFiles([...e.dataTransfer.files]));
@@ -1946,7 +2285,7 @@ function showChapterBox(good, story, parts){
 async function loadEncFiles(files){
   files = [...(files || [])].filter(Boolean); if (!files.length) return;
   const srcs = [];
-  for (const f of files) srcs.push({ name: f.name, text: dec.decode(new Uint8Array(await f.arrayBuffer())), size: f.size });
+  for (const f of files) srcs.push({ name: f.name, text: dec.decode(new Uint8Array(await readBuf(f))), size: f.size });
   return loadEncSources(srcs);
 }
 async function loadEncSources(srcs){
@@ -1980,9 +2319,10 @@ async function loadEncSources(srcs){
   updateEncBtn();
 }
 const drop = $("encDrop");
-drop.addEventListener("click", () => $("encFile").click());
-drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); $("encFile").click(); } });
-$("encFile").addEventListener("change", e => loadEncFiles(e.target.files));
+drop.addEventListener("click", e => { if (e.target === $("encFile")) return; openPicker("encFile"); });
+drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); openPicker("encFile"); } });
+$("encFile").addEventListener("click", e => e.stopPropagation());
+$("encFile").addEventListener("change", e => { const fs = [...e.target.files]; if (fs.length) loadEncFiles(fs); });
 ["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
 ["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
 drop.addEventListener("drop", e => loadEncFiles(e.dataTransfer.files));
@@ -2039,6 +2379,18 @@ function escapeMatcher(key, version){
   const e = c => q(key[c.charCodeAt(0) - 32]), hex = "(?:" + [..."0123456789ABCDEF"].map(e).join("|") + ")";
   return new RegExp(e("~") + "(?:" + e("~") + "|" + e("{") + hex + "{1,6}" + e("}") + "|" + hex + "{2})", "g");
 }
+function showEscPop(sp){
+  let pop = $("escPop");
+  if (!sp){ if (pop) pop.remove(); return; }
+  if (!pop){ pop = document.createElement("div"); pop.id = "escPop"; pop.className = "esc-pop"; pop.setAttribute("role", "status"); document.body.appendChild(pop); }
+  pop.textContent = sp.textContent + " \u2014 " + sp.title;
+  const r = sp.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+  pop.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left)) + "px";
+  pop.style.top = (r.bottom + 6 + h > innerHeight - 8 ? Math.max(8, r.top - h - 6) : r.bottom + 6) + "px";
+}
+document.addEventListener("click", e => { const sp = e.target.closest && e.target.closest("#encStory .esc"); showEscPop(sp || null); });
+window.addEventListener("scroll", () => showEscPop(null), { passive: true });
+$("encStory").addEventListener("scroll", () => showEscPop(null), { passive: true });
 function markEscapes(root, key, version){
   const re = escapeMatcher(key, version), shared = version === "2" || version === "4";
   const w = document.createTreeWalker(root, 4), nodes = [];
@@ -2106,8 +2458,8 @@ function updateDecKey(){
 }
 $("decKey").addEventListener("input", updateDecKey);
 $("decKeySave").addEventListener("click", () => { if (pastedKey){ const c = importAsNew(pastedKey, "Shared cipher"); $("decKey").value = ""; updateDecKey(); setStatus($("decStatus"), `Saved as “${c.name}” and selected.`, "ok"); } });
-async function loadDecFile(file){ if (file) $("decText").value = await file.text(); }
-$("decFileBtn").addEventListener("click", () => $("decFile").click());
+async function loadDecFile(file){ if (file) $("decText").value = await readText(file); }
+$("decFileBtn").addEventListener("click", () => openPicker("decFile"));
 $("decFile").addEventListener("change", e => loadDecFile(e.target.files[0]));
 $("decText").addEventListener("dragover", e => e.preventDefault());
 $("decText").addEventListener("drop", e => { if (e.dataTransfer.files.length){ e.preventDefault(); loadDecFile(e.dataTransfer.files[0]); } });
@@ -2193,10 +2545,15 @@ const SPACING = { normal: "", wide: "body{word-spacing:.14em !important;line-hei
 const TAGPAL = {
   light: { p: "#0a4f9c", em: "#b71c1c", strong: "#8a5a00", b: "#2e6b12", i: "#a3124f", u: "#5b34a8", q: "#00695c", li: "#8a4300", h: "#6a1b9a" },
   dark:  { p: "#8cc8ff", em: "#ff7b7b", strong: "#ffe066", b: "#b4f05a", i: "#ff9be0", u: "#c2adff", q: "#62e6cc", li: "#ffb870", h: "#d0a6ff" } };
+// bookmark highlight in the reader, tinted per theme: [background, bar colour, second bar colour]
+const BM_TINT = { gerald: ["rgba(255,200,0,.18)", "#2e9e48", "#e8559a"], doorknob: ["rgba(0,80,239,.12)", "#0050ef", "#d80073"],
+  pamphlet: ["rgba(240,220,120,.32)", "#8d7f3e", "#c9b458"], wednesday: ["rgba(51,102,74,.11)", "#33664a", "#9aa69c"],
+  spork: ["rgba(110,210,250,.2)", "#1fa6cc", "#8fdcf5"], gravel: ["rgba(17,183,207,.18)", "#0f97ad", "#3fd9c0"] };
 function readerExtraCss(){
+  const [bmBg, bm1, bm2] = BM_TINT[document.documentElement.getAttribute("data-theme")] || BM_TINT.gerald;
   let css = (SPACING[reader.spacing] || "") +
-    `.koa-bm{background:rgba(255,200,0,.18) !important;box-shadow:-7px 0 0 #2e9e48;border-radius:3px;animation:koabm 8s ease-in-out infinite alternate}
-@keyframes koabm{from{box-shadow:-7px 0 0 #2e9e48}to{box-shadow:-7px 0 0 #e8559a}}@media (prefers-reduced-motion:reduce){.koa-bm{animation:none}}
+    `html{touch-action:manipulation}.koa-bm{background:${bmBg} !important;box-shadow:-7px 0 0 ${bm1};border-radius:3px;animation:koabm 8s ease-in-out infinite alternate}
+@keyframes koabm{from{box-shadow:-7px 0 0 ${bm1}}to{box-shadow:-7px 0 0 ${bm2}}}@media (prefers-reduced-motion:reduce){.koa-bm{animation:none}}
 .koa-flash{outline:3px solid rgba(255,170,0,.65);outline-offset:4px;border-radius:3px}`;
   if (reader.tags){
     const P = TAGPAL[reader.paper === "dark" ? "dark" : "light"];
@@ -2260,7 +2617,7 @@ function markBookmarks(){
 function renderBookmarks(){
   const items = bookItems(), list = $("bmList"); $("bmCount").textContent = items.length;
   list.textContent = "";
-  if (!items.length){ const d = document.createElement("div"); d.className = "empty"; d.textContent = "No bookmarks in this story yet. Press 🔖 Bookmark, or double-click a paragraph."; list.appendChild(d); return; }
+  if (!items.length){ const d = document.createElement("div"); d.className = "empty"; d.textContent = "No bookmarks in this story yet. Press 🔖 Bookmark, tap ☝ Pick and then a paragraph, or double-click / double-tap a paragraph."; list.appendChild(d); return; }
   for (const b of items){
     const row = document.createElement("div"); row.className = "bm";
     const go = document.createElement("button"); go.className = "go"; go.dataset.i = b.i;
@@ -2298,11 +2655,51 @@ function savePosition(){
     store.set("ao3enc.positions", positions);
   }, 250);
 }
+function toggleBookmarkEl(el){
+  const d = pdoc(), i = previewEls.indexOf(el); if (i < 0) return false;
+  try { d.getSelection().removeAllRanges(); } catch(err){}
+  const has = bookItems().some(b => b.i === i); has ? removeBookmark(i) : addBookmark(i); return true;
+}
+// "Pick" mode: a layer over the reader catches one tap and bookmarks the paragraph under it.
+// Works everywhere, including Safari, which doesn't run this page's listeners inside the
+// script-free (sandboxed) preview, so double-click/double-tap can't be seen there.
+function setPick(on){
+  const L = $("pickLayer"), f = $("preview");
+  L.hidden = !on; $("bmPick").setAttribute("aria-pressed", String(on));
+  if (on){ L.style.top = f.offsetTop + "px"; L.style.height = f.offsetHeight + "px"; $("pickMsg").textContent = "Tap the paragraph to bookmark \u00b7 tap Pick again to cancel"; }
+}
+$("bmPick").addEventListener("click", () => setPick($("pickLayer").hidden));
+$("pickLayer").addEventListener("click", e => {
+  const d = pdoc(), r = $("preview").getBoundingClientRect();
+  const hit = d && d.elementFromPoint(e.clientX - r.left, e.clientY - r.top), el = hit && hit.closest && hit.closest(BOOKABLE);
+  if (el && toggleBookmarkEl(el)){ setPick(false); el.classList.add("koa-flash"); setTimeout(() => el.classList.remove("koa-flash"), 1200); }
+  else $("pickMsg").textContent = "No paragraph there \u2014 tap on some text, or tap Pick to cancel";
+});
+window.addEventListener("resize", () => { if (!$("pickLayer").hidden) setPick(true); });
+// reading position: the scroll listener inside the preview doesn't fire in Safari, so also check now and then
+let lastScrollY = -1;
+setInterval(() => {
+  if (!decStoryId || $("reader").hidden || $("decOut").hidden) return;
+  const d = pdoc(); if (!d || !d.defaultView) return;
+  const y = d.defaultView.scrollY; if (y !== lastScrollY){ if (lastScrollY >= 0) savePosition(); lastScrollY = y; }
+}, 1200);
 $("preview").addEventListener("load", () => {
+  setPick(false); lastScrollY = -1;
   const d = pdoc(); if (!d || !d.body) return;
   previewEls = [...d.querySelectorAll(BOOKABLE)].filter(e => e.textContent.trim() && !e.closest("nav"));
   markBookmarks();
-  d.addEventListener("dblclick", e => { const el = e.target.closest && e.target.closest(BOOKABLE); const i = previewEls.indexOf(el); if (i >= 0){ try { d.getSelection().removeAllRanges(); } catch(err){} const has = bookItems().some(b => b.i === i); has ? removeBookmark(i) : addBookmark(i); } });
+  const toggleBm = toggleBookmarkEl;
+  // double-click (mouse) or double-tap (touch) a paragraph to bookmark it
+  let lastTap = null, tapAt = 0;
+  d.addEventListener("dblclick", e => { if (Date.now() - tapAt < 800) return; toggleBm(e.target.closest && e.target.closest(BOOKABLE)); });
+  d.addEventListener("touchend", e => {
+    if (e.touches.length || e.changedTouches.length !== 1){ lastTap = null; return; }
+    const t = e.changedTouches[0], el = e.target.closest && e.target.closest(BOOKABLE), now = Date.now();
+    if (el && lastTap && lastTap.el === el && now - lastTap.t < 400 && Math.hypot(t.clientX - lastTap.x, t.clientY - lastTap.y) < 40){
+      lastTap = null; if (toggleBm(el)){ tapAt = now; if (e.cancelable) e.preventDefault(); }
+    } else lastTap = { el, t: now, x: t.clientX, y: t.clientY };
+  }, { passive: false });
+  d.addEventListener("touchmove", () => { lastTap = null; }, { passive: true });
   d.addEventListener("keydown", readerKeys);
   d.defaultView.addEventListener("scroll", savePosition, { passive: true });
   if (pendingResume > 0){
@@ -2318,6 +2715,7 @@ function readerKeys(e){
 }
 document.addEventListener("keydown", e => { if ($("reader").classList.contains("reading")) readerKeys(e); });
 function setReading(on){
+  setPick(false);
   $("reader").classList.toggle("reading", on); document.body.classList.toggle("reading-open", on);
   if (on) $("exitRead").focus();
 }
@@ -2327,12 +2725,13 @@ $("exitRead").addEventListener("click", () => setReading(false));
 document.addEventListener("keydown", e => { if (e.key === "Escape" && $("reader").classList.contains("reading")) setReading(false); });
 
 // ---------- themes ----------
-const THEMES = ["gerald","quadrangle","lettuce","barometer","amoled"];
+const THEMES = ["gerald","quadrangle","lettuce","barometer","amoled","doorknob","pamphlet","wednesday","spork","gravel"];
 function setTheme(t, save){
   if (!THEMES.includes(t)) t = "gerald";
   document.documentElement.setAttribute("data-theme", t);
   document.querySelectorAll("[data-theme-btn]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.themeBtn === t)));
   if (save && !window.__ao3wiping){ try { localStorage.setItem("ao3enc.theme", t); } catch(e){} writeCookie(); }
+  try { const el = $("preview").contentDocument && $("preview").contentDocument.getElementById("koa-reader"); if (el) el.textContent = readerCss(); } catch(e){}
 }
 document.querySelectorAll("[data-theme-btn]").forEach(b => b.addEventListener("click", () => setTheme(b.dataset.themeBtn, true)));
 setTheme(document.documentElement.getAttribute("data-theme"), false);
@@ -2624,18 +3023,22 @@ $("optReadTags").addEventListener("change", e => { reader.tags = e.target.checke
 // uploaded font files (kept in IndexedDB, re-applied on every visit)
 const FONT_MAGIC = [[0, 1, 0, 0], [0x4F, 0x54, 0x54, 0x4F], [0x74, 0x72, 0x75, 0x65], [0x77, 0x4F, 0x46, 0x46], [0x77, 0x4F, 0x46, 0x32], [0x74, 0x74, 0x63, 0x66]];
 const FONT_TYPES = { ttf: "font/ttf", otf: "font/otf", woff: "font/woff", woff2: "font/woff2" };
-$("fontUpBtn").addEventListener("click", () => $("fontFile").click());
+$("fontUpBtn").addEventListener("click", () => openPicker("fontFile"));
 $("fontFile").addEventListener("change", async e => {
   const f = e.target.files[0]; e.target.value = ""; if (!f) return;
-  const st = $("fontStatus"), ext = (/\.([a-z0-9]+)$/i.exec(f.name) || [])[1];
-  if (!ext || !FONT_TYPES[ext.toLowerCase()]){ setStatus(st, `${f.name} isn't a font file (.ttf, .otf, .woff or .woff2).`, "err"); return; }
+  const st = $("fontStatus");
+  let ext = ((/\.([a-z0-9]+)$/i.exec(f.name) || [])[1] || "").toLowerCase();
+  // phones sometimes hand over a file without its extension; the first bytes decide then
+  if (ext && !FONT_TYPES[ext] && /^(json|txt|html?|png|jpe?g|gif|pdf|zip|docx?)$/.test(ext)){ setStatus(st, `${f.name} isn't a font file (.ttf, .otf, .woff or .woff2).`, "err"); return; }
   if (f.size > 20 * 1048576){ setStatus(st, `${f.name} is too big (${fmtBytes(f.size)}); fonts up to 20 MB are supported.`, "err"); return; }
-  const buf = await f.arrayBuffer(), b = new Uint8Array(buf.slice(0, 4));
-  if (!FONT_MAGIC.some(m => m.every((x, i) => b[i] === x))){ setStatus(st, `${f.name} doesn't look like a font file.`, "err"); return; }
+  const buf = await readBuf(f), b = new Uint8Array(buf.slice(0, 4));
+  const mi = FONT_MAGIC.findIndex(m => m.every((x, i) => b[i] === x));
+  if (mi < 0){ setStatus(st, FONT_TYPES[ext] ? `${f.name} doesn't look like a font file.` : `${f.name} isn't a font file (.ttf, .otf, .woff or .woff2).`, "err"); return; }
+  if (!FONT_TYPES[ext]) ext = ["ttf", "otf", "ttf", "woff", "woff2", "ttf"][mi];
   const id = Math.random().toString(36).slice(2, 10).replace(/[^a-z0-9]/g, "") || String(Date.now() % 1e8);
   try { const ff = new FontFace("ao3t-" + id, buf); await ff.load(); } catch(err){ setStatus(st, `The browser couldn't use ${f.name} as a font.`, "err"); return; }
   const name = cleanFontName(f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2")) || "Uploaded font";
-  const type = FONT_TYPES[ext.toLowerCase()];
+  const type = FONT_TYPES[ext];
   try { await new Promise((res, rej) => { idb.set("font:" + id, { name, type, data: buf }).then(res, rej); }); } catch(err){}
   upFonts.push({ id, name, type, size: f.size, at: new Date().toISOString() }); store.set("ao3enc.fonts", upFonts);
   upUrls.set(id, URL.createObjectURL(new Blob([buf], { type })));
@@ -2710,10 +3113,15 @@ $("backupBtn").addEventListener("click", async () => {
   download(JSON.stringify(b, null, 2), "ao3-encryptor-backup-" + b.created.slice(0, 10) + ".json", "application/json");
   setStatus($("dataStatus"), "Backup downloaded.", "ok");
 });
-$("restoreBtn").addEventListener("click", () => $("restoreFile").click());
-$("restoreFile").addEventListener("change", async e => {
-  const f = e.target.files[0]; if (!f) return; e.target.value = "";
-  let b; try { b = JSON.parse(await f.text()); } catch(err){ setStatus($("dataStatus"), f.name + " isn't valid JSON.", "err"); return; }
+$("restoreBtn").addEventListener("click", () => openPicker("restoreFile"));
+$("restoreFile").addEventListener("change", e => { const f = e.target.files[0]; e.target.value = ""; if (f) restoreBackup(f); });
+$("restorePaste").addEventListener("click", () => {
+  const t = $("restoreText").value.trim();
+  if (!t){ setStatus($("dataStatus"), "Paste the text of a backup .json file first.", "err"); return; }
+  restoreBackup({ name: "The pasted text", __text: t });
+});
+async function restoreBackup(f){
+  let b; try { b = JSON.parse(await readText(f)); } catch(err){ setStatus($("dataStatus"), f.name + " isn't valid JSON.", "err"); return; }
   if (!b || b.format !== "ao3-encryptor-backup" || typeof b.localStorage !== "object"){ setStatus($("dataStatus"), f.name + " isn't a backup from this page.", "err"); return; }
   let n = 0;
   for (const [k, v] of Object.entries(b.localStorage)) if (k.startsWith("ao3enc.") && typeof v === "string"){ try { if (k !== "ao3enc.theme") JSON.parse(v); localStorage.setItem(k, v); n++; } catch(err){} }
@@ -2723,7 +3131,7 @@ $("restoreFile").addEventListener("change", async e => {
   }
   setStatus($("dataStatus"), `Restored ${n} saved item${n === 1 ? "" : "s"}. Reloading…`, "ok");
   setTimeout(() => location.reload(), 700);
-});
+}
 $("wipeBtn").addEventListener("click", () => { $("wipeBtn").hidden = $("backupBtn").hidden = $("restoreBtn").hidden = true; $("wipeYes").hidden = $("wipeNo").hidden = false; setStatus($("dataStatus"), "This can't be undone.", "err"); });
 $("wipeNo").addEventListener("click", () => { $("wipeBtn").hidden = $("backupBtn").hidden = $("restoreBtn").hidden = false; $("wipeYes").hidden = $("wipeNo").hidden = true; setStatus($("dataStatus"), ""); });
 $("wipeYes").addEventListener("click", wipeAll);
