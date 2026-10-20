@@ -528,6 +528,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
     <div class="sub">Quick setups</div>
     <p class="hint" style="margin-top:0">Each one replaces the whole table below. Nothing is saved until you press Save.</p>
     <div class="presets">
+      <div class="preset"><button class="btn small" id="preJuniper">Juniper</button><span class="lbl">the built-in default</span></div>
       <div class="preset"><button class="btn small" id="preShuffle">&#127922; Random shuffle</button><span class="lbl">scramble everything</span></div>
       <div class="preset"><button class="btn small" id="preCaesar">Caesar shift</button><span class="lbl k">by</span><input type="number" id="cipShift" value="3" step="1" aria-label="Shift amount"></div>
       <div class="preset"><button class="btn small" id="preReverse">Reverse (Atbash)</button><span class="lbl">space &harr; ~, ! &harr; }</span></div>
@@ -537,7 +538,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
     </div>
 
     <div class="sub">Substitution table</div>
-    <p class="hint" style="margin-top:0">Top: the original character. Box: what it turns into. Click a box and type a character (␣ = space). Ideally each character is used once; you can reuse one, but then decrypting can't tell those originals apart and gives back the first one in keyboard order.</p>
+    <p class="hint" style="margin-top:0">Top: the original character. Box: what it turns into. Click a box and type a character (␣ = space). Ideally each character is used once; you can reuse one, but then decrypting can't tell those originals apart and gives back the first one: a lowercase letter if there is one, otherwise the first in keyboard order.</p>
     <div class="legend"><span class="l-self">maps to itself</span><span class="l-dup">shared output</span><span class="l-empty">empty</span></div>
     <div class="cgrid" id="cgrid" aria-label="Substitution table"></div>
     <div class="status" id="cipStatus" aria-live="polite"></div>
@@ -625,6 +626,18 @@ const enc = new TextEncoder(), dec = new TextDecoder();
 //                                             invalid UTF-8 bytes too)
 // =====================================================================
 const ALPHA = Array.from({ length: 95 }, (_, i) => String.fromCharCode(32 + i)).join("");
+// Decrypt preference when several originals share an output: lowercase a-z first, then the rest in keyboard order.
+const DEC_ORDER = (() => { const lo = [], rest = []; for (let i = 0; i < 95; i++) (i >= 65 && i <= 90 ? lo : rest).push(i); return lo.concat(rest); })();
+// Built-in "Juniper" cipher, modelled on a reference cipher: letters -> symbols, those symbols -> capitals,
+// case-insensitive (A-Z share a-z's outputs), digits -> letters, space ? / ~ and the rest unchanged.
+const JUNIPER_FROM = "abcdefghijklmnopqrstuvwxyz+[{]}\\|;:'\",.=_-)(*&^%$#@!1234567890";
+const JUNIPER_TO   = "+[{]}\\|;:'\",.=_-)(*&^%$#@!ABCDEFGHIJKLMNOPQRSTUVWXYZpickledrso";
+function juniperKey(){
+  const k = ALPHA.split("");
+  for (let j = 0; j < JUNIPER_FROM.length; j++) k[ALPHA.indexOf(JUNIPER_FROM[j])] = JUNIPER_TO[j];
+  for (let c = 65; c <= 90; c++) k[c - 32] = k[c - 32 + 32];   // A-Z share a-z's outputs
+  return k.join("");
+}
 const KEY_PREFIX = "AO3CIPHER$1$", TEXT_MAGIC = "AO3SUB", TEXT_VERSION = "1", TEXT_VERSION_SHARED = "2";
 const HEXC = new Uint8Array([..."0123456789ABCDEF"].map(c => c.charCodeAt(0)));
 
@@ -656,7 +669,8 @@ function importKey(text){
 }
 function makeMaps(key){
   const enc = new Uint8Array(128), dec = new Uint8Array(128).fill(255);
-  for (let i = 0; i < 95; i++){ const c = key.charCodeAt(i); enc[32 + i] = c; if (dec[c] === 255) dec[c] = 32 + i; }   // first in keyboard order wins
+  for (let i = 0; i < 95; i++) enc[32 + i] = key.charCodeAt(i);
+  for (const i of DEC_ORDER){ const c = key.charCodeAt(i); if (dec[c] === 255) dec[c] = 32 + i; }   // first in DEC_ORDER wins
   return { enc, dec };
 }
 // presets
@@ -675,7 +689,7 @@ function keywordKey(word){
 }
 
 // ---------- cipher .json files ----------
-const JSON_NOTE = "Each key is an original character; its value is what it turns into. Values may repeat: when decrypting, a shared value turns back into the first of its characters in keyboard order (the order of this list). Characters left out stay unchanged; if a key is listed twice, the first one counts.";
+const JSON_NOTE = "Each key is an original character; its value is what it turns into. Values may repeat: when decrypting, a shared value turns back into the first of its characters, with lowercase a-z first and then the rest in keyboard order (the order of this list). Characters left out stay unchanged; if a key is listed twice, the first one counts.";
 function cipherJsonLines(c, pre){
   const p = pre + "  ", L = [];
   L.push(pre + "{");
@@ -728,7 +742,7 @@ function validateCipherObject(o){
     if (!key) return { error: "has no \"mapping\" and its \"key\" isn't a valid cipher key." };
   } else return { error: "has no \"mapping\"." };
   const shared = sharedOutputs(key);
-  if (shared.length) notes.push(`${shared.length} output${shared.length > 1 ? "s are" : " is"} shared by several characters, so decrypting gives back the first in keyboard order: ` +
+  if (shared.length) notes.push(`${shared.length} output${shared.length > 1 ? "s are" : " is"} shared by several characters, so decrypting gives back the first one (lowercase letters first, then keyboard order): ` +
     shared.slice(0, 6).map(([v, os]) => `${nm(v)} (${os.map(nm).join(", ")} → ${nm(os[0])})`).join("; ") + (shared.length > 6 ? "; …" : ""));
   const id = fingerprint(key);
   if (o.id !== undefined && o.id !== id) notes.push(`the file said ID ${JSON.stringify(o.id)} but this mapping's ID is ${id} (it was probably edited), so ${id} is used`);
@@ -762,11 +776,12 @@ function slugify(s){ return String(s || "").toLowerCase().normalize("NFKD").repl
 //   M ~        -> "~"          M XX       -> byte XX (2 hex digits)
 //   M {HEX}    -> code point   newline    -> real newline
 // Every other character is substituted. When several originals share an output,
-// decrypting gives back the FIRST of them in keyboard order (space, !, ", … ~).
+// decrypting gives back the FIRST of them in DEC_ORDER: lowercase a-z first, then
+// everything else in keyboard order (space, !, ", … ~). So "a" beats "A" and digits.
 // Characters nothing maps to are left as they are when decrypting.
-function sharedOutputs(key){          // [[output, [originals…]], …] in keyboard order of the first original
+function sharedOutputs(key){          // [[output, [originals…]], …]; each group listed in decrypt-preference order (winner first)
   const by = new Map();
-  for (let i = 0; i < 95; i++){ const v = key[i]; if (!by.has(v)) by.set(v, []); by.get(v).push(ALPHA[i]); }
+  for (const i of DEC_ORDER){ const v = key[i]; if (!by.has(v)) by.set(v, []); by.get(v).push(ALPHA[i]); }
   return [...by].filter(([, o]) => o.length > 1);
 }
 function encodeBytesV2(bytes, key){
@@ -796,8 +811,8 @@ function encodeBytesV2(bytes, key){
 }
 function decodeBodyV2(src, key, len){
   const { enc } = makeMaps(key), M = enc[126], n = src.length;
-  const dec = new Uint8Array(128).fill(255);           // first original in keyboard order wins; M is reserved
-  for (let i = 0; i < 95; i++){ const c = enc[32 + i]; if (c !== M && dec[c] === 255) dec[c] = 32 + i; }
+  const dec = new Uint8Array(128).fill(255);           // first original in DEC_ORDER wins; M is reserved
+  for (const i of DEC_ORDER){ const c = enc[32 + i]; if (c !== M && dec[c] === 255) dec[c] = 32 + i; }
   const out = new Uint8Array(Math.max(n, len));
   let o = 0, i = 0;
   const bad = () => cipherError("BADTEXT");
@@ -1126,7 +1141,7 @@ let ciphers = store.get("ao3enc.ciphers", []);
 if (!Array.isArray(ciphers)) ciphers = [];
 ciphers = ciphers.filter(c => c && typeof c.name === "string" && isValidKey(c.key));
 const newId = () => "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-if (!ciphers.length) ciphers.push({ id: newId(), name: "My cipher", key: shuffleKey() });
+if (!ciphers.length) ciphers.push({ id: newId(), name: "Juniper", key: juniperKey() });
 let currentId = store.get("ao3enc.currentCipher", null);
 if (!ciphers.some(c => c.id === currentId)) currentId = ciphers[0].id;
 const cur = () => ciphers.find(c => c.id === currentId);
@@ -1193,7 +1208,7 @@ function renderGrid(){
   if (a.ok && !a.injective){
     const sh = sharedOutputs(draft.join(""));
     setStatus(st, "⚠ Usable, but some characters share an output: " + sh.slice(0, 8).map(([v, os]) => `${showCh(v)} ← ${os.map(showCh).join(" ")}`).join(" · ") +
-      (sh.length > 8 ? " · …" : "") + ". Decrypting can't tell those apart, so each shared output turns back into the first of its characters in keyboard order (" +
+      (sh.length > 8 ? " · …" : "") + ". Decrypting can't tell those apart, so each shared output turns back into the first of its characters, lowercase letters first, then keyboard order (" +
       sh.slice(0, 3).map(([, os]) => `${os.slice(1).map(showCh).join(", ")} → ${showCh(os[0])}`).join("; ") + "). Everything else, including accents, emoji and line breaks, still comes back exactly.", "warn");
   } else if (a.ok){
     let msg = "✓ Valid: every character turns into exactly one other.";
@@ -1224,6 +1239,7 @@ $("preKeyword").addEventListener("click", () => {
   setDraft(keywordKey(w));
 });
 $("preIdentity").addEventListener("click", () => setDraft(ALPHA));
+$("preJuniper").addEventListener("click", () => setDraft(juniperKey()));
 $("swapBtn").addEventListener("click", () => {
   const a = $("swapA").value, b = $("swapB").value, ia = ALPHA.indexOf(a), ib = ALPHA.indexOf(b);
   if (!a || !b || ia < 0 || ib < 0){ setStatus($("cipStatus"), "Type two keyboard characters to swap (what they turn into gets exchanged).", "err"); return; }
@@ -1250,7 +1266,7 @@ $("cipDel").addEventListener("click", () => {
   if (Date.now() - delArmed > 3000){ delArmed = Date.now(); $("cipDel").textContent = "Click again to delete"; setTimeout(() => { $("cipDel").textContent = "Delete"; }, 3000); return; }
   delArmed = 0; $("cipDel").textContent = "Delete";
   ciphers = ciphers.filter(c => c.id !== currentId);
-  if (!ciphers.length) ciphers.push({ id: newId(), name: "My cipher", key: shuffleKey() });
+  if (!ciphers.length) ciphers.push({ id: newId(), name: "Juniper", key: juniperKey() });
   selectCipher(ciphers[0].id);
 });
 $("cipCopy").addEventListener("click", () => copyText($("cipKeyOut").value, $("cipCopy")));
@@ -1630,7 +1646,7 @@ new MutationObserver(dodgeHostBadges).observe(document.body, { childList: true }
 addEventListener("resize", dodgeHostBadges); setInterval(dodgeHostBadges, 1500); setTimeout(dodgeHostBadges, 300);
 
 // test hooks
-window.AO3Cipher = { ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta, extractStory, storyText, parseStoryText, storyToHtml, looksLikeHtmlFile };
+window.AO3Cipher = { ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, juniperKey, DEC_ORDER, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta, extractStory, storyText, parseStoryText, storyToHtml, looksLikeHtmlFile };
 window.KoaYT = { parseYouTube, embedUrl, watchUrl };
 </script>
 </body>
