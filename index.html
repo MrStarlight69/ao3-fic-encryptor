@@ -579,7 +579,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
 [data-theme="gravel"] select option{background:#111}
 
 /* ---- Doorknob extras ---- */
-[data-theme="doorknob"] :where(.glass,.panel,.tab,.btn,.themes,.themes button,input,select,textarea,.drop,.fileinfo,.chapbox,details.box,.intro,.cstory,.reader,.player,.pframe,.fontcard,.fontprev,.preset,.cgrid,.cell,.savebar,.warnbox,.badge,.bmlist,.taglegend span,.pnote,.chapnav .cn-list,.chapnav .cn-list .tag){border-radius:0 !important}
+[data-theme="doorknob"] :where(.glass,.panel,.tab,.btn,.themes,.themebtn,.consent,.cn-fetch,.setnav a,.themes button,input,select,textarea,.drop,.fileinfo,.chapbox,details.box,.intro,.cstory,.reader,.player,.pframe,.fontcard,.fontprev,.preset,.cgrid,.cell,.savebar,.warnbox,.badge,.bmlist,.taglegend span,.pnote,.chapnav .cn-list,.chapnav .cn-list .tag){border-radius:0 !important}
 [data-theme="doorknob"] header h1{font-weight:300;text-transform:lowercase;letter-spacing:-.5px;font-size:clamp(2rem,6vw,3.2rem)}
 [data-theme="doorknob"] .tabs{background:rgba(255,255,255,.92);border:0;box-shadow:none}
 [data-theme="doorknob"] .tab{text-transform:lowercase;font-weight:400;font-size:1.08rem;font-family:var(--head-font)}
@@ -762,6 +762,75 @@ input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;paddi
   .tab{grid-column:span 2}
   .tab:nth-child(n+4){grid-column:span 3}
 }
+
+/* ---- round 14: tidier main page ---- */
+.themes[hidden]{display:none}
+.themebtn{display:inline-flex;align-items:center;gap:8px;margin:12px auto 0;padding:6px 12px 6px 7px;border-radius:999px;cursor:pointer;font:600 .84rem/1 var(--font);
+  color:var(--tab-ink);background:var(--spec),var(--panel-bg);border:1px solid var(--panel-border);box-shadow:var(--panel-shadow);min-height:34px}
+.themebtn .car{opacity:.7;font-size:.8em;transition:transform .15s}.themebtn[aria-expanded="true"] .car{transform:rotate(180deg)}
+.themebtn:focus-visible{outline:none;box-shadow:var(--focus)}
+.themes{margin-top:10px}
+header p{font-size:.95rem}
+.intro{padding:6px 8px 6px 14px;font-size:.86rem;gap:10px}
+.intro ol{display:flex;flex-wrap:wrap;gap:2px 18px;padding-left:1.1em}
+.intro ol li{padding-left:2px}
+.drop{padding:20px 14px}
+details.trouble{margin-top:8px;font-size:.9rem;color:var(--muted)}
+details.trouble>summary{cursor:pointer;display:inline-flex;align-items:center;min-height:32px;color:var(--accent);font-weight:600}
+details.trouble .fallback{margin-top:4px}
+details.trouble>.hint{margin-top:2px}
+.optsum{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;margin-top:10px;font-size:.88rem;color:var(--muted)}
+.linkbtn{background:none;border:0;padding:4px 0;font:600 .88rem var(--font);color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.setnav{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 6px;position:sticky;top:0;z-index:3;padding:6px 0}
+.setnav a{padding:7px 12px;border-radius:999px;background:var(--chip);border:1px solid var(--field-border);color:var(--field-ink);font-weight:600;font-size:.86rem;text-decoration:none}
+.setnav a:hover{border-color:var(--accent)}
+.setsec{padding:14px 0 6px;border-top:1px solid var(--field-border);scroll-margin-top:60px}
+.setsec:first-of-type{border-top:0}
+.setsec>h2.sub{margin-top:0}
+.sub2{font-weight:700;font-size:.95rem;margin:16px 0 4px;font-family:var(--head-font)}
+.optcol{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-top:8px}
+.optcol .check{margin:0}
+details.more{margin-top:8px}
+details.more>summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:.9rem;padding:4px 0}
+textarea.proxybox{min-height:64px;font-family:var(--mono);font-size:.85rem}
+.numrow{display:grid;grid-template-columns:auto 6.5em;gap:6px 12px;align-items:center;margin-top:12px;max-width:460px}
+.numrow label{margin:0;font-weight:600;font-size:.92rem}.numrow .unit{color:var(--muted);font-weight:400}
+.numrow input{width:100%}
+.consent{margin-top:10px;padding:10px 14px;border-radius:12px;border:1px solid var(--accent);background:var(--field-bg);font-size:.9rem}
+.consent p{margin:0 0 4px}
+.chapnav .cn-fetch{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--chip);border:1px solid var(--field-border)}
+.chapnav .cn-frow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chapnav .cn-frow a.btn{text-decoration:none}
+.chapnav .cn-prog{font-weight:600}
+.chapnav .cn-fstatus{margin-top:8px}.chapnav .cn-fstatus:empty{display:none}
+.chapnav .cn-saved{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;font-size:.88rem;color:var(--muted)}
+.chapnav .cn-list .cn-get{margin-left:auto;padding:3px 10px;font-size:.78rem}
+#proxyChecks .check{flex-wrap:wrap;max-width:100%;column-gap:5px}
+.unit{color:var(--muted);font-weight:400}#proxyChecks .unit{overflow-wrap:anywhere;min-width:0;font-size:.82rem}
+.proxyres{margin:6px 0 0;padding-left:1.2em;font-size:.88rem}
+.proxyres .ok{color:var(--ok)}.proxyres .bad{color:var(--err)}
+@media (pointer:coarse), (max-width:600px){
+  .themebtn{min-height:44px}
+  details.trouble>summary,details.more>summary,.linkbtn,.setnav a{min-height:44px;display:inline-flex;align-items:center;box-sizing:border-box}
+  .chapnav .cn-list .cn-get{min-height:44px;min-width:56px}
+}
+@media (max-width:600px){
+  header{padding:16px 12px 2px}
+  header p{font-size:.88rem;margin-top:6px}
+  .intro{flex-direction:row;align-items:center}
+  .intro ol{flex-direction:column;gap:0}
+  .panel{padding:16px 14px}
+  .drop{padding:16px 12px}
+  .drop .icon{font-size:1.5rem;margin-bottom:4px}
+  .setnav{gap:4px}.setnav a{padding:6px 10px;font-size:.82rem}
+  header{position:relative}
+  header h1{padding:0 54px}
+  .themebtn{position:absolute;top:10px;right:8px;margin:0;padding:0 9px;min-width:44px;justify-content:center;gap:4px}
+  .themebtn .tlabel{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+  .cipherline label{margin-top:12px}
+  .numrow{grid-template-columns:1fr 5.5em}
+  .chapnav .cn-frow .btn{flex:1 1 auto}
+}
 </style>
 <style id="fontCss"></style>
 </head>
@@ -771,12 +840,13 @@ input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;paddi
 <div class="wrap">
 <header>
   <h1>AO3 Fic <span>Encryptor</span></h1>
-  <p>Scramble the story in an AO3 HTML download with a cipher you design. Only the story text is encrypted (chapter titles and chapters, not the tags, summary or notes), and it appears right here on the page using only characters you can type on a standard keyboard. Anyone you give the cipher key to can turn it back. Everything happens in your browser: nothing is uploaded anywhere.</p>
+  <p>Encrypt the story in an AO3 download with your own cipher, using only keyboard characters. It all happens in your browser.</p>
   <div class="intro" id="intro" hidden>
-    <ol><li>On AO3, open a work and choose <b>Download &rarr; HTML</b>.</li><li>Drop that file in <b>Encrypt</b> and press Encrypt.</li><li>Send the text, and separately share the cipher key from the <b>Cipher</b> tab.</li></ol>
+    <ol><li>AO3: <b>Download &rarr; HTML</b></li><li>Choose it below, press <b>Encrypt</b></li><li>Share the cipher key (<b>Cipher</b> tab) separately</li></ol>
     <button class="btn small" id="introClose">Got it</button>
   </div>
-  <div class="themes" role="radiogroup" aria-label="Theme" id="themes">
+  <button class="themebtn" id="themeBtn" type="button" aria-expanded="false" aria-controls="themes" title="Change the theme"><span class="sw" id="themeSw"></span><span class="tlabel">Theme: <b id="themeName">Gerald</b></span><span class="car" aria-hidden="true">&#9662;</span></button>
+  <div class="themes" role="radiogroup" aria-label="Theme" id="themes" hidden>
     <button role="radio" data-theme-btn="gerald"><span class="sw gerald"></span>Gerald</button>
     <button role="radio" data-theme-btn="quadrangle"><span class="sw quadrangle"></span>Quadrangle</button>
     <button role="radio" data-theme-btn="lettuce"><span class="sw lettuce"></span>Lettuce</button>
@@ -803,13 +873,15 @@ input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;paddi
   <section class="panel glass" id="panel-enc" role="tabpanel" aria-labelledby="tab-enc">
     <label class="drop" id="encDrop" for="encFile">
       <span class="icon" aria-hidden="true">&#128214;</span>
-      <strong>Drop your AO3 .html file here</strong>
-      <span>or tap / click to choose it (AO3: Download &rarr; HTML). Saved pages (.mhtml), .htm, .txt and EPUB work too. Only the story itself gets encrypted. Got separate chapter files? Choose them all at once.</span>
+      <strong>Choose your AO3 .html file</strong>
+      <span>or drop it here &middot; AO3: Download &rarr; HTML &middot; several chapter files at once work too</span>
       <input type="file" id="encFile" multiple class="cover" title="" aria-label="Choose your AO3 story file">
     </label>
     <div class="picked" id="encPicked" hidden aria-live="polite"></div>
+    <details class="trouble" id="encTrouble"><summary>Having trouble uploading?</summary>
+    <p class="hint">Saved pages (.mhtml/.mht), .htm, .txt and EPUB work too. Only the story itself gets encrypted.</p>
     <div class="fallback" id="encFallback">
-      <label class="basic" for="encFileBasic">Having trouble? Use this basic picker:</label>
+      <label class="basic" for="encFileBasic">Use this basic picker instead:</label>
       <input type="file" id="encFileBasic" class="basicfile">
       <details class="pastebox" id="encPasteBox"><summary>Or paste the page&rsquo;s HTML or the story text</summary>
         <p class="hint">Last resort: on the AO3 work page select the story text (or the whole page) and copy it, then paste it here. Plain text works: paragraphs separated by empty lines.</p>
@@ -817,32 +889,9 @@ input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;paddi
         <div class="actions"><button class="btn" id="encPasteBtn" type="button">Use pasted text</button></div>
       </details>
     </div>
+    </details>
     <div class="fileinfo" id="encInfo"><div class="t" id="encTitle"></div><div class="m" id="encMeta"></div></div>
     <div class="chapbox" id="encChapters" hidden></div>
-    <details class="box" id="ao3Box">
-      <summary>Get all chapters from AO3</summary>
-      <p class="hint">Paste a link to any chapter (or the work). You get links to the whole work in one file; save it and drop it above. Fetching it straight into this page only works through a CORS proxy (see below), because AO3 doesn't let other websites read its pages.</p>
-      <div class="row">
-        <input type="text" id="ao3Url" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="https://archiveofourown.org/works/123456/chapters/7890123" aria-label="AO3 link">
-        <button class="btn small primary" id="ao3Fetch">Fetch whole work</button>
-      </div>
-      <div class="linkrow" id="ao3Links" hidden>
-        <a id="ao3DlLink" target="_blank" rel="noopener noreferrer">Download whole work (HTML) &#8599;</a>
-        <a id="ao3FullLink" target="_blank" rel="noopener noreferrer">Read entire work on AO3 &#8599;</a>
-        <a id="ao3IndexLink" target="_blank" rel="noopener noreferrer">Chapter index &#8599;</a>
-      </div>
-      <div class="status" id="ao3Status" aria-live="polite"></div>
-      <div class="sub" style="margin-top:12px">Reading list</div>
-      <div class="row">
-        <select id="rlSel" aria-label="Reading list"></select>
-        <button class="btn small" id="rlAdd">Add link</button>
-        <button class="btn small" id="rlRemove">Remove</button>
-        <button class="btn small" id="rlClear">Clear list</button>
-      </div>
-      <div class="sub" style="margin-top:12px">CORS proxy (optional)</div>
-      <div class="row"><input type="text" id="ao3Proxy" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="e.g. https://my-proxy.example/?url={url}" aria-label="CORS proxy"></div>
-      <p class="hint">Leave empty to only use the links above. A proxy is someone else's server: it sees which work you fetch. Use <code>{url}</code> where the AO3 link goes, or the link is added to the end.</p>
-    </details>
 
     <div class="cipherline">
       <label for="encCipher">Cipher</label>
@@ -853,16 +902,13 @@ input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;paddi
       </div>
       <p class="hint" id="encHint"></p>
     </div>
-    <div class="optrow"><label class="check"><input type="checkbox" id="encFormat"> Keep original formatting (italics, bold, lists, quotes&hellip;)</label>
-      <label class="check"><input type="checkbox" id="encSimplify"> Simplify characters</label></div>
-    <p class="hint" id="simplifyHelp">Simplify characters turns everything that isn't on a keyboard into the closest keyboard spelling before encrypting: accents are dropped (&eacute; &ntilde; &uuml; &ccedil; &rarr; e n u c), letters like &szlig; &aelig; &oslash; &#322; become ss ae o l, ligatures and fancy or fullwidth letters become normal ones, Greek and Cyrillic are spelled in Latin letters, curly quotes, dashes, &hellip;, &laquo; &raquo;, &times; &trade; &copy; &deg; become " -- ... x (TM) (c) deg, and invisible control characters are removed. Emoji and other scripts (Chinese, Japanese, Arabic&hellip;) can't be spelled on a keyboard, so they are kept exactly either way. Turn it off to keep every character exactly as it is. Either way the encrypted text only uses keyboard characters and never shows escape codes: special characters are written as a few extra cipher characters, and decrypting turns them back.</p>
+    <div class="optsum" id="encOptsSum"><span class="oico" aria-hidden="true">&#9881;</span><span id="encOptsText"></span><button class="linkbtn" id="encOptsBtn" type="button">Change</button></div>
     <div class="actions"><button class="btn primary" id="encBtn" disabled>Encrypt</button></div>
     <div class="status" id="encStatus" aria-live="polite"></div>
 
     <div class="out" id="encOut" hidden>
       <div class="outhead"><strong>Encrypted story</strong><span class="count" id="encCount"></span></div>
       <div class="fileinfo show storyhead" id="encHead"><div class="t" id="encHeadTitle"></div><div class="m" id="encHeadMeta"></div></div>
-      <div class="optrow" style="margin:0 0 4px"><label class="check"><input type="checkbox" id="tagColors"> Colour by HTML tag</label></div>
       <div class="taglegend" id="tagLegend" hidden><span style="color:var(--t-p)">p</span><span style="color:var(--t-em)">em</span><span style="color:var(--t-strong)">strong</span><span style="color:var(--t-b)">b</span><span style="color:var(--t-i)">i</span><span style="color:var(--t-u)">u</span><span style="color:var(--t-q)">blockquote</span><span style="color:var(--t-li)">li</span><span style="color:var(--t-h)">h3&ndash;h6</span></div>
       <div class="cstory" id="encStory" tabindex="0" role="region" aria-label="Encrypted story"></div>
       <textarea id="encText" readonly spellcheck="false" aria-label="Encrypted text (raw)" wrap="off" hidden></textarea>
@@ -871,7 +917,7 @@ input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;paddi
         <button class="btn" id="dlTxtBtn">Download .txt</button>
         <button class="btn" id="rawBtn" aria-pressed="false">Show raw text</button>
       </div>
-      <p class="hint">Copy and Download give the exact text needed for decrypting (its first line is the format/ID line). The title, author and counts in the box above are only shown here and are not copied. Whoever decrypts needs the same cipher: share its cipher key from the Cipher tab, separately from the text.</p>
+      <p class="hint">Copy and Download give the exact text needed to decrypt (the title box above isn't included). Share the cipher key from the Cipher tab separately.</p>
     </div>
   </section>
 
@@ -947,7 +993,31 @@ input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;paddi
 
   <!-- SETTINGS -->
   <section class="panel glass" id="panel-opt" role="tabpanel" aria-labelledby="tab-opt" hidden>
-    <div class="sub" style="margin-top:0">Fonts</div>
+    <nav class="setnav" aria-label="Settings sections"><a href="#set-enc">Encryption</a><a href="#set-display">Display</a><a href="#set-fonts">Fonts</a><a href="#set-ao3">Chapters &amp; AO3</a></nav>
+    <section class="setsec" id="set-enc" aria-labelledby="set-enc-h">
+    <h2 class="sub" id="set-enc-h">Encryption</h2>
+    <div class="optcol">
+      <label class="check"><input type="checkbox" id="encFormat"> Keep original formatting (italics, bold, lists, quotes&hellip;)</label>
+      <label class="check"><input type="checkbox" id="encSimplify"> Simplify characters</label>
+      <label class="check"><input type="checkbox" id="remember"> Remember my last encrypted and pasted text (and reopen it next time)</label>
+    </div>
+    <details class="more" id="simplifyMore"><summary>What does &ldquo;Simplify characters&rdquo; do?</summary>
+    <p class="hint" id="simplifyHelp">Simplify characters turns everything that isn't on a keyboard into the closest keyboard spelling before encrypting: accents are dropped (&eacute; &ntilde; &uuml; &ccedil; &rarr; e n u c), letters like &szlig; &aelig; &oslash; &#322; become ss ae o l, ligatures and fancy or fullwidth letters become normal ones, Greek and Cyrillic are spelled in Latin letters, curly quotes, dashes, &hellip;, &laquo; &raquo;, &times; &trade; &copy; &deg; become " -- ... x (TM) (c) deg, and invisible control characters are removed. Emoji and other scripts (Chinese, Japanese, Arabic&hellip;) can't be spelled on a keyboard, so they are kept exactly either way. Turn it off to keep every character exactly as it is. Either way the encrypted text only uses keyboard characters and never shows escape codes: special characters are written as a few extra cipher characters, and decrypting turns them back.</p></details>
+    </section>
+    <section class="setsec" id="set-display" aria-labelledby="set-display-h">
+    <h2 class="sub" id="set-display-h">Display</h2>
+    <div class="optcol"><label class="check"><input type="checkbox" id="tagColors"> Colour the encrypted text by HTML tag</label></div>
+    <div class="sub2">Reading page</div>
+    <div class="optrow">
+      <select id="optPaper" aria-label="Page colour" style="flex:0 0 auto;width:auto"><option value="light">Light page</option><option value="sepia">Sepia page</option><option value="dark">Dark page</option><option value="original">Original style</option></select>
+      <select id="optSpacing" aria-label="Spacing" style="flex:0 0 auto;width:auto"><option value="normal">Normal spacing</option><option value="wide">Wide spacing</option><option value="wider">Wider spacing</option></select>
+      <label class="check"><input type="checkbox" id="optReadTags"> Tag colours in the reader</label>
+    </div>
+    <p class="hint">These are the same settings as in the reading view's toolbar; changing them in either place changes both.</p>
+    <p class="hint">Theme: use the <b>Theme</b> button at the top of the page.</p>
+    </section>
+    <section class="setsec" id="set-fonts" aria-labelledby="set-fonts-h">
+    <h2 class="sub" id="set-fonts-h">Fonts</h2>
     <p class="hint" style="margin-top:0">Use any font you like for reading and for the encrypted text: pick one from the list, type the name of any font installed on this device, upload a font file, or load one from Google Fonts.</p>
     <div class="fontgrid">
       <div class="fontcard">
@@ -984,13 +1054,42 @@ input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;paddi
     <div class="row" style="margin-top:8px"><input type="text" id="gfName" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="Google Font name, e.g. Lora or Open Sans" aria-label="Google Font name"><button class="btn small" id="gfLoad" disabled>Load from Google Fonts</button></div>
     <p class="hint">Off by default: loading a Google Font contacts Google's servers (they see your IP address and which font you asked for). Nothing else on this page talks to Google.</p>
     <div class="status" id="fontStatus" aria-live="polite"></div>
-    <div class="sub">Reading page</div>
-    <div class="optrow">
-      <select id="optPaper" aria-label="Page colour" style="flex:0 0 auto;width:auto"><option value="light">Light page</option><option value="sepia">Sepia page</option><option value="dark">Dark page</option><option value="original">Original style</option></select>
-      <select id="optSpacing" aria-label="Spacing" style="flex:0 0 auto;width:auto"><option value="normal">Normal spacing</option><option value="wide">Wide spacing</option><option value="wider">Wider spacing</option></select>
-      <label class="check"><input type="checkbox" id="optReadTags"> Tag colours in the reader</label>
+    </section>
+    <section class="setsec" id="set-ao3" aria-labelledby="set-ao3-h">
+    <h2 class="sub" id="set-ao3-h">Chapters &amp; AO3</h2>
+    <div class="optcol"><label class="check"><input type="checkbox" id="ao3FetchOn"> Let &ldquo;Get next chapter&rdquo; fetch AO3 pages through a CORS proxy</label></div>
+    <p class="hint">AO3 doesn't let other websites read its pages, so fetching goes through a public CORS proxy: a third-party server that sees which work and chapter you fetch (never your cipher or your text). Off until you agree. Without it, use the &ldquo;Open on AO3&rdquo; links, save the page and choose that file.</p>
+    <div class="sub2">Proxies, tried in this order</div>
+    <div class="optcol" id="proxyChecks"></div>
+    <label for="ao3Proxy">Your own proxies (one per line, tried first)</label>
+    <textarea id="ao3Proxy" class="proxybox" rows="2" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="https://my-proxy.example/?url={url}"></textarea>
+    <p class="hint"><code>{url}</code> is replaced by the AO3 address (URL-encoded), <code>{rawurl}</code> by the address as is; with neither, the address is added to the end. Must start with https:// (or http://localhost).</p>
+    <div class="numrow">
+      <label for="fetchDelay">Wait between chapters <span class="unit">(seconds)</span></label><input type="number" id="fetchDelay" min="0" max="120" step="1" inputmode="numeric">
+      <label for="fetchTimeout">Give up on a proxy after <span class="unit">(seconds)</span></label><input type="number" id="fetchTimeout" min="3" max="180" step="1" inputmode="numeric">
     </div>
-    <p class="hint">These are the same settings as in the reading view's toolbar; changing them in either place changes both.</p>
+    <div class="actions"><button class="btn small" id="proxyTest" type="button">Test the proxies now</button></div>
+    <div class="status" id="proxyStatus" aria-live="polite"></div>
+    <div class="sub2">Open a work by its link</div>
+    <p class="hint" style="margin-top:0">Paste a link to any chapter or work: you get clean AO3 links (adult-content check skipped), or fetch the whole work into the Encrypt tab.</p>
+      <div class="row">
+        <input type="text" id="ao3Url" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="https://archiveofourown.org/works/123456/chapters/7890123" aria-label="AO3 link">
+        <button class="btn small primary" id="ao3Fetch" type="button">Fetch whole work</button>
+      </div>
+      <div class="linkrow" id="ao3Links" hidden>
+        <a id="ao3DlLink" target="_blank" rel="noopener noreferrer">Download whole work (HTML) &#8599;</a>
+        <a id="ao3FullLink" target="_blank" rel="noopener noreferrer">Read entire work on AO3 &#8599;</a>
+        <a id="ao3IndexLink" target="_blank" rel="noopener noreferrer">Chapter index &#8599;</a>
+      </div>
+      <div class="status" id="ao3Status" aria-live="polite"></div>
+    <div class="sub2">Reading list</div>
+      <div class="row">
+        <select id="rlSel" aria-label="Reading list"></select>
+        <button class="btn small" id="rlAdd">Add link</button>
+        <button class="btn small" id="rlRemove">Remove</button>
+        <button class="btn small" id="rlClear">Clear list</button>
+      </div>
+    </section>
   </section>
 
   <!-- SAVED DATA -->
@@ -998,7 +1097,7 @@ input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;paddi
     <div class="sub" style="margin-top:0">What this page saves on your device</div>
     <p class="hint" style="margin-top:0">Nothing leaves your browser. Small settings are kept in a cookie and in local storage (so either one can restore them); big texts go in the browser's database (IndexedDB), which has room for long works; the open tab is kept for this browser session only.</p>
     <ul class="datalist" id="dataList"></ul>
-    <div class="optrow"><label class="check"><input type="checkbox" id="remember"> Remember my last encrypted and pasted text (and reopen it next time)</label></div>
+    <p class="hint">&ldquo;Remember my last encrypted and pasted text&rdquo; is in Settings &rarr; Encryption.</p>
     <div class="actions">
       <button class="btn" id="backupBtn">Download backup (.json)</button>
       <button class="btn" id="restoreBtn">Restore from backup</button>
@@ -2221,6 +2320,7 @@ const COOKIE = "ao3enc", COOKIE_MIRROR = new Set(["ao3enc.currentCipher", "ao3en
 function readCookie(){ try { const m = /(?:^|; )ao3enc=([^;]*)/.exec(document.cookie); return m ? JSON.parse(decodeURIComponent(m[1])) || {} : {}; } catch(e){ return {}; } }
 const cookieState = readCookie();
 const PREF_DEFAULTS = { format: true, simplify: true, tagColors: true, readTags: false, spacing: "normal", remember: true, proxy: "", seenIntro: false,
+  ao3Fetch: false, proxiesOff: [], proxiesOn: [], fetchDelay: 5, fetchTimeout: 20,
   encFont: "", encSize: 0, encLh: 0, allowGoogle: false, gfonts: [] };
 const prefs = Object.assign({}, PREF_DEFAULTS, cookieState.p || {}, store.get("ao3enc.prefs", {}));
 let cookieTimer = 0;
@@ -2477,17 +2577,52 @@ function updateEncHint(){
   if (draft.length && (draft.join("") !== c.key || draftName !== c.name)) notes.push("You have unsaved edits in the Cipher tab; the saved version is used.");
   $("encHint").textContent = notes.join(" ");
 }
-// ---------- AO3 links (works / chapters / downloads) ----------
-function parseAo3Url(input){
-  const t = String(input || "").trim(); if (!t) return null;
-  if (/^\d{1,10}$/.test(t)) return { work: t, chapter: null };
-  const m = /(?:^|[\/.])works\/(\d{1,10})(?:\/chapters\/(\d{1,12}))?/.exec(t), d = /\/downloads\/(\d{1,10})/.exec(t);
-  return m ? { work: m[1], chapter: m[2] || null } : d ? { work: d[1], chapter: null } : null;
+// ---------- AO3 links: read any AO3 address people paste, build clean ones ----------
+// A cleaned-up version of the old gemt()/rl() helpers. Those split the address on "/" and took the piece after
+// "chapters" (indexOf = -1 when there was none, so they silently used the first piece), cut work ids to 8 digits,
+// let the unsplit string win for the first piece (undoing the "?" strip) and ignored "#fragments".
+// parseAo3Link("https://archiveofourown.org/works/41675589?view_adult=true.html") -> { work: "41675589", chapter: null, collection: null }
+// Accepts: full, relative ("/works/1", "works/1/chapters/2"), mobile / www / http links, /chapters/C on its own,
+// /collections/NAME/works/W, /downloads/W/Title.html, query strings, #fragments, a trailing .html, bare work ids,
+// and AO3 links wrapped in something else (a proxy address, a redirect, URL-encoded). Other websites -> null.
+const AO3_HOST_RE = /(?:https?:\/\/)?((?:[\w-]+\.)*(?:archiveofourown\.(?:org|com|net)|ao3\.org))(?::\d+)?(\/[^\s"'<>]*)?/gi;
+function parseAo3Link(input){
+  let t = String(input == null ? "" : input).trim();
+  if (!t) return null;
+  if (/^\d{1,15}$/.test(t)) return { work: t, chapter: null, collection: null };          // a bare work id
+  if (/%[0-9a-f]{2}/i.test(t)){ try { t = decodeURIComponent(t); } catch(e){} }           // encoded (e.g. inside a proxy link)
+  let path;
+  const hosts = [...t.matchAll(AO3_HOST_RE)];
+  if (hosts.length){                                                                        // use the AO3 part of the text
+    const pick = hosts.find(h => /\/(works|chapters|downloads)\//i.test((h[2] || "") + "/")) || hosts[0];
+    path = pick[2] || "/";
+  } else if (/^[a-z][\w+.-]*:/i.test(t) || /^(?:www\.)?[\w-]+(?:\.[\w-]+)+(?:[\/:?#]|$)/i.test(t)) return null;   // some other website
+  else path = "/" + t.replace(/^\.?\/+/, "");                                               // a relative link
+  path = path.replace(/[?#][\s\S]*$/, "");                                                  // drop ?query and #fragment
+  const seg = path.split("/").filter(Boolean).map(s => s.replace(/\.(?:html?|epub|pdf|mobi|azw3)$/i, ""));
+  const after = name => { const i = seg.findIndex(s => s.toLowerCase() === name); return i >= 0 && /^\d{1,15}$/.test(seg[i + 1] || "") ? seg[i + 1] : null; };
+  const work = after("works") || after("downloads"), chapter = after("chapters");
+  const ci = seg.findIndex(s => s.toLowerCase() === "collections");
+  if (!work && !chapter) return null;
+  return { work, chapter, collection: ci >= 0 && seg[ci + 1] ? seg[ci + 1] : null };
 }
+// Clean AO3 address for a work or chapter. view_adult=true skips AO3's "this work could have adult content" page
+// (the same thing pressing "Proceed" does); { full: true } asks for the whole work on one page.
+function buildAo3Url(link, opts){
+  opts = opts || {};
+  if (!link || (!link.work && !link.chapter)) return null;
+  const full = !!(opts.full && link.work);
+  const path = full || !link.chapter ? `/works/${link.work}` : link.work ? `/works/${link.work}/chapters/${link.chapter}` : `/chapters/${link.chapter}`;
+  const q = []; if (full) q.push("view_full_work=true"); if (opts.adult !== false) q.push("view_adult=true");
+  return "https://archiveofourown.org" + path + (q.length ? "?" + q.join("&") : "");
+}
+const buildAo3ChapterUrl = (work, chapter) => buildAo3Url({ work, chapter });
+// older name, still used around the page: only links that name a work
+function parseAo3Url(input){ const l = parseAo3Link(input); return l && l.work ? { work: l.work, chapter: l.chapter } : null; }
 function ao3Links(w){
   const base = "https://archiveofourown.org/works/" + w.work;
   return { work: base, chapter: w.chapter ? base + "/chapters/" + w.chapter : null, dl: `https://archiveofourown.org/downloads/${w.work}/work.html`,
-    full: base + "?view_full_work=true&view_adult=true", index: base + "/navigate" };
+    full: base + "?view_full_work=true&view_adult=true", index: base + "/navigate", adult: buildAo3Url(w) };
 }
 function showAo3Links(w){
   $("ao3Links").hidden = !w; if (!w) return;
@@ -2580,7 +2715,7 @@ function chapterNumber(part){
   return m ? +m[1] : Infinity;
 }
 // the chapter list on the page: number, name (linked to AO3), which ones you have, Previous / Next, copy all links
-function renderChapterNav(box, idx, note){
+function renderChapterNav(box, idx, note, opts){
   const el = (tag, cls, text, par) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; (par || box).appendChild(e); return e; };
   const link = (par, href, text, cls) => { const a = el(href ? "a" : "span", cls, text, par); if (href){ a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; } return a; };
   const nav = el("div", "chapnav"), L = idx.work ? ao3Links({ work: idx.work }) : null;
@@ -2589,7 +2724,9 @@ function renderChapterNav(box, idx, note){
   el("strong", null, `Chapters of this work (${n})`, head);
   el("span", "cn-have", have === n ? `You have all ${n}.` : have ? `You have ${have} of ${n}.` : "", head);
   const { next, prev } = chapterNextPrev(idx);
-  if (next || prev){
+  const fetchMode = !!(opts && opts.fetch && idx.work);
+  if (fetchMode) renderFetchActions(nav, idx, el, prev);
+  else if (next || prev){
     const np = el("div", "cn-np", null, nav);
     if (prev) link(np, chapterUrl(idx, prev) || (L && L.index), `\u2190 Previous: ${prev.num}. ${prev.title}`, "btn small cn-prev");
     if (next) link(np, chapterUrl(idx, next) || (L && L.index), `Next chapter: ${next.num}. ${next.title} \u2192`, "btn primary cn-next");
@@ -2600,7 +2737,12 @@ function renderChapterNav(box, idx, note){
     el("span", "n", c.num + ".", li);
     link(li, chapterUrl(idx, c), c.title, "t");
     if (c.have) el("span", "tag", c.id && c.id === idx.current ? "this file" : "loaded", li);
+    else if (opts && opts.fetch && idx.work && c.id && !fetchJob){
+      const g = el("button", "btn small cn-get", "Get", li); g.type = "button"; g.title = `Get chapter ${c.num} from AO3 and add it to the story`;
+      g.setAttribute("aria-label", `Get chapter ${c.num}`); g.addEventListener("click", () => getChapters([c]));
+    }
   }
+
   const row = el("div", "linkrow", null, nav);
   if (L) for (const [href, label] of [[L.dl, "Download whole work (HTML) \u2197"], [L.full, "Entire work on AO3 \u2197"], [L.index, "Chapter index on AO3 \u2197"]]) link(row, href, label);
   const cp = el("button", "btn small cn-copy", "Copy all chapter links", row);
@@ -2630,14 +2772,205 @@ function showChapterBox(good, story, parts){
   if (good.length > 1) add("div", `Combined ${good.length} files into one story, in chapter order: ` + story.chapters.map(c => c.heading || "untitled part").join(" · "));
   if (idx.list.length > 1){
     const n = idx.list.length, have = idx.list.filter(c => c.have), curC = idx.list.find(c => c.id === idx.current);
-    if (have.length < n) add("div", good.length === 1 && curC ? `This file is chapter ${curC.num} of ${n}. To encrypt every chapter, get the whole work in one file (links below) or drop all the chapter files here together.`
+    if (have.length < n) add("div", good.length === 1 && curC ? `This file is chapter ${curC.num} of ${n}. Get the other chapters below, or choose all the chapter files together.`
       : `You have ${have.length} of ${n} chapters.`);
-    renderChapterNav(box, idx, "The chapter list is saved inside the encrypted text (with “Keep original formatting” on), so it shows again after decrypting.");
+    renderChapterNav(box, idx, "The chapter list is saved inside the encrypted text (with “Keep original formatting” on), so it shows again after decrypting.", { fetch: true });
   } else if (work && good.length > 1){
     const L = ao3Links({ work }), row = add("div", null, "linkrow");
     for (const [href, label] of [[L.dl, "Download whole work (HTML) ↗"], [L.full, "Entire work on AO3 ↗"]]){ const a = document.createElement("a"); a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = label; row.appendChild(a); }
   }
   box.hidden = !box.childNodes.length;
+}
+// ---------- fetching AO3 pages through CORS proxies ----------
+// AO3 doesn't send CORS headers, so a web page can't read AO3 pages itself. A CORS proxy fetches the page and hands
+// it back with those headers. Proxies are someone else's server: they see which work/chapter is fetched (never your
+// cipher or your text), so fetching is off until you agree once (Settings → Chapters & AO3).
+// {url} = the AO3 address URL-encoded, {rawurl} = as is, neither = appended to the end.
+const BUILTIN_PROXIES = [
+  { id: "codetabs", name: "codetabs.com", tpl: "https://api.codetabs.com/v1/proxy/?quest={url}" },
+  { id: "allorigins", name: "allorigins.win", tpl: "https://api.allorigins.win/raw?url={url}" },
+  { id: "corslol", name: "cors.lol", tpl: "https://api.cors.lol/?url={url}" },
+  { id: "corsproxyio", name: "corsproxy.io", tpl: "https://corsproxy.io/?url={url}", note: "now needs an API key: add your keyed address as your own proxy instead", off: true },
+];
+const okProxyAddr = s => /^(https:\/\/[^\s\/]+|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?)(\/|\?|$)/i.test(s);
+function proxyUrl(tpl, target){
+  return tpl.includes("{url}") ? tpl.replace("{url}", encodeURIComponent(target)) : tpl.includes("{rawurl}") ? tpl.replace("{rawurl}", target) : tpl + target;
+}
+function proxyIsOn(p){ const off = prefs.proxiesOff || []; return p.off ? (prefs.proxiesOn || []).includes(p.id) : !off.includes(p.id); }
+// your own proxies first (one per line), then the switched-on built-in ones
+function proxyList(){
+  const lines = String(prefs.proxy || "").split(/\r?\n/).map(s => s.trim()).filter(s => s && !s.startsWith("#"));
+  const custom = lines.filter(okProxyAddr).map((tpl, i) => ({ id: "custom" + i, name: lines.length > 1 ? `your proxy ${i + 1}` : "your proxy", tpl }));
+  return { proxies: custom.concat(BUILTIN_PROXIES.filter(proxyIsOn)), bad: lines.filter(s => !okProxyAddr(s)) };
+}
+const ao3Err = (kind, msg, extra) => Object.assign(new Error(msg), { kind }, extra || {});
+const sleepAbortable = (ms, signal) => new Promise((res, rej) => {
+  if (signal && signal.aborted) return rej(ao3Err("cancel", "Cancelled."));
+  const t = setTimeout(res, ms);
+  if (signal) signal.addEventListener("abort", () => { clearTimeout(t); rej(ao3Err("cancel", "Cancelled.")); }, { once: true });
+});
+// What did we get back? AO3's own failure pages look like normal pages, so check the text, not just the status.
+const AO3_STOP = new Set(["registered", "missing", "adult"]);   // AO3 itself said no: other proxies would get the same answer
+function classifyAo3Page(status, text){
+  const t = String(text || ""), head = t.slice(0, 300000), top = head.slice(0, 4000);
+  const hasStory = /class=["'][^"']*\buserstuff\b/i.test(head);
+  const title = oneLine(((/<title[^>]*>([\s\S]*?)<\/title>/i.exec(head) || [])[1] || "").replace(/<[^>]+>/g, ""));
+  const code = status ? ` (${status})` : "";
+  if (status === 429 || (!hasStory && /Retry later|Too Many Requests|rate.?limit(ed)?\b/i.test(title + " " + top)))
+    return { kind: "ratelimit", msg: `too many requests right now, rate limited${code}` };
+  if (/^52\d$/.test(String(status)) || (!hasStory && (/error code:?\s*5\d\d|cf-error-details|cloudflare/i.test(top) || /Just a moment\.\.\.|Attention Required|cf-browser-verification|challenge-platform/i.test(head.slice(0, 30000)))))
+    return { kind: "cloudflare", msg: `blocked by AO3's Cloudflare protection or the secure connection failed${code}` };
+  if (/only available to registered users/i.test(head))
+    return { kind: "registered", msg: "this work is only available to registered (logged-in) AO3 users" };
+  if (status === 404 || /The page you were looking for doesn't exist|Sorry, we couldn['’]t find the work|<h2[^>]*>\s*Error 404/i.test(head) && !hasStory)
+    return { kind: "missing", msg: `AO3 says this page doesn't exist: deleted, hidden, or a wrong link${status === 404 ? " (404)" : ""}` };
+  if (!hasStory && /This work could have adult content|adult content\. If you continue/i.test(head))
+    return { kind: "adult", msg: "AO3 showed its adult-content warning instead of the chapter" };
+  if (!hasStory && (status === 502 || status === 503 || /Archive of Our Own is (down|currently down)|down for maintenance|undergoing maintenance/i.test(head)))
+    return { kind: "ao3down", msg: `AO3 is down or under maintenance${code}` };
+  if (status >= 400 || !/<(html|body|div)\b/i.test(head)){
+    let snip = ""; try { const j = JSON.parse(t); snip = j.error || j.message || j.detail || ""; } catch(e){ snip = t.replace(/<[^>]+>/g, " "); }
+    snip = oneLine(String(snip)).slice(0, 90);
+    return { kind: "proxy", msg: `the proxy answered with ${status >= 400 ? "an error" + code : "something that isn't a web page"}${snip ? ": “" + snip + "”" : ""}` };
+  }
+  let story = null; try { story = extractStory(new DOMParser().parseFromString(t, "text/html")); } catch(e){}
+  if (!story) return { kind: "nostory", msg: "got a page back, but there's no story in it" + (title ? ` (“${title.slice(0, 60)}”)` : "") };
+  return { kind: "ok", story };
+}
+// Fetch one AO3 page: each proxy in turn, each with a timeout. Resolves { text, story, proxy, tries } or throws an
+// error with .kind (cancel / noproxy / badproxy / the last failure kind) and .tries = [{ proxy, kind, msg }].
+async function fetchAo3Page(target, opts){
+  opts = opts || {};
+  const { proxies, bad } = proxyList(), signal = opts.signal;
+  if (bad.length) throw ao3Err("badproxy", `Your proxy address has to start with https:// (or http://localhost): “${bad[0]}”. Fix it in Settings → Chapters & AO3.`);
+  if (!proxies.length) throw ao3Err("noproxy", "No CORS proxy is switched on (Settings → Chapters & AO3). AO3 doesn't let other websites read its pages (CORS), so this page can only fetch chapters through a proxy.");
+  const tries = [], secs = Math.max(1, +prefs.fetchTimeout || 20);
+  for (const p of proxies){
+    if (signal && signal.aborted) throw ao3Err("cancel", "Cancelled.");
+    if (opts.onStatus) opts.onStatus(`trying ${p.name}…`);
+    const ctl = new AbortController(), stop = () => ctl.abort(), tm = setTimeout(stop, secs * 1000);
+    if (signal) signal.addEventListener("abort", stop);
+    let status = 0, text = "";
+    try {
+      const r = await fetch(proxyUrl(p.tpl, target), { signal: ctl.signal, credentials: "omit", referrerPolicy: "no-referrer", cache: "no-store" });
+      status = r.status; text = await r.text();
+    } catch(e){
+      if (signal && signal.aborted) throw ao3Err("cancel", "Cancelled.");
+      tries.push({ proxy: p.name, kind: ctl.signal.aborted ? "timeout" : "network",
+        msg: ctl.signal.aborted ? `no answer within ${secs} s` : "couldn't connect (down, blocked, or it doesn't allow this site)" });
+      continue;
+    } finally { clearTimeout(tm); if (signal) signal.removeEventListener("abort", stop); }
+    const c = classifyAo3Page(status, text);
+    if (c.kind === "ok") return { text, story: c.story, proxy: p.name, tries };
+    tries.push({ proxy: p.name, kind: c.kind, msg: c.msg });
+    if (AO3_STOP.has(c.kind)) break;
+  }
+  const decisive = tries.find(x => AO3_STOP.has(x.kind)), last = tries[tries.length - 1];
+  const msg = decisive ? decisive.msg.charAt(0).toUpperCase() + decisive.msg.slice(1) + "."
+    : `None of the proxies could get the page: ${tries.map(x => `${x.proxy}: ${x.msg}`).join("; ")}.`;
+  throw ao3Err((decisive || last).kind, msg, { tries });
+}
+// one-time agreement before anything is sent to a proxy (also a switch in Settings)
+function askFetchConsent(host){
+  if (prefs.ao3Fetch) return Promise.resolve(true);
+  const old = document.getElementById("ao3Consent"); if (old) old.remove();
+  return new Promise(res => {
+    const d = document.createElement("div"); d.className = "consent"; d.id = "ao3Consent"; d.setAttribute("role", "group"); d.setAttribute("aria-label", "Fetching from AO3");
+    d.innerHTML = `<p><b>Fetch chapters through a proxy?</b> AO3 doesn't let other websites read its pages, so this goes through a public CORS proxy: a third-party server that will see <b>which work and chapter</b> you fetch (not your cipher or your text). You can switch this off any time in Settings &rarr; Chapters &amp; AO3.</p>
+<div class="actions"><button class="btn small primary" id="ao3ConsentYes" type="button">OK, fetch it</button><button class="btn small" id="ao3ConsentNo" type="button">Not now</button></div>`;
+    host.appendChild(d);
+    const done = yes => { d.remove(); if (yes){ setPref("ao3Fetch", true); writeCookie(); $("ao3FetchOn").checked = true; } res(yes); };
+    d.querySelector("#ao3ConsentYes").addEventListener("click", () => done(true));
+    d.querySelector("#ao3ConsentNo").addEventListener("click", () => done(false));
+    d.querySelector("#ao3ConsentYes").focus({ preventScroll: true });
+  });
+}
+const FETCH_TIP = "Or open it on AO3, save the page (browser menu → Download / Save page, or Share → Save) and choose that file together with the ones you have.";
+const fetchFailMsg = e => e.kind === "cancel" ? "Stopped." : e.message + (e.kind === "noproxy" || e.kind === "badproxy" ? "" : "");
+
+// ---------- next chapters for the story you loaded ----------
+let encSrcs = [];          // what's loaded on the Encrypt tab right now (your files + fetched chapters)
+let fetchedPages = [];     // chapters fetched from AO3: { id, num, title, text, proxy }
+let fetchJob = null;       // the running fetch: { ctl, total, done, msg }
+let fetchNote = null;      // the last result, shown under the chapter list: { msg, cls }
+function resetFetched(){ if (fetchJob) fetchJob.ctl.abort(); fetchJob = null; fetchedPages = []; fetchNote = null; }
+function showFetchMsg(el){ el.textContent = fetchNote ? fetchNote.msg : ""; el.className = "status cn-fstatus " + (fetchNote && fetchNote.cls || ""); }
+function setFetchMsg(msg, cls){
+  fetchNote = { msg, cls };
+  const el = document.querySelector("#encChapters .cn-fstatus"); if (el) showFetchMsg(el);
+}
+// Get chapters one after another (in chapter order), adding each to the story as soon as it arrives.
+async function getChapters(chs){
+  if (fetchJob || !chs.length || !encIndex || !encIndex.work) return;
+  const host = document.querySelector("#encChapters .cn-fetch") || $("encChapters");
+  if (!(await askFetchConsent(host))){ setFetchMsg("Not fetched. Use “Open on AO3” instead, or allow fetching in Settings → Chapters & AO3.", "warn"); return; }
+  const work = encIndex.work, ctl = new AbortController(), delay = Math.max(0, +prefs.fetchDelay || 0) * 1000;
+  fetchJob = { ctl, total: chs.length, done: 0 };
+  refreshChapterBox();
+  const got = [];
+  let fail = null;
+  for (let i = 0; i < chs.length; i++){
+    const c = chs[i], of = chs.length > 1 ? ` (${i + 1} of ${chs.length})` : "";
+    try {
+      if (i > 0 && delay){ setFetchMsg(`Got chapter ${chs[i - 1].num}. Waiting ${delay / 1000} s before the next one, to go easy on AO3…`, "busy"); await sleepAbortable(delay, ctl.signal); }
+      setFetchMsg(`Getting chapter ${c.num}${of}…`, "busy");
+      const r = await fetchAo3Page(buildAo3Url({ work, chapter: c.id }), { signal: ctl.signal, onStatus: m => setFetchMsg(`Getting chapter ${c.num}${of}: ${m}`, "busy") });
+      fetchedPages = fetchedPages.filter(p => p.id !== c.id).concat({ id: c.id, num: c.num, title: c.title, text: r.text, proxy: r.proxy });
+      fetchJob.done++; got.push(c);
+      await loadEncSources(encSrcs.concat({ name: `chapter ${c.num} from AO3`, size: r.text.length, type: "text/html", text: r.text, kind: "fetched from AO3", fetched: c.id }), { keepFetch: true });
+    } catch(e){ fail = { c, e }; break; }
+  }
+  fetchJob = null;
+  const gotTxt = got.length ? `Added chapter${got.length > 1 ? "s" : ""} ${got.map(c => c.num).join(", ")} from AO3, combined with your file in chapter order and ready to encrypt.` : "";
+  if (!fail) setFetchMsg(gotTxt, "ok");
+  else if (fail.e.kind === "cancel") setFetchMsg((gotTxt ? gotTxt + " " : "") + "Stopped before chapter " + fail.c.num + ".", got.length ? "ok" : "warn");
+  else setFetchMsg((gotTxt ? gotTxt + " " : "") + `Couldn't get chapter ${fail.c.num}. ${fail.e.message} ${FETCH_TIP}`, "err");
+  refreshChapterBox();
+}
+function refreshChapterBox(){
+  if (!encIndex) return;
+  const box = $("encChapters"), cn = box.querySelector(".chapnav");
+  if (!cn) return;
+  const keep = window.scrollY, fresh = document.createElement("div");
+  renderChapterNav(fresh, encIndex, cn.querySelector(".cn-note") ? cn.querySelector(".cn-note").textContent : null, { fetch: true });
+  cn.replaceWith(fresh.firstChild);
+  window.scrollTo(0, keep);
+}
+// the fetch actions under the chapter list (Encrypt tab only)
+function renderFetchActions(nav, idx, el, prev){
+  const wrap = el("div", "cn-fetch", null, nav);
+  const missing = idx.list.filter(c => !c.have && c.id), { next } = chapterNextPrev(idx);
+  const nxt = next && next.id ? next : missing[0];
+  const row = el("div", "cn-frow", null, wrap);
+  if (fetchJob){
+    el("span", "cn-prog", `Getting ${fetchJob.total > 1 ? "chapters" : "chapter"}: ${fetchJob.done} of ${fetchJob.total} done`, row);
+    el("button", "btn small cn-cancel", "Cancel", row).addEventListener("click", () => fetchJob && fetchJob.ctl.abort());
+  } else if (missing.length){
+    const b1 = el("button", "btn primary cn-getnext", `Get next chapter (${nxt.num})`, row);
+    b1.type = "button"; b1.addEventListener("click", () => getChapters([nxt]));
+    if (missing.length > 1){
+      const b2 = el("button", "btn small cn-getall", `Get all remaining chapters (${missing.length})`, row);
+      b2.type = "button"; b2.addEventListener("click", () => getChapters(missing));
+    }
+  } else el("span", "cn-prog", "You have every chapter.", row);
+  // always there: open the chapter on AO3 yourself (adult-content check skipped), save the page, choose the file
+  if (nxt || prev){
+    const np = el("div", "cn-np", null, wrap);
+    const open = (c, cls, text) => { const a = el("a", cls, text, np); a.href = c.id ? buildAo3Url({ work: idx.work, chapter: c.id }) : ao3Links({ work: idx.work }).index; a.target = "_blank"; a.rel = "noopener noreferrer"; a.title = "Open on AO3 (new tab)"; };
+    if (prev) open(prev, "btn small cn-prev", `\u2190 Previous: ${prev.num}. ${prev.title}`);
+    if (nxt) open(nxt, "btn small cn-next", `Open on AO3: ${nxt.num}. ${nxt.title} \u2197`);
+  }
+  const st = el("div", "status cn-fstatus", null, wrap); st.setAttribute("aria-live", "polite");
+  showFetchMsg(st);
+  if (missing.length && !fetchJob && !(fetchNote && fetchNote.cls === "err")) el("p", "hint cn-ftip", (prefs.ao3Fetch ? "Fetching uses a CORS proxy (Settings → Chapters & AO3). " : "The first time, you're asked before anything is fetched through a proxy. ") + FETCH_TIP, wrap);
+  if (fetchedPages.length){
+    const sv = el("div", "cn-saved", null, wrap);
+    el("span", null, "Fetched pages:", sv);
+    for (const p of [...fetchedPages].sort((a, b) => a.num - b.num)){
+      const b = el("button", "btn small cn-save", `Save ch. ${p.num} as .html`, sv); b.type = "button";
+      b.addEventListener("click", () => download(p.text, safeName(`${(encStory && encStory.title) || "work-" + idx.work} - chapter ${p.num}`) + ".html", "text/html"));
+    }
+  }
 }
 const describeFile = f => `“${f.name || "unnamed file"}” (${fmtBytes(f.size || 0)}, ${f.type ? "type " + f.type : "no file type given"})`;
 function showEncFileError(errs){
@@ -2650,6 +2983,7 @@ function showEncFileError(errs){
 }
 async function loadEncFiles(files){
   files = [...(files || [])].filter(Boolean); if (!files.length) return;
+  resetFetched();
   const pk = $("encPicked"); pk.hidden = false; pk.classList.remove("err"); pk.textContent = "Received " + files.map(describeFile).join(", ");
   setStatus($("encStatus"), "Reading " + (files.length > 1 ? files.length + " files" : "the file") + "…", "busy");
   const srcs = [], errs = [];
@@ -2661,6 +2995,7 @@ async function loadEncFiles(files){
   return loadEncSources(srcs);
 }
 async function loadEncSources(srcs){
+  encSrcs = srcs;
   encBytes = null; encStoryText = ""; encStory = null; encIndex = null;
   $("encOut").hidden = true; setStatus($("encStatus"), "Reading the story…", "busy"); await nextFrame();
   const parts = srcs.map(src => {
@@ -2709,6 +3044,7 @@ $("encPasteBtn").addEventListener("click", () => {
   if (!/\S/.test(t)){ setStatus($("encStatus"), "The paste box is empty. Paste the story text or the page's HTML first.", "err"); return; }
   if (/^\s*AO3SUB\$\d/.test(t)){ setStatus($("encStatus"), STORY_FILE_HELP.cipher, "err"); return; }
   const html = looksLikeHtml(t) ? t : storyTextToHtml(t, "Pasted story");
+  resetFetched();
   $("encPicked").hidden = false; $("encPicked").classList.remove("err"); $("encPicked").textContent = `Pasted ${t.length.toLocaleString()} characters · read as ${looksLikeHtml(t) ? "HTML" : "plain text"}`;
   loadEncSources([{ name: "pasted text", size: enc.encode(t).length, type: "", text: html, kind: looksLikeHtml(t) ? "HTML" : "plain text" }]);
 });
@@ -2806,9 +3142,20 @@ function markEscapes(root, key, version){
   }
 }
 $("encFormat").checked = prefs.format;
-$("encFormat").addEventListener("change", e => setPref("format", e.target.checked));
+$("encFormat").addEventListener("change", e => { setPref("format", e.target.checked); showEncOpts(); });
 $("encSimplify").checked = prefs.simplify;
-$("encSimplify").addEventListener("change", e => setPref("simplify", e.target.checked));
+$("encSimplify").addEventListener("change", e => { setPref("simplify", e.target.checked); showEncOpts(); });
+// the Encrypt tab shows a one-line summary of these options; they live in Settings → Encryption
+function showEncOpts(){
+  $("encOptsText").textContent = [$("encFormat").checked ? "Keep formatting" : "Plain text only", $("encSimplify").checked ? "Simplify characters" : "Exact characters"].join(" · ");
+}
+showEncOpts();
+function openSettings(sec){
+  showTab("tab-opt");
+  const el = $(sec); if (el) requestAnimationFrame(() => el.scrollIntoView({ block: "start", behavior: "smooth" }));
+}
+$("encOptsBtn").addEventListener("click", () => openSettings("set-enc"));
+document.querySelectorAll(".setnav a").forEach(a => a.addEventListener("click", e => { e.preventDefault(); openSettings(a.getAttribute("href").slice(1)); }));
 function renderCipherStory(out, plainTxt){
   const box = $("encStory"); box.textContent = ""; box.classList.remove("fmt");
   const body = out.slice(out.indexOf("\n") + 1), plain = parseStoryText(plainTxt == null ? encStoryText : plainTxt), ct = splitBlocks(body);
@@ -3123,10 +3470,16 @@ function setTheme(t, save){
   if (!THEMES.includes(t)) t = "gerald";
   document.documentElement.setAttribute("data-theme", t);
   document.querySelectorAll("[data-theme-btn]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.themeBtn === t)));
+  const tb = document.querySelector(`[data-theme-btn="${t}"]`);
+  if (tb && $("themeName")){ $("themeName").textContent = tb.textContent.trim(); $("themeSw").className = "sw " + t; }
   if (save && !window.__ao3wiping){ try { localStorage.setItem("ao3enc.theme", t); } catch(e){} writeCookie(); }
   try { const el = $("preview").contentDocument && $("preview").contentDocument.getElementById("koa-reader"); if (el) el.textContent = readerCss(); } catch(e){}
 }
-document.querySelectorAll("[data-theme-btn]").forEach(b => b.addEventListener("click", () => setTheme(b.dataset.themeBtn, true)));
+document.querySelectorAll("[data-theme-btn]").forEach(b => b.addEventListener("click", () => { setTheme(b.dataset.themeBtn, true); showThemes(false); $("themeBtn").focus({ preventScroll: true }); }));
+// the theme picker is folded behind one small button in the header
+function showThemes(open){ $("themes").hidden = !open; $("themeBtn").setAttribute("aria-expanded", String(open)); }
+$("themeBtn").addEventListener("click", () => showThemes($("themes").hidden));
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("themes").hidden){ showThemes(false); $("themeBtn").focus(); } });
 setTheme(document.documentElement.getAttribute("data-theme"), false);
 (function makeBubbles(){
   const host = $("bubbles"), n = window.innerWidth < 600 ? 9 : 16;
@@ -3244,34 +3597,68 @@ addEventListener("resize", dodgeHostBadges); setInterval(dodgeHostBadges, 1500);
 $("ao3Url").addEventListener("input", () => showAo3Links(parseAo3Url($("ao3Url").value)));
 $("ao3Proxy").value = prefs.proxy || "";
 $("ao3Proxy").addEventListener("change", e => setPref("proxy", e.target.value.trim()));
-$("ao3Fetch").addEventListener("click", fetchWork);
-async function fetchWork(){
-  const st = $("ao3Status"), w = parseAo3Url($("ao3Url").value);
-  if (!w){ setStatus(st, "Paste an AO3 link like https://archiveofourown.org/works/123456 (a chapter link works too).", "err"); showAo3Links(null); return; }
-  showAo3Links(w);
-  const target = ao3Links(w).dl, proxy = (prefs.proxy || "").trim();
-  if (proxy && !/^(https:\/\/|http:\/\/(localhost|127\.0\.0\.1)[:\/])/i.test(proxy)){ setStatus(st, "The proxy address has to start with https://", "err"); return; }
-  const url = proxy ? (proxy.includes("{url}") ? proxy.replace("{url}", encodeURIComponent(target)) : proxy + target) : target;
-  setStatus(st, proxy ? "Fetching the whole work through your proxy…" : "Trying to fetch from AO3 directly…", "busy");
-  $("ao3Fetch").disabled = true;
-  let text = null;
-  try {
-    const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 30000);
-    const r = await fetch(url, { signal: ctl.signal, credentials: "omit", referrerPolicy: "no-referrer" }); clearTimeout(tm);
-    if (!r.ok) throw Object.assign(new Error("HTTP " + r.status), { http: r.status });
-    text = await r.text();
-  } catch(e){
-    $("ao3Fetch").disabled = false;
-    if (e.http) setStatus(st, `${proxy ? "The proxy" : "AO3"} answered with an error (${e.http}). The work may be for logged-in users only, deleted, or the proxy may be down. Use “Download whole work” above and drop the file in instead.`, "err");
-    else setStatus(st, proxy ? "Couldn't get the work through the proxy (it failed or timed out). Check its address, or use “Download whole work” above and drop the file in." :
-      "Your browser didn't let this page read AO3: AO3 doesn't allow other websites to load its pages (CORS). Use “Download whole work” above, then drop the file in; or set a CORS proxy below.", "err");
-    return;
+$("ao3FetchOn").checked = !!prefs.ao3Fetch;
+$("ao3FetchOn").addEventListener("change", e => setPref("ao3Fetch", e.target.checked));
+function renderProxyChecks(){
+  const host = $("proxyChecks"); host.textContent = "";
+  for (const p of BUILTIN_PROXIES){
+    const l = document.createElement("label"); l.className = "check";
+    const c = document.createElement("input"); c.type = "checkbox"; c.id = "px-" + p.id; c.checked = proxyIsOn(p);
+    c.addEventListener("change", () => {
+      if (p.off) setPref("proxiesOn", (prefs.proxiesOn || []).filter(x => x !== p.id).concat(c.checked ? [p.id] : []));
+      else setPref("proxiesOff", (prefs.proxiesOff || []).filter(x => x !== p.id).concat(c.checked ? [] : [p.id]));
+    });
+    l.append(c, " " + p.name + " ");
+    const u = document.createElement("span"); u.className = "unit"; u.textContent = p.note ? `(${p.note})` : `(${p.tpl.replace(/^https:\/\//, "").replace(/\?.*$/, "")})`; l.append(u);
+    host.appendChild(l);
   }
-  $("ao3Fetch").disabled = false;
-  let ok = false; try { ok = !!extractStory(new DOMParser().parseFromString(text, "text/html")); } catch(e){}
-  if (!ok){ setStatus(st, "Got a page back, but there's no story in it (maybe AO3's adult-content check, a log-in page or an error page). Use “Download whole work” above instead.", "err"); return; }
-  setStatus(st, "Fetched the whole work. It's loaded above, ready to encrypt.", "ok");
-  await loadEncSources([{ name: `work-${w.work}.html`, text, size: text.length }]);
+}
+renderProxyChecks();
+for (const [id, k, lo, hi] of [["fetchDelay", "fetchDelay", 0, 120], ["fetchTimeout", "fetchTimeout", 3, 180]]){
+  $(id).value = prefs[k];
+  $(id).addEventListener("change", e => { const v = Math.min(hi, Math.max(lo, Math.round(+e.target.value || 0))); e.target.value = v; setPref(k, v); });
+}
+// "Test the proxies now": ask each switched-on proxy for AO3's front page and say which ones answered
+$("proxyTest").addEventListener("click", async () => {
+  const st = $("proxyStatus"), { proxies, bad } = proxyList();
+  if (bad.length){ setStatus(st, `Your proxy address has to start with https:// (or http://localhost): “${bad[0]}”.`, "err"); return; }
+  if (!proxies.length){ setStatus(st, "No proxies are switched on.", "err"); return; }
+  if (!(await askFetchConsent($("proxyTest").parentNode))) return;
+  $("proxyTest").disabled = true; setStatus(st, "Testing " + proxies.length + " prox" + (proxies.length > 1 ? "ies" : "y") + "…", "busy");
+  const res = [], secs = Math.max(1, +prefs.fetchTimeout || 20);
+  await Promise.all(proxies.map(async (p, i) => {
+    const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), secs * 1000), t0 = performance.now();
+    try {
+      const r = await fetch(proxyUrl(p.tpl, "https://archiveofourown.org/"), { signal: ctl.signal, credentials: "omit", referrerPolicy: "no-referrer", cache: "no-store" });
+      const text = await r.text(), c = classifyAo3Page(r.status, text), ms = Math.round(performance.now() - t0);
+      const works = r.ok && /Archive of Our Own/i.test(text) && c.kind !== "cloudflare" && c.kind !== "ratelimit";
+      res[i] = { p, ok: works, msg: works ? `works (${ms} ms)` : c.kind === "ok" || c.kind === "nostory" ? `answered (${r.status}) but not with AO3's page` : c.msg };
+    } catch(e){ res[i] = { p, ok: false, msg: ctl.signal.aborted ? `no answer within ${secs} s` : "couldn't connect" }; }
+    finally { clearTimeout(tm); }
+  }));
+  $("proxyTest").disabled = false;
+  const n = res.filter(x => x.ok).length;
+  setStatus(st, n ? `${n} of ${res.length} working right now.` : "None of them reached AO3 right now. Try again later, add your own proxy, or use “Open on AO3” and save the page.", n ? "ok" : "err");
+  const ul = document.createElement("ul"); ul.className = "proxyres";
+  for (const x of res){ const li = document.createElement("li"); li.className = x.ok ? "ok" : "bad"; li.textContent = `${x.p.name}: ${x.msg}`; ul.appendChild(li); }
+  st.appendChild(ul);
+});
+$("ao3Fetch").addEventListener("click", fetchWork);
+// "Fetch whole work": the whole work on one page (view_full_work), through the same proxies
+async function fetchWork(){
+  const st = $("ao3Status"), w = parseAo3Link($("ao3Url").value);
+  if (!w || !w.work){ setStatus(st, "Paste an AO3 link like https://archiveofourown.org/works/123456 (a chapter link works too).", "err"); showAo3Links(null); return; }
+  showAo3Links(w);
+  if (!(await askFetchConsent(st.parentNode))){ setStatus(st, "Not fetched. Use the links above to get the work from AO3 yourself.", "warn"); return; }
+  $("ao3Fetch").disabled = true; setStatus(st, "Fetching the whole work…", "busy");
+  try {
+    const r = await fetchAo3Page(buildAo3Url(w, { full: true }), { onStatus: m => setStatus(st, "Fetching the whole work: " + m, "busy") });
+    resetFetched();
+    await loadEncSources([{ name: `work-${w.work}.html`, text: r.text, size: r.text.length, type: "text/html", kind: "fetched from AO3" }]);
+    setStatus(st, `Fetched the whole work (via ${r.proxy}). It's loaded in the Encrypt tab, ready to encrypt.`, "ok");
+  } catch(e){
+    setStatus(st, `Couldn't fetch the work. ${e.message} Use “Download whole work” above, then choose the file in the Encrypt tab.`, "err");
+  } finally { $("ao3Fetch").disabled = false; }
 }
 // reading list (links to works or chapters, kept on this device)
 let readingList = store.get("ao3enc.readingList", []);
@@ -3572,7 +3959,7 @@ async function restoreLast(){
   }
 }
 window.AO3Ready = Promise.all([restoreLast().catch(() => {}), fontsReady]);
-window.AO3Cipher = { fixEntities, simplifyPunct, simplifyChars, encodeBytesLegacy, v5Plan, decodeBodyV5, escapeMatcher, simplifyStory, chapterIndexOf, mergeIndexes, takeChapterIndex, chapterNextPrev, ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, juniperKey, DEC_ORDER, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta, extractStory, storyText, parseStoryText, storyToHtml, looksLikeHtmlFile, storyToFmtDoc, parseAo3Url, ao3Links, encodeStoryFormatted, decodeStoryFormatted, fmtSerialize, fmtParse, fmtDocToPage, isFormattedText };
+window.AO3Cipher = { fixEntities, simplifyPunct, simplifyChars, encodeBytesLegacy, v5Plan, decodeBodyV5, escapeMatcher, simplifyStory, chapterIndexOf, mergeIndexes, takeChapterIndex, chapterNextPrev, ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, juniperKey, DEC_ORDER, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta, extractStory, storyText, parseStoryText, storyToHtml, looksLikeHtmlFile, storyToFmtDoc, parseAo3Url, parseAo3Link, buildAo3Url, buildAo3ChapterUrl, classifyAo3Page, proxyUrl, proxyList, BUILTIN_PROXIES, ao3Links, encodeStoryFormatted, decodeStoryFormatted, fmtSerialize, fmtParse, fmtDocToPage, isFormattedText };
 window.KoaYT = { parseYouTube, embedUrl, watchUrl };
 </script>
 </body>
