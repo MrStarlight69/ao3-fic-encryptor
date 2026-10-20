@@ -172,6 +172,19 @@ main{max-width:900px;margin:0 auto;padding:12px 16px 40px}
 .drop strong{display:block;font-size:1.06rem;font-family:var(--head-font)}
 .drop span{color:var(--muted);font-size:.92rem}
 .drop .icon{font-size:1.8rem;line-height:1;display:block;margin-bottom:6px}
+.drop{position:relative;display:block;font-weight:400}
+/* the real file input covers the whole drop zone, so a tap lands on it directly (no scripted click) */
+.drop input.cover{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;opacity:0;cursor:pointer;z-index:2;-webkit-appearance:none;appearance:none}
+.drop input.cover::file-selector-button{cursor:pointer;width:100%;height:100%}
+.drop:focus-within{outline:none;box-shadow:var(--focus)}
+.picked{margin-top:8px;font-size:.9rem;color:var(--muted);overflow-wrap:anywhere}
+.picked.err{color:var(--err,#b3261e);font-weight:600;padding:10px 12px;border-radius:10px;border:1px solid currentColor;background:var(--field-bg)}
+.fallback{margin-top:10px;font-size:.92rem;color:var(--muted)}
+.fallback label.basic{display:block;margin-bottom:4px}
+.fallback input.basicfile{display:block;max-width:100%;min-height:44px;font:inherit;color:var(--field-ink);padding:8px;border:1px solid var(--field-border);border-radius:10px;background:var(--field-bg)}
+.fallback .pastebox{margin-top:8px}
+.fallback .pastebox summary{cursor:pointer;padding:11px 0;min-height:44px;box-sizing:border-box}
+.fallback .pastebox textarea{min-height:120px}
 .fileinfo{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--chip);border:1px solid var(--field-border);display:none}
 .fileinfo.show{display:block}
 .fileinfo .t{font-family:var(--head-font);font-size:1.15rem;font-weight:700}
@@ -788,11 +801,21 @@ input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;paddi
 
   <!-- ENCRYPT -->
   <section class="panel glass" id="panel-enc" role="tabpanel" aria-labelledby="tab-enc">
-    <div class="drop" id="encDrop" tabindex="0" role="button" aria-label="Choose AO3 HTML file">
+    <label class="drop" id="encDrop" for="encFile">
       <span class="icon" aria-hidden="true">&#128214;</span>
       <strong>Drop your AO3 .html file here</strong>
-      <span>or click to choose one (AO3: Download &rarr; HTML). Only the story itself gets encrypted. Got separate chapter files? Drop them all at once.</span>
-      <input type="file" id="encFile" accept=".html,.htm,.xhtml,text/html,application/xhtml+xml,text/plain,application/octet-stream" multiple class="picker" tabindex="-1" aria-hidden="true">
+      <span>or tap / click to choose it (AO3: Download &rarr; HTML). Saved pages (.mhtml), .htm, .txt and EPUB work too. Only the story itself gets encrypted. Got separate chapter files? Choose them all at once.</span>
+      <input type="file" id="encFile" multiple class="cover" title="" aria-label="Choose your AO3 story file">
+    </label>
+    <div class="picked" id="encPicked" hidden aria-live="polite"></div>
+    <div class="fallback" id="encFallback">
+      <label class="basic" for="encFileBasic">Having trouble? Use this basic picker:</label>
+      <input type="file" id="encFileBasic" class="basicfile">
+      <details class="pastebox" id="encPasteBox"><summary>Or paste the page&rsquo;s HTML or the story text</summary>
+        <p class="hint">Last resort: on the AO3 work page select the story text (or the whole page) and copy it, then paste it here. Plain text works: paragraphs separated by empty lines.</p>
+        <textarea id="encPaste" rows="5" placeholder="Paste the story here&hellip;" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+        <div class="actions"><button class="btn" id="encPasteBtn" type="button">Use pasted text</button></div>
+      </details>
     </div>
     <div class="fileinfo" id="encInfo"><div class="t" id="encTitle"></div><div class="m" id="encMeta"></div></div>
     <div class="chapbox" id="encChapters" hidden></div>
@@ -858,7 +881,7 @@ input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;paddi
     <textarea id="decText" spellcheck="false" wrap="off" placeholder="Paste the encrypted text (first line starts with AO3SUB$) or drop a .txt file here"></textarea>
     <div class="actions">
       <button class="btn" id="decFileBtn">Upload .txt</button>
-      <input type="file" id="decFile" accept=".txt,text/plain,application/octet-stream" class="picker" tabindex="-1" aria-hidden="true">
+      <input type="file" id="decFile" class="picker" tabindex="-1" aria-hidden="true">
     </div>
     <div class="cipherline">
       <label for="decCipher">Cipher</label>
@@ -2033,6 +2056,157 @@ async function readText(f){
   const t = new TextDecoder().decode(new Uint8Array(await readBuf(f)));
   return t.replace(/^\uFEFF/, "");
 }
+// ---------- story files from phones: sniff the real format, decode the charset, unpack MHTML / EPUB ----------
+// Android pickers report odd MIME types (or none) and phones save pages in other formats, so the story picker has
+// no accept filter at all and the bytes decide what the file is.
+const binStr = u8 => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return s; };
+const strBin = s => { const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i) & 255; return u; };
+function decodeCharset(u8, hint){
+  if (u8[0] === 0xEF && u8[1] === 0xBB && u8[2] === 0xBF) return new TextDecoder("utf-8").decode(u8.subarray(3));
+  if (u8[0] === 0xFF && u8[1] === 0xFE) return new TextDecoder("utf-16le").decode(u8.subarray(2));
+  if (u8[0] === 0xFE && u8[1] === 0xFF) return new TextDecoder("utf-16be").decode(u8.subarray(2));
+  if (u8.length > 3 && u8[1] === 0 && u8[3] === 0 && u8[0] && u8[2]) return new TextDecoder("utf-16le").decode(u8);
+  try { return new TextDecoder("utf-8", { fatal: true }).decode(u8); } catch(e){}
+  let cs = String(hint || "").toLowerCase().trim();
+  if (!cs){ const m = /<meta[^>]+charset\s*=\s*["']?\s*([\w:.-]+)/i.exec(binStr(u8.subarray(0, 4096))); if (m) cs = m[1].toLowerCase(); }
+  if (!cs || /utf-?8/.test(cs)) cs = "windows-1252";   // not valid UTF-8: the usual culprit is a Windows/Latin-1 file
+  try { return new TextDecoder(cs).decode(u8); } catch(e){ return new TextDecoder("windows-1252").decode(u8); }
+}
+function sniffStoryFile(u8, name){
+  const s = binStr(u8.subarray(0, 4096)), n = String(name || "").toLowerCase();
+  if (s.startsWith("PK\x03\x04")) return /^mimetypeapplication\/epub\+zip/.test(s.slice(30, 58)) || /\.epub$/.test(n) ? "epub" : /\.(docx|odt)$/.test(n) || /word\/|content\.xml/.test(s) ? "doc" : "zip";
+  if (s.startsWith("%PDF")) return "pdf";
+  if (s.slice(60, 68) === "BOOKMOBI" || /\.(mobi|azw3?|kfx|prc)$/.test(n)) return "mobi";
+  if (s.startsWith("{\\rtf") || s.startsWith("\xD0\xCF\x11\xE0") || /\.(docx?|odt|rtf|pages)$/.test(n)) return "doc";
+  if (s.startsWith("\x89PNG") || s.startsWith("\xFF\xD8\xFF") || s.startsWith("GIF8") || /^RIFF....WEBP/.test(s)) return "image";
+  if (s.startsWith("bplist") || /\.webarchive$/.test(n)) return "webarchive";
+  if (/^[\s\S]{0,2000}?Content-Type:\s*multipart\/related/i.test(s) && /^\s*(From:|MIME-Version:|Content-Type:|Subject:|Date:|Snapshot-Content-Location:|Content-Location:|X-)/i.test(s)) return "mhtml";
+  if (/\.(mhtml?|mht)$/.test(n) && /boundary=/i.test(s)) return "mhtml";
+  return "text";
+}
+function parseMhtml(s){                                 // s: the file as a binary string
+  const hEnd = s.search(/\r?\n\r?\n/);
+  const head = s.slice(0, hEnd < 0 ? 4000 : hEnd).replace(/\r?\n[ \t]+/g, " ");
+  const bm = /boundary\s*=\s*(?:"([^"]+)"|([^;\s]+))/i.exec(head);
+  if (!bm) throw new Error("this saved page (MHTML) has no parts in it");
+  const boundary = "--" + (bm[1] || bm[2]), loc = (/^Snapshot-Content-Location:\s*(\S+)/im.exec(head) || [])[1];
+  const parts = [];
+  for (let raw of s.split(boundary).slice(1)){
+    if (raw.startsWith("--")) break;
+    raw = raw.replace(/^[ \t]*\r?\n/, "");
+    const e = raw.search(/\r?\n\r?\n/); if (e < 0) continue;
+    const ph = raw.slice(0, e).replace(/\r?\n[ \t]+/g, " "), body = raw.slice(e).replace(/^\r?\n\r?\n/, "").replace(/\r?\n$/, "");
+    const type = ((/^Content-Type:\s*([^;\s]+)/im.exec(ph) || [])[1] || "").toLowerCase();
+    if (!/^(text\/html|application\/xhtml\+xml)$/.test(type)) continue;
+    parts.push({ body, type, charset: (/charset\s*=\s*"?([\w:.-]+)/i.exec(ph) || [])[1], cte: ((/^Content-Transfer-Encoding:\s*(\S+)/im.exec(ph) || [])[1] || "").toLowerCase(), loc: (/^Content-Location:\s*(\S+)/im.exec(ph) || [])[1] });
+  }
+  if (!parts.length) throw new Error("this saved page (MHTML) has no web page inside it");
+  const p = parts.find(x => loc && x.loc === loc) || parts[0];
+  let b = p.body;
+  if (p.cte === "quoted-printable") b = b.replace(/=\r?\n/g, "").replace(/=([0-9A-Fa-f]{2})/g, (m, h) => String.fromCharCode(parseInt(h, 16)));
+  else if (p.cte === "base64") b = atob(b.replace(/[^A-Za-z0-9+/=]/g, ""));
+  return decodeCharset(strBin(b), p.charset);
+}
+// tiny unzip (stored + deflate via DecompressionStream) for EPUB
+async function unzipEntries(u8){
+  const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+  let eocd = -1; for (let i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--) if (dv.getUint32(i, true) === 0x06054b50){ eocd = i; break; }
+  if (eocd < 0) throw new Error("the e-book file is damaged (no zip directory)");
+  const count = dv.getUint16(eocd + 10, true); let p = dv.getUint32(eocd + 16, true);
+  const files = new Map(), td = new TextDecoder();
+  for (let k = 0; k < count && dv.getUint32(p, true) === 0x02014b50; k++){
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), nlen = dv.getUint16(p + 28, true), xlen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+    const name = td.decode(u8.subarray(p + 46, p + 46 + nlen));
+    files.set(name, { method, csize, off }); p += 46 + nlen + xlen + clen;
+  }
+  const get = async name => {
+    const f = files.get(name); if (!f) return null;
+    const start = f.off + 30 + dv.getUint16(f.off + 26, true) + dv.getUint16(f.off + 28, true), data = u8.subarray(start, start + f.csize);
+    if (f.method === 0) return data;
+    if (f.method !== 8) throw new Error("the e-book uses an unknown compression");
+    if (typeof DecompressionStream !== "function") throw new Error("this browser can't unpack e-books");
+    return new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer());
+  };
+  return { names: [...files.keys()], get };
+}
+async function epubToHtml(u8){
+  const z = await unzipEntries(u8), td = s => decodeCharset(s);
+  const cont = await z.get("META-INF/container.xml");
+  const opfPath = cont ? (/full-path\s*=\s*"([^"]+)"/.exec(td(cont)) || [])[1] : z.names.find(n => /\.opf$/i.test(n));
+  if (!opfPath) throw new Error("the e-book has no table of contents");
+  const opf = new DOMParser().parseFromString(td(await z.get(opfPath)), "application/xml"), dir = opfPath.includes("/") ? opfPath.replace(/[^/]*$/, "") : "";
+  const man = new Map([...opf.getElementsByTagName("item")].map(i => [i.getAttribute("id"), i.getAttribute("href")]));
+  const spine = [...opf.getElementsByTagName("itemref")].map(r => man.get(r.getAttribute("idref"))).filter(Boolean);
+  const dc = t => { const e = opf.getElementsByTagName("dc:" + t)[0]; return e ? e.textContent.trim() : ""; };
+  const pre = [], chap = [], post = [];
+  for (const href of spine){
+    const name = decodeURIComponent((dir + href).replace(/#.*$/, "")).replace(/[^/]+\/\.\.\//g, "");
+    const raw = await z.get(name); if (!raw) continue;
+    const d = new DOMParser().parseFromString(td(raw), "text/html");
+    const ch = d.getElementById("chapters") || [...d.querySelectorAll("body > div.userstuff, body > div > div.userstuff")].find(u => u.querySelector(":scope > .meta, :scope > .userstuff"));
+    if (ch){ chap.push(ch.innerHTML); continue; }
+    if (d.querySelector("#afterword")) post.push(d.body.innerHTML);
+    else if (chap.length && d.querySelector(".userstuff")) chap.push(d.body.innerHTML);
+    else pre.push(d.body.innerHTML);
+  }
+  if (!chap.length && !pre.length) throw new Error("the e-book has no readable pages");
+  const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  let html = pre.join("\n") + `\n<div id="chapters" class="userstuff">\n${chap.join("\n")}\n</div>\n` + post.join("\n");
+  if (!/<h1[\s>]/i.test(pre.join(""))) html = `<h1>${esc(dc("title"))}</h1>` + html;
+  if (!/rel="?author/i.test(html) && dc("creator")) html = `<div class="byline">by <a rel="author">${esc(dc("creator"))}</a></div>` + html;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(dc("title"))}</title></head><body>${html}</body></html>`;
+}
+// plain story text (a .txt, or text pasted from the page) -> the same shape as an AO3 download
+function storyTextToHtml(t, fallbackTitle){
+  const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  t = t.replace(/\r\n?/g, "\n").replace(/^\uFEFF/, "").trim();
+  const blocks = (/\n[ \t]*\n/.test(t) ? t.split(/\n[ \t]*\n+/) : t.split("\n")).map(b => b.trim()).filter(Boolean);
+  let title = "", author = "", body = "", open = false;
+  const start = h => { if (open) body += "</div>\n"; body += (h != null ? `<div class="meta group"><h2 class="heading">${esc(h)}</h2></div>\n` : "") + `<div class="userstuff">\n`; open = true; };
+  blocks.forEach((b, i) => {
+    let m;
+    if (i === 0 && (m = /^#\s+(.+)$/.exec(b)) && !b.includes("\n")){ title = m[1]; return; }
+    if (i <= 1 && title && !author && (m = /^by\s+(.+)$/i.exec(b)) && !b.includes("\n")){ author = m[1]; return; }
+    if ((m = /^##\s+(.+)$/.exec(b)) && !b.includes("\n")){ start(m[1]); return; }
+    if (!open) start(null);
+    if (/^(\* \* \*|\*\*\*|~~~|---+)$/.test(b)){ body += "<hr>\n"; return; }
+    body += "<p>" + b.replace(/^\\/, "").split("\n").map(esc).join("<br>") + "</p>\n";
+  });
+  if (open) body += "</div>\n";
+  title = title || fallbackTitle || "Untitled work";
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(title)}</title></head><body><div id="preface"><div class="meta"><h1>${esc(title)}</h1>` +
+    (author ? `<div class="byline">by <a rel="author">${esc(author)}</a></div>` : "") + `</div></div>\n<div id="chapters" class="userstuff">\n${body}</div></body></html>`;
+}
+const looksLikeHtml = t => /<(!doctype|html|head|body|div|p|br|h[1-6]|blockquote|span|article)[\s>/]/i.test(t.slice(0, 50000));
+const STORY_FILE_HELP = {
+  pdf: "This is a PDF. The encryptor needs the HTML version: on the AO3 work page tap Download → HTML, then choose that file.",
+  mobi: "This is a Kindle e-book (MOBI/AZW3). The encryptor needs the HTML version: on the AO3 work page tap Download → HTML, then choose that file.",
+  doc: "This is a word-processor document. Use the HTML file from AO3 (Download → HTML), or copy the story text and paste it in the box below.",
+  zip: "This is a zip archive. Unzip it first, or use the HTML file from AO3 (Download → HTML).",
+  image: "This is a picture, not a story file. Use the HTML file from AO3 (Download → HTML).",
+  webarchive: "This is a Safari web archive, which can't be read here. Use AO3's Download → HTML instead.",
+  cipher: "This file is already encrypted text. Open the Decrypt tab to read it."
+};
+// -> { name, size, type, text, kind } ; throws an Error with a message for the person when it can't be used
+async function storyFileToSource(f){
+  const u8 = new Uint8Array(await readBuf(f)), name = f.name || "file", base = name.replace(/\.[^.]{1,8}$/, "");
+  const src = { name, size: f.size != null ? f.size : u8.length, type: f.type || "", text: "", kind: "" };
+  if (!u8.length) throw Object.assign(new Error("The file is empty (0 bytes). If it came from a download, it may not have finished; download it again."), { src });
+  let kind = sniffStoryFile(u8, name);
+  try {
+    if (kind === "mhtml"){ src.text = parseMhtml(binStr(u8)); src.kind = "saved web page (MHTML)"; }
+    else if (kind === "epub"){ src.text = await epubToHtml(u8); src.kind = "EPUB e-book"; }
+    else if (kind === "text"){
+      const t = decodeCharset(u8);
+      if (/^\s*AO3SUB\$\d/.test(t)) kind = "cipher";
+      else if (looksLikeHtml(t)){ src.text = t; src.kind = "HTML"; }
+      else if (/\S/.test(t) && !/[\x00-\x08\x0E-\x1A]/.test(t.slice(0, 4000))){ src.text = storyTextToHtml(t, base); src.kind = "plain text"; }
+      else kind = "binary";
+    }
+  } catch(e){ throw Object.assign(new Error(`Couldn't read this ${kind === "epub" ? "EPUB" : "saved page"}: ${e.message}. Use the HTML file from AO3 (Download → HTML) instead.`), { src }); }
+  if (!src.text) throw Object.assign(new Error(STORY_FILE_HELP[kind] || "This doesn't look like a text or web-page file. Use the HTML file from AO3 (Download → HTML)."), { src });
+  return src;
+}
 // open a file picker from a tap/click (synchronously, inside the user gesture)
 function openPicker(id){ const el = $(id); try { el.value = ""; } catch(e){} el.click(); }
 function safeName(s){ return (s || "work").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "_").slice(0, 80) || "work"; }
@@ -2465,10 +2639,25 @@ function showChapterBox(good, story, parts){
   }
   box.hidden = !box.childNodes.length;
 }
+const describeFile = f => `“${f.name || "unnamed file"}” (${fmtBytes(f.size || 0)}, ${f.type ? "type " + f.type : "no file type given"})`;
+function showEncFileError(errs){
+  encBytes = null; encStoryText = ""; encStory = null; encIndex = null; $("encOut").hidden = true;
+  const one = errs[0];
+  $("encInfo").classList.remove("show"); $("encChapters").hidden = true;
+  const pk = $("encPicked"); pk.hidden = false; pk.classList.add("err"); pk.textContent = one.e.message + " Received: " + errs.map(x => describeFile(x.f)).join(", ") + ".";
+  setStatus($("encStatus"), (errs.length > 1 ? `None of the ${errs.length} files could be used. ` : "") + one.e.message + " Received: " + errs.map(x => describeFile(x.f)).join(", ") + ".", "err");
+  updateEncBtn();
+}
 async function loadEncFiles(files){
   files = [...(files || [])].filter(Boolean); if (!files.length) return;
-  const srcs = [];
-  for (const f of files) srcs.push({ name: f.name, text: dec.decode(new Uint8Array(await readBuf(f))), size: f.size });
+  const pk = $("encPicked"); pk.hidden = false; pk.classList.remove("err"); pk.textContent = "Received " + files.map(describeFile).join(", ");
+  setStatus($("encStatus"), "Reading " + (files.length > 1 ? files.length + " files" : "the file") + "…", "busy");
+  const srcs = [], errs = [];
+  try {
+    for (const f of files){ try { srcs.push(await storyFileToSource(f)); } catch(e){ errs.push({ f, e }); } }
+  } catch(e){ errs.push({ f: files[0], e }); }
+  if (!srcs.length) return showEncFileError(errs);
+  pk.textContent += " · read as " + [...new Set(srcs.map(x => x.kind))].join(", ") + (errs.length ? ` · skipped ${errs.map(x => "“" + (x.f.name || "file") + "”: " + x.e.message).join(" ")}` : "");
   return loadEncSources(srcs);
 }
 async function loadEncSources(srcs){
@@ -2483,12 +2672,13 @@ async function loadEncSources(srcs){
   const label = srcs.length > 1 ? srcs.length + " files" : srcs[0].name;
   const story = good.length > 1 ? combineStories(good) : good[0] && good[0].story;
   const title = story && story.title, author = story && story.author;
-  encName = safeName(title || srcs[0].name.replace(/\.html?$/i, ""));
+  encName = safeName(title || srcs[0].name.replace(/\.[^.]{1,8}$/, ""));
   $("encTitle").textContent = title || label;
   $("encInfo").classList.add("show");
   if (!story){
     $("encMeta").textContent = label + " · " + fmtBytes(size); showChapterBox([], null, parts);
-    setStatus($("encStatus"), "Couldn't find a story in " + (srcs.length > 1 ? "these files" : "this file") + ". Use the HTML file from AO3's Download button on the work page (Download → HTML); the story text is expected inside its chapters section.", "err");
+    setStatus($("encStatus"), "Couldn't find a story in " + (srcs.length > 1 ? "these files" : "this file") + ". Use the HTML file from AO3's Download button on the work page (Download → HTML); the story text is expected inside its chapters section." +
+      " Received: " + srcs.map(x => `${describeFile(x)}, read as ${x.kind || "text"}`).join("; ") + ".", "err");
     updateEncBtn(); return;
   }
   encStory = story; encStoryText = storyText(story); encBytes = enc.encode(encStoryText);
@@ -2502,10 +2692,26 @@ async function loadEncSources(srcs){
   updateEncBtn();
 }
 const drop = $("encDrop");
-drop.addEventListener("click", e => { if (e.target === $("encFile")) return; openPicker("encFile"); });
-drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); openPicker("encFile"); } });
-$("encFile").addEventListener("click", e => e.stopPropagation());
-$("encFile").addEventListener("change", e => { const fs = [...e.target.files]; if (fs.length) loadEncFiles(fs); });
+// The tap goes straight to the real <input type=file> (it covers the drop zone; the basic picker is a plain one).
+// No accept filter: Android pickers grey out files whose MIME type doesn't match, so the content is checked instead.
+// The value is cleared after each pick, so choosing the same file again still fires "change".
+function onStoryPicked(input){
+  const fs = [...(input.files || [])]; try { input.value = ""; } catch(e){}
+  if (fs.length) loadEncFiles(fs).catch(e => showEncFileError([{ f: fs[0], e }]));
+}
+for (const id of ["encFile", "encFileBasic"]){
+  const el = $(id);
+  el.addEventListener("change", () => onStoryPicked(el));
+  el.addEventListener("input", () => onStoryPicked(el));
+}
+$("encPasteBtn").addEventListener("click", () => {
+  const t = $("encPaste").value;
+  if (!/\S/.test(t)){ setStatus($("encStatus"), "The paste box is empty. Paste the story text or the page's HTML first.", "err"); return; }
+  if (/^\s*AO3SUB\$\d/.test(t)){ setStatus($("encStatus"), STORY_FILE_HELP.cipher, "err"); return; }
+  const html = looksLikeHtml(t) ? t : storyTextToHtml(t, "Pasted story");
+  $("encPicked").hidden = false; $("encPicked").classList.remove("err"); $("encPicked").textContent = `Pasted ${t.length.toLocaleString()} characters · read as ${looksLikeHtml(t) ? "HTML" : "plain text"}`;
+  loadEncSources([{ name: "pasted text", size: enc.encode(t).length, type: "", text: html, kind: looksLikeHtml(t) ? "HTML" : "plain text" }]);
+});
 ["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
 ["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
 drop.addEventListener("drop", e => loadEncFiles(e.dataTransfer.files));
