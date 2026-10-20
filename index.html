@@ -267,7 +267,8 @@ details.box .row{margin-top:8px}
 .chapnav .cn-list .t{flex:1;color:var(--accent);font-weight:600;overflow-wrap:anywhere}.chapnav .cn-list span.t{color:var(--field-ink);font-weight:400}
 .chapnav .cn-list li.have{background:var(--chip)}.chapnav .cn-list li.now .t{font-weight:800}
 .chapnav .cn-list .tag{font-size:.75rem;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--accent);color:var(--btn-ink,#fff);white-space:nowrap}
-.chapnav .linkrow .btn{margin-left:auto}
+.chapnav .cn-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chapnav .cn-tip{margin-top:10px}
 .cstory .ao3-index{display:none}
 .cstory .esc{opacity:.5;font-size:.84em;border-bottom:1px dotted currentColor;cursor:help;letter-spacing:0}
 .fontgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
@@ -579,7 +580,7 @@ body.reading-open .panel{-webkit-backdrop-filter:none;backdrop-filter:none}
 [data-theme="gravel"] select option{background:#111}
 
 /* ---- Doorknob extras ---- */
-[data-theme="doorknob"] :where(.glass,.panel,.tab,.btn,.themes,.themebtn,.consent,.cn-fetch,.setnav a,.themes button,input,select,textarea,.drop,.fileinfo,.chapbox,details.box,.intro,.cstory,.reader,.player,.pframe,.fontcard,.fontprev,.preset,.cgrid,.cell,.savebar,.warnbox,.badge,.bmlist,.taglegend span,.pnote,.chapnav .cn-list,.chapnav .cn-list .tag){border-radius:0 !important}
+[data-theme="doorknob"] :where(.glass,.panel,.tab,.btn,.themes,.themebtn,.setnav a,.themes button,input,select,textarea,.drop,.fileinfo,.chapbox,details.box,.intro,.cstory,.reader,.player,.pframe,.fontcard,.fontprev,.preset,.cgrid,.cell,.savebar,.warnbox,.badge,.bmlist,.taglegend span,.pnote,.chapnav .cn-list,.chapnav .cn-list .tag){border-radius:0 !important}
 [data-theme="doorknob"] header h1{font-weight:300;text-transform:lowercase;letter-spacing:-.5px;font-size:clamp(2rem,6vw,3.2rem)}
 [data-theme="doorknob"] .tabs{background:rgba(255,255,255,.92);border:0;box-shadow:none}
 [data-theme="doorknob"] .tab{text-transform:lowercase;font-weight:400;font-size:1.08rem;font-family:var(--head-font)}
@@ -736,7 +737,8 @@ input[type=file].picker{position:absolute;width:1px;height:1px;margin:-1px;paddi
   .player .ph .btn{min-width:44px}
   .bmlist .bm button.go{min-height:44px}
   .chapnav .cn-list li{min-height:44px;align-items:center}
-  .chapnav .cn-list a.t{display:block;padding:10px 0}
+  .chapnav .cn-list a.t{display:block;padding:10px 0;min-height:44px;box-sizing:border-box}
+  .chapnav .cn-list{max-height:min(60vh,520px)}
   .linkrow a{display:inline-flex;align-items:center;min-height:44px}
   .plinks a{display:inline-flex;align-items:center;min-height:44px}
   .cell input{min-height:40px}
@@ -792,27 +794,9 @@ details.trouble>.hint{margin-top:2px}
 .optcol .check{margin:0}
 details.more{margin-top:8px}
 details.more>summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:.9rem;padding:4px 0}
-textarea.proxybox{min-height:64px;font-family:var(--mono);font-size:.85rem}
-.numrow{display:grid;grid-template-columns:auto 6.5em;gap:6px 12px;align-items:center;margin-top:12px;max-width:460px}
-.numrow label{margin:0;font-weight:600;font-size:.92rem}.numrow .unit{color:var(--muted);font-weight:400}
-.numrow input{width:100%}
-.consent{margin-top:10px;padding:10px 14px;border-radius:12px;border:1px solid var(--accent);background:var(--field-bg);font-size:.9rem}
-.consent p{margin:0 0 4px}
-.chapnav .cn-fetch{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--chip);border:1px solid var(--field-border)}
-.chapnav .cn-frow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.chapnav .cn-frow a.btn{text-decoration:none}
-.chapnav .cn-prog{font-weight:600}
-.chapnav .cn-fstatus{margin-top:8px}.chapnav .cn-fstatus:empty{display:none}
-.chapnav .cn-saved{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;font-size:.88rem;color:var(--muted)}
-.chapnav .cn-list .cn-get{margin-left:auto;padding:3px 10px;font-size:.78rem}
-#proxyChecks .check{flex-wrap:wrap;max-width:100%;column-gap:5px}
-.unit{color:var(--muted);font-weight:400}#proxyChecks .unit{overflow-wrap:anywhere;min-width:0;font-size:.82rem}
-.proxyres{margin:6px 0 0;padding-left:1.2em;font-size:.88rem}
-.proxyres .ok{color:var(--ok)}.proxyres .bad{color:var(--err)}
 @media (pointer:coarse), (max-width:600px){
   .themebtn{min-height:44px}
   details.trouble>summary,details.more>summary,.linkbtn,.setnav a{min-height:44px;display:inline-flex;align-items:center;box-sizing:border-box}
-  .chapnav .cn-list .cn-get{min-height:44px;min-width:56px}
 }
 @media (max-width:600px){
   header{padding:16px 12px 2px}
@@ -828,9 +812,7 @@ textarea.proxybox{min-height:64px;font-family:var(--mono);font-size:.85rem}
   .themebtn{position:absolute;top:10px;right:8px;margin:0;padding:0 9px;min-width:44px;justify-content:center;gap:4px}
   .themebtn .tlabel{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
   .cipherline label{margin-top:12px}
-  .numrow{grid-template-columns:1fr 5.5em}
-  .chapnav .cn-frow .btn{flex:1 1 auto}
-}
+    }
 </style>
 <style id="fontCss"></style>
 </head>
@@ -1057,28 +1039,14 @@ textarea.proxybox{min-height:64px;font-family:var(--mono);font-size:.85rem}
     </section>
     <section class="setsec" id="set-ao3" aria-labelledby="set-ao3-h">
     <h2 class="sub" id="set-ao3-h">Chapters &amp; AO3</h2>
-    <div class="optcol"><label class="check"><input type="checkbox" id="ao3FetchOn"> Let &ldquo;Get next chapter&rdquo; fetch AO3 pages through a CORS proxy</label></div>
-    <p class="hint">AO3 doesn't let other websites read its pages, so fetching goes through a public CORS proxy: a third-party server that sees which work and chapter you fetch (never your cipher or your text). Off until you agree. Without it, use the &ldquo;Open on AO3&rdquo; links, save the page and choose that file.</p>
-    <div class="sub2">Proxies, tried in this order</div>
-    <div class="optcol" id="proxyChecks"></div>
-    <label for="ao3Proxy">Your own proxies (one per line, tried first)</label>
-    <textarea id="ao3Proxy" class="proxybox" rows="2" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="https://my-proxy.example/?url={url}"></textarea>
-    <p class="hint"><code>{url}</code> is replaced by the AO3 address (URL-encoded), <code>{rawurl}</code> by the address as is; with neither, the address is added to the end. Must start with https:// (or http://localhost).</p>
-    <div class="numrow">
-      <label for="fetchDelay">Wait between chapters <span class="unit">(seconds)</span></label><input type="number" id="fetchDelay" min="0" max="120" step="1" inputmode="numeric">
-      <label for="fetchTimeout">Give up on a proxy after <span class="unit">(seconds)</span></label><input type="number" id="fetchTimeout" min="3" max="180" step="1" inputmode="numeric">
-    </div>
-    <div class="actions"><button class="btn small" id="proxyTest" type="button">Test the proxies now</button></div>
-    <div class="status" id="proxyStatus" aria-live="polite"></div>
-    <div class="sub2">Open a work by its link</div>
-    <p class="hint" style="margin-top:0">Paste a link to any chapter or work: you get clean AO3 links (adult-content check skipped), or fetch the whole work into the Encrypt tab.</p>
+    <p class="hint" style="margin-top:0">Paste a link to any AO3 chapter or work to get clean links (they skip AO3's adult-content check). Nothing is downloaded here: the links open AO3 in a new tab. The chapter links for an uploaded file are shown on the Encrypt tab.</p>
       <div class="row">
         <input type="text" id="ao3Url" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="https://archiveofourown.org/works/123456/chapters/7890123" aria-label="AO3 link">
-        <button class="btn small primary" id="ao3Fetch" type="button">Fetch whole work</button>
       </div>
       <div class="linkrow" id="ao3Links" hidden>
-        <a id="ao3DlLink" target="_blank" rel="noopener noreferrer">Download whole work (HTML) &#8599;</a>
-        <a id="ao3FullLink" target="_blank" rel="noopener noreferrer">Read entire work on AO3 &#8599;</a>
+        <a id="ao3ChapLink" target="_blank" rel="noopener noreferrer" hidden>Chapter on AO3 &#8599;</a>
+        <a id="ao3FullLink" target="_blank" rel="noopener noreferrer">Entire work on AO3 &#8599;</a>
+        <a id="ao3DlLink" target="_blank" rel="noopener noreferrer" hidden>Download whole work (HTML) &#8599;</a>
         <a id="ao3IndexLink" target="_blank" rel="noopener noreferrer">Chapter index &#8599;</a>
       </div>
       <div class="status" id="ao3Status" aria-live="polite"></div>
@@ -2026,6 +1994,7 @@ function storyToFmtDoc(story, index){
   if (index && (index.work || index.list.length > 1)){
     const ol = add(b, "ol", { class: "ao3-index" });
     if (index.work) add(ol, "li", {}, "work " + index.work);
+    const dn = index.work && ao3DownloadName(index.title, index.dlName); if (dn) add(ol, "li", {}, "download " + dn);
     for (const c of index.list) add(ol, "li", c.have ? { class: "have" } : {}, (c.id || "-") + " " + c.num + ". " + (oneLine(c.title) || "Chapter " + c.num));
   }
   const chs = add(b, "div", { id: "chapters" });
@@ -2101,8 +2070,9 @@ function takeChapterIndex(doc){
   const ol = doc.querySelector("ol.ao3-index"); if (!ol) return null;
   const idx = { work: null, list: [], current: null };
   for (const li of ol.querySelectorAll("li")){
-    const t = oneLine(li.textContent), w = /^work (\d{1,10})$/i.exec(t);
+    const t = oneLine(li.textContent), w = /^work (\d{1,15})$/i.exec(t), d = /^download ([\w.-]{1,160}\.html)$/i.exec(t);
     if (w){ idx.work = w[1]; continue; }
+    if (d){ idx.dlName = d[1]; continue; }
     const m = /^(\S+) (\d{1,5})\.\s*(.*)$/.exec(t); if (!m) continue;
     idx.list.push({ id: /^\d{1,12}$/.test(m[1]) ? m[1] : null, num: +m[2], title: m[3] || "Chapter " + m[2], have: li.classList.contains("have") });
   }
@@ -2116,7 +2086,37 @@ function chapterNextPrev(idx){
   const lo = Math.min(...nums);   // next = the first chapter you don't have yet after the first one you have (fills gaps first)
   return { next: idx.list.find(c => c.num > lo && !c.have) || null, prev: [...idx.list].reverse().find(c => c.num < lo) || null };
 }
-const chapterUrl = (idx, c) => idx.work && c.id ? `https://archiveofourown.org/works/${idx.work}/chapters/${c.id}` : null;
+// https://archiveofourown.org/works/WORK/chapters/CHAPTER?view_adult=true (built from the ids in the uploaded file)
+const chapterUrl = (idx, c) => idx.work && c.id ? buildAo3Url({ work: idx.work, chapter: c.id }) : null;
+// AO3's own "Download → HTML" file name for a work: the one linked in the file if there is one, otherwise made from the
+// title the way AO3 does it (accents dropped, only letters/digits/space/_/-, cut at a word to 24 characters, spaces → _)
+function ao3DownloadName(title, found){
+  if (found && /^[\w.-]{1,160}\.html$/.test(found)) return found;
+  if (!title) return null;
+  let t = String(title).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w _-]+/g, "").replace(/\s+/g, " ").trim();
+  if (t.length > 24){ const cut = t.slice(0, 25), sp = cut.lastIndexOf(" "); t = (sp > 0 ? cut.slice(0, sp) : t.slice(0, 24)).trim(); }
+  return t ? t.replace(/ /g, "_") + ".html" : null;
+}
+const ao3DownloadUrl = idx => { const n = idx && idx.work && ao3DownloadName(idx.title, idx.dlName); return n ? `https://archiveofourown.org/downloads/${idx.work}/${n}` : null; };
+// the links as text ("N. Name - URL" per line) and as a small .html page
+function chapterLinksText(idx){
+  const lines = idx.list.map(c => `${c.num}. ${c.title}` + (chapterUrl(idx, c) ? " - " + chapterUrl(idx, c) : ""));
+  if (idx.work){
+    lines.push("", "Entire work - " + buildAo3Url({ work: idx.work }, { full: true }));
+    const dl = ao3DownloadUrl(idx); if (dl) lines.push("Download (HTML) - " + dl);
+  }
+  return (idx.title ? idx.title + "\n\n" : "") + lines.join("\n") + "\n";
+}
+function chapterLinksHtml(idx){
+  const a = (u, t) => u ? `<a href="${escHtml(u)}" target="_blank" rel="noopener noreferrer">${escHtml(t)}</a>` : escHtml(t);
+  const title = idx.title || (idx.work ? "Work " + idx.work : "Chapters");
+  const dl = ao3DownloadUrl(idx);
+  return `<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>${escHtml(title)} - chapter links</title>
+<style>body{max-width:40em;margin:0 auto;padding:1.5em 1.2em;font-family:system-ui,sans-serif;line-height:1.6}li{margin:.35em 0}li.have{font-weight:700}a{word-break:break-word}</style>\n</head>\n<body>
+<h1>${escHtml(title)}</h1>\n<p>Chapter links (they skip AO3's adult-content check). Open one, save the page or use AO3's Download &rarr; HTML, then upload it to the encryptor.</p>
+<ol>\n${idx.list.map(c => `<li value="${c.num}"${c.have ? ' class="have"' : ""}>${a(chapterUrl(idx, c), c.title)}</li>`).join("\n")}\n</ol>\n` +
+    (idx.work ? `<p>${a(buildAo3Url({ work: idx.work }, { full: true }), "Entire work on AO3")}${dl ? " &middot; " + a(dl, "Download whole work (HTML)") : ""}</p>\n` : "") + "</body>\n</html>\n";
+}
 const isFormattedText = t => { try { return !!FMT_BASE[readHeader(t).version]; } catch(e){ return false; } };
 // full clean page for reading / Download .html (same shape as an AO3 download, so it can be encrypted again)
 function fmtDocToPage(doc, idx){
@@ -2319,8 +2319,7 @@ const store = {
 const COOKIE = "ao3enc", COOKIE_MIRROR = new Set(["ao3enc.currentCipher", "ao3enc.reader", "ao3enc.prefs"]);
 function readCookie(){ try { const m = /(?:^|; )ao3enc=([^;]*)/.exec(document.cookie); return m ? JSON.parse(decodeURIComponent(m[1])) || {} : {}; } catch(e){ return {}; } }
 const cookieState = readCookie();
-const PREF_DEFAULTS = { format: true, simplify: true, tagColors: true, readTags: false, spacing: "normal", remember: true, proxy: "", seenIntro: false,
-  ao3Fetch: false, proxiesOff: [], proxiesOn: [], fetchDelay: 5, fetchTimeout: 20,
+const PREF_DEFAULTS = { format: true, simplify: true, tagColors: true, readTags: false, spacing: "normal", remember: true, seenIntro: false,
   encFont: "", encSize: 0, encLh: 0, allowGoogle: false, gfonts: [] };
 const prefs = Object.assign({}, PREF_DEFAULTS, cookieState.p || {}, store.get("ao3enc.prefs", {}));
 let cookieTimer = 0;
@@ -2329,7 +2328,7 @@ function writeCookieNow(){
   if (window.__ao3wiping) return;
   const v = { t: document.documentElement.getAttribute("data-theme") || "gerald", c: typeof currentId === "undefined" ? null : currentId, r: typeof reader === "undefined" ? null : reader, p: prefs };
   let str = encodeURIComponent(JSON.stringify(v));
-  if (str.length > 3800){ v.p = Object.assign({}, prefs, { proxy: "" }); str = encodeURIComponent(JSON.stringify(v)); }
+  if (str.length > 3800){ v.p = Object.assign({}, prefs, { gfonts: [] }); str = encodeURIComponent(JSON.stringify(v)); }
   try { document.cookie = `${COOKIE}=${str}; max-age=31536000; path=/; SameSite=Lax` + (location.protocol === "https:" ? "; Secure" : ""); } catch(e){}
 }
 function setPref(k, v){ prefs[k] = v; store.set("ao3enc.prefs", prefs); }
@@ -2584,13 +2583,13 @@ function updateEncHint(){
 // parseAo3Link("https://archiveofourown.org/works/41675589?view_adult=true.html") -> { work: "41675589", chapter: null, collection: null }
 // Accepts: full, relative ("/works/1", "works/1/chapters/2"), mobile / www / http links, /chapters/C on its own,
 // /collections/NAME/works/W, /downloads/W/Title.html, query strings, #fragments, a trailing .html, bare work ids,
-// and AO3 links wrapped in something else (a proxy address, a redirect, URL-encoded). Other websites -> null.
+// and AO3 links wrapped in something else (a redirect, URL-encoded). Other websites -> null.
 const AO3_HOST_RE = /(?:https?:\/\/)?((?:[\w-]+\.)*(?:archiveofourown\.(?:org|com|net)|ao3\.org))(?::\d+)?(\/[^\s"'<>]*)?/gi;
 function parseAo3Link(input){
   let t = String(input == null ? "" : input).trim();
   if (!t) return null;
   if (/^\d{1,15}$/.test(t)) return { work: t, chapter: null, collection: null };          // a bare work id
-  if (/%[0-9a-f]{2}/i.test(t)){ try { t = decodeURIComponent(t); } catch(e){} }           // encoded (e.g. inside a proxy link)
+  if (/%[0-9a-f]{2}/i.test(t)){ try { t = decodeURIComponent(t); } catch(e){} }           // URL-encoded (e.g. inside a redirect link)
   let path;
   const hosts = [...t.matchAll(AO3_HOST_RE)];
   if (hosts.length){                                                                        // use the AO3 part of the text
@@ -2607,13 +2606,13 @@ function parseAo3Link(input){
   return { work, chapter, collection: ci >= 0 && seg[ci + 1] ? seg[ci + 1] : null };
 }
 // Clean AO3 address for a work or chapter. view_adult=true skips AO3's "this work could have adult content" page
-// (the same thing pressing "Proceed" does); { full: true } asks for the whole work on one page.
+// (the same thing pressing "Proceed" does); { full: true } asks for the whole work on one page (view_full_work=true).
 function buildAo3Url(link, opts){
   opts = opts || {};
   if (!link || (!link.work && !link.chapter)) return null;
   const full = !!(opts.full && link.work);
   const path = full || !link.chapter ? `/works/${link.work}` : link.work ? `/works/${link.work}/chapters/${link.chapter}` : `/chapters/${link.chapter}`;
-  const q = []; if (full) q.push("view_full_work=true"); if (opts.adult !== false) q.push("view_adult=true");
+  const q = []; if (opts.adult !== false) q.push("view_adult=true"); if (full) q.push("view_full_work=true");
   return "https://archiveofourown.org" + path + (q.length ? "?" + q.join("&") : "");
 }
 const buildAo3ChapterUrl = (work, chapter) => buildAo3Url({ work, chapter });
@@ -2621,12 +2620,16 @@ const buildAo3ChapterUrl = (work, chapter) => buildAo3Url({ work, chapter });
 function parseAo3Url(input){ const l = parseAo3Link(input); return l && l.work ? { work: l.work, chapter: l.chapter } : null; }
 function ao3Links(w){
   const base = "https://archiveofourown.org/works/" + w.work;
-  return { work: base, chapter: w.chapter ? base + "/chapters/" + w.chapter : null, dl: `https://archiveofourown.org/downloads/${w.work}/work.html`,
-    full: base + "?view_full_work=true&view_adult=true", index: base + "/navigate", adult: buildAo3Url(w) };
+  return { work: base, chapter: w.chapter ? buildAo3Url(w) : null, full: buildAo3Url({ work: w.work }, { full: true }), index: base + "/navigate", adult: buildAo3Url({ work: w.work }) };
 }
+// Settings → Chapters & AO3 link box: chapter link (if the link names a chapter), entire work, chapter index, and the
+// HTML download when the work is the one loaded on the Encrypt tab (its title gives AO3's file name)
 function showAo3Links(w){
-  $("ao3Links").hidden = !w; if (!w) return;
-  const L = ao3Links(w); $("ao3DlLink").href = L.dl; $("ao3FullLink").href = L.full; $("ao3IndexLink").href = L.index;
+  $("ao3Links").hidden = !w || !w.work; if (!w || !w.work) return;
+  const L = ao3Links(w), dl = encIndex && encIndex.work === w.work ? ao3DownloadUrl(encIndex) : null;
+  $("ao3ChapLink").hidden = !L.chapter; if (L.chapter){ $("ao3ChapLink").href = L.chapter; $("ao3ChapLink").textContent = `Chapter ${w.chapter} on AO3 \u2197`; }
+  $("ao3FullLink").href = L.full; $("ao3IndexLink").href = L.index;
+  $("ao3DlLink").hidden = !dl; if (dl) $("ao3DlLink").href = dl;
 }
 // AO3 chapter lists. Chapter pages have the chapter menu (works/_work_header_navigation: select#selected_id, one
 // <option value="CHAPTER_ID">N. Title</option> per chapter, the current one selected; titles over 50 characters are cut
@@ -2677,6 +2680,9 @@ function chapterIndexOf(doc, raw){
     const w = u && parseAo3Url(u); if (w){ work = work || w.work; if (w.chapter && !current && byId.size) current = w.chapter; }
   }
   if (!work){ const m = /archiveofourown\.org\/works\/(\d+)/.exec(raw) || /href="\/works\/(\d+)/.exec(raw); if (m) work = m[1]; }
+  // AO3's own Download → HTML link (chapter pages have one in the Download menu)
+  let dlName = null;
+  for (const a of doc.querySelectorAll("a[href*='/downloads/']")){ const m = /\/downloads\/(\d{1,15})\/([\w.-]{1,160}\.html)/.exec(a.getAttribute("href") || ""); if (m && (!work || m[1] === work)){ work = work || m[1]; dlName = m[2]; break; } }
   if (!current && loaded.size === 1) current = [...loaded][0];
   if (current) loaded.add(current);
   // numbers for links that only had an id: neighbours of the current chapter, then chapter-id order
@@ -2687,13 +2693,13 @@ function chapterIndexOf(doc, raw){
   list.filter(c => !c.num).sort((a, b) => a.id.length - b.id.length || (a.id < b.id ? -1 : 1)).forEach((c, i) => { c.num = maxNum + i + 1; });
   list.forEach(c => { if (!c.title) c.title = "Chapter " + c.num; });
   list.sort((a, b) => a.num - b.num);
-  return { work, list, current, loaded: [...loaded] };
+  return { work, list, current, loaded: [...loaded], dlName };
 }
 // one list for several uploaded files (each file's own chapter is marked as loaded)
 function mergeIndexes(idxs){
   const out = { work: null, list: [], current: null }, byId = new Map(), loaded = new Set();
   for (const x of idxs.filter(Boolean)){
-    out.work = out.work || x.work;
+    out.work = out.work || x.work; out.dlName = out.dlName || x.dlName || null;
     for (const c of x.list){
       const e = byId.get(c.id);
       if (!e) byId.set(c.id, Object.assign({}, c));
@@ -2714,19 +2720,19 @@ function chapterNumber(part){
   const h = part.story.chapters[0] && part.story.chapters[0].heading, m = h && /chapter\s+(\d+)/i.exec(h);
   return m ? +m[1] : Infinity;
 }
-// the chapter list on the page: number, name (linked to AO3), which ones you have, Previous / Next, copy all links
+// the chapter list on the page: number, name (linked to its AO3 chapter, adult check skipped), which ones you have,
+// Previous / Next, whole-work links, and the links to copy or download. Nothing is fetched: the links open AO3 in a new tab.
 function renderChapterNav(box, idx, note, opts){
+  opts = opts || {};
   const el = (tag, cls, text, par) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; (par || box).appendChild(e); return e; };
   const link = (par, href, text, cls) => { const a = el(href ? "a" : "span", cls, text, par); if (href){ a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; } return a; };
-  const nav = el("div", "chapnav"), L = idx.work ? ao3Links({ work: idx.work }) : null;
+  const nav = el("div", "chapnav"), L = idx.work ? ao3Links({ work: idx.work }) : null, dl = ao3DownloadUrl(idx);
   const n = idx.list.length, have = idx.list.filter(c => c.have).length;
   const head = el("div", "cn-head", null, nav);
   el("strong", null, `Chapters of this work (${n})`, head);
   el("span", "cn-have", have === n ? `You have all ${n}.` : have ? `You have ${have} of ${n}.` : "", head);
   const { next, prev } = chapterNextPrev(idx);
-  const fetchMode = !!(opts && opts.fetch && idx.work);
-  if (fetchMode) renderFetchActions(nav, idx, el, prev);
-  else if (next || prev){
+  if (next || prev){
     const np = el("div", "cn-np", null, nav);
     if (prev) link(np, chapterUrl(idx, prev) || (L && L.index), `\u2190 Previous: ${prev.num}. ${prev.title}`, "btn small cn-prev");
     if (next) link(np, chapterUrl(idx, next) || (L && L.index), `Next chapter: ${next.num}. ${next.title} \u2192`, "btn primary cn-next");
@@ -2737,17 +2743,22 @@ function renderChapterNav(box, idx, note, opts){
     el("span", "n", c.num + ".", li);
     link(li, chapterUrl(idx, c), c.title, "t");
     if (c.have) el("span", "tag", c.id && c.id === idx.current ? "this file" : "loaded", li);
-    else if (opts && opts.fetch && idx.work && c.id && !fetchJob){
-      const g = el("button", "btn small cn-get", "Get", li); g.type = "button"; g.title = `Get chapter ${c.num} from AO3 and add it to the story`;
-      g.setAttribute("aria-label", `Get chapter ${c.num}`); g.addEventListener("click", () => getChapters([c]));
-    }
   }
-
   const row = el("div", "linkrow", null, nav);
-  if (L) for (const [href, label] of [[L.dl, "Download whole work (HTML) \u2197"], [L.full, "Entire work on AO3 \u2197"], [L.index, "Chapter index on AO3 \u2197"]]) link(row, href, label);
-  const cp = el("button", "btn small cn-copy", "Copy all chapter links", row);
-  cp.addEventListener("click", () => copyText(idx.list.map(c => `${c.num}. ${c.title}` + (chapterUrl(idx, c) ? " \u2014 " + chapterUrl(idx, c) : "")).join("\n") +
-    (L ? `\n\nWhole work (HTML download): ${L.dl}\nEntire work on AO3: ${L.full}\n` : "\n"), cp));
+  if (L){
+    if (dl) link(row, dl, "Download whole work (HTML) \u2197", "cn-dl");
+    link(row, L.full, "Entire work on AO3 \u2197", "cn-full");
+    link(row, L.index, "Chapter index on AO3 \u2197", "cn-index");
+  }
+  const acts = el("div", "cn-acts", null, nav);
+  const cp = el("button", "btn small cn-copy", "Copy all chapter links", acts); cp.type = "button";
+  cp.addEventListener("click", () => copyText(chapterLinksText(idx), cp));
+  const base = safeName(idx.title || (idx.work ? "work " + idx.work : "chapters")) + "-chapter-links";
+  const t = el("button", "btn small cn-dltxt", "Download links (.txt)", acts); t.type = "button";
+  t.addEventListener("click", () => download(chapterLinksText(idx), base + ".txt", "text/plain;charset=utf-8"));
+  const h = el("button", "btn small cn-dlhtml", "Download links (.html)", acts); h.type = "button";
+  h.addEventListener("click", () => download(chapterLinksHtml(idx), base + ".html", "text/html;charset=utf-8"));
+  if (opts.tip && have < n) el("p", "hint cn-tip", "To add a chapter: open its link, save the page (browser menu \u2192 Download / Save page, or Share \u2192 Save) or use AO3\u2019s Download \u2192 HTML, then choose it here together with the file(s) you already have. They\u2019re combined in chapter order.", nav);
   if (note) el("p", "hint cn-note", note, nav);
 }
 function combineStories(parts){
@@ -2766,211 +2777,22 @@ function showChapterBox(good, story, parts){
   const box = $("encChapters"); box.textContent = ""; box.hidden = true;
   const idx = mergeIndexes((parts || good).map(p => p.index));
   const work = idx.work;
+  idx.title = story && story.title || null;
   encWork = work; encIndex = idx.work || idx.list.length > 1 ? idx : null;
-  if (work && !$("ao3Url").value){ $("ao3Url").value = "https://archiveofourown.org/works/" + work; showAo3Links({ work, chapter: null }); }
+  if (work && !$("ao3Url").value) $("ao3Url").value = "https://archiveofourown.org/works/" + work;
+  if (work) showAo3Links(parseAo3Url($("ao3Url").value));
   const add = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; box.appendChild(e); return e; };
   if (good.length > 1) add("div", `Combined ${good.length} files into one story, in chapter order: ` + story.chapters.map(c => c.heading || "untitled part").join(" · "));
   if (idx.list.length > 1){
     const n = idx.list.length, have = idx.list.filter(c => c.have), curC = idx.list.find(c => c.id === idx.current);
-    if (have.length < n) add("div", good.length === 1 && curC ? `This file is chapter ${curC.num} of ${n}. Get the other chapters below, or choose all the chapter files together.`
+    if (have.length < n) add("div", good.length === 1 && curC ? `This file is chapter ${curC.num} of ${n}. The links below open the other chapters on AO3.`
       : `You have ${have.length} of ${n} chapters.`);
-    renderChapterNav(box, idx, "The chapter list is saved inside the encrypted text (with “Keep original formatting” on), so it shows again after decrypting.", { fetch: true });
+    renderChapterNav(box, idx, "The chapter list is saved inside the encrypted text (with “Keep original formatting” on), so it shows again after decrypting.", { tip: true });
   } else if (work && good.length > 1){
-    const L = ao3Links({ work }), row = add("div", null, "linkrow");
-    for (const [href, label] of [[L.dl, "Download whole work (HTML) ↗"], [L.full, "Entire work on AO3 ↗"]]){ const a = document.createElement("a"); a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = label; row.appendChild(a); }
+    const L = ao3Links({ work }), row = add("div", null, "linkrow"), dl = ao3DownloadUrl(idx);
+    for (const [href, label] of [...(dl ? [[dl, "Download whole work (HTML) ↗"]] : []), [L.full, "Entire work on AO3 ↗"]]){ const a = document.createElement("a"); a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = label; row.appendChild(a); }
   }
   box.hidden = !box.childNodes.length;
-}
-// ---------- fetching AO3 pages through CORS proxies ----------
-// AO3 doesn't send CORS headers, so a web page can't read AO3 pages itself. A CORS proxy fetches the page and hands
-// it back with those headers. Proxies are someone else's server: they see which work/chapter is fetched (never your
-// cipher or your text), so fetching is off until you agree once (Settings → Chapters & AO3).
-// {url} = the AO3 address URL-encoded, {rawurl} = as is, neither = appended to the end.
-const BUILTIN_PROXIES = [
-  { id: "codetabs", name: "codetabs.com", tpl: "https://api.codetabs.com/v1/proxy/?quest={url}" },
-  { id: "allorigins", name: "allorigins.win", tpl: "https://api.allorigins.win/raw?url={url}" },
-  { id: "corslol", name: "cors.lol", tpl: "https://api.cors.lol/?url={url}" },
-  { id: "corsproxyio", name: "corsproxy.io", tpl: "https://corsproxy.io/?url={url}", note: "now needs an API key: add your keyed address as your own proxy instead", off: true },
-];
-const okProxyAddr = s => /^(https:\/\/[^\s\/]+|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?)(\/|\?|$)/i.test(s);
-function proxyUrl(tpl, target){
-  return tpl.includes("{url}") ? tpl.replace("{url}", encodeURIComponent(target)) : tpl.includes("{rawurl}") ? tpl.replace("{rawurl}", target) : tpl + target;
-}
-function proxyIsOn(p){ const off = prefs.proxiesOff || []; return p.off ? (prefs.proxiesOn || []).includes(p.id) : !off.includes(p.id); }
-// your own proxies first (one per line), then the switched-on built-in ones
-function proxyList(){
-  const lines = String(prefs.proxy || "").split(/\r?\n/).map(s => s.trim()).filter(s => s && !s.startsWith("#"));
-  const custom = lines.filter(okProxyAddr).map((tpl, i) => ({ id: "custom" + i, name: lines.length > 1 ? `your proxy ${i + 1}` : "your proxy", tpl }));
-  return { proxies: custom.concat(BUILTIN_PROXIES.filter(proxyIsOn)), bad: lines.filter(s => !okProxyAddr(s)) };
-}
-const ao3Err = (kind, msg, extra) => Object.assign(new Error(msg), { kind }, extra || {});
-const sleepAbortable = (ms, signal) => new Promise((res, rej) => {
-  if (signal && signal.aborted) return rej(ao3Err("cancel", "Cancelled."));
-  const t = setTimeout(res, ms);
-  if (signal) signal.addEventListener("abort", () => { clearTimeout(t); rej(ao3Err("cancel", "Cancelled.")); }, { once: true });
-});
-// What did we get back? AO3's own failure pages look like normal pages, so check the text, not just the status.
-const AO3_STOP = new Set(["registered", "missing", "adult"]);   // AO3 itself said no: other proxies would get the same answer
-function classifyAo3Page(status, text){
-  const t = String(text || ""), head = t.slice(0, 300000), top = head.slice(0, 4000);
-  const hasStory = /class=["'][^"']*\buserstuff\b/i.test(head);
-  const title = oneLine(((/<title[^>]*>([\s\S]*?)<\/title>/i.exec(head) || [])[1] || "").replace(/<[^>]+>/g, ""));
-  const code = status ? ` (${status})` : "";
-  if (status === 429 || (!hasStory && /Retry later|Too Many Requests|rate.?limit(ed)?\b/i.test(title + " " + top)))
-    return { kind: "ratelimit", msg: `too many requests right now, rate limited${code}` };
-  if (/^52\d$/.test(String(status)) || (!hasStory && (/error code:?\s*5\d\d|cf-error-details|cloudflare/i.test(top) || /Just a moment\.\.\.|Attention Required|cf-browser-verification|challenge-platform/i.test(head.slice(0, 30000)))))
-    return { kind: "cloudflare", msg: `blocked by AO3's Cloudflare protection or the secure connection failed${code}` };
-  if (/only available to registered users/i.test(head))
-    return { kind: "registered", msg: "this work is only available to registered (logged-in) AO3 users" };
-  if (status === 404 || /The page you were looking for doesn't exist|Sorry, we couldn['’]t find the work|<h2[^>]*>\s*Error 404/i.test(head) && !hasStory)
-    return { kind: "missing", msg: `AO3 says this page doesn't exist: deleted, hidden, or a wrong link${status === 404 ? " (404)" : ""}` };
-  if (!hasStory && /This work could have adult content|adult content\. If you continue/i.test(head))
-    return { kind: "adult", msg: "AO3 showed its adult-content warning instead of the chapter" };
-  if (!hasStory && (status === 502 || status === 503 || /Archive of Our Own is (down|currently down)|down for maintenance|undergoing maintenance/i.test(head)))
-    return { kind: "ao3down", msg: `AO3 is down or under maintenance${code}` };
-  if (status >= 400 || !/<(html|body|div)\b/i.test(head)){
-    let snip = ""; try { const j = JSON.parse(t); snip = j.error || j.message || j.detail || ""; } catch(e){ snip = t.replace(/<[^>]+>/g, " "); }
-    snip = oneLine(String(snip)).slice(0, 90);
-    return { kind: "proxy", msg: `the proxy answered with ${status >= 400 ? "an error" + code : "something that isn't a web page"}${snip ? ": “" + snip + "”" : ""}` };
-  }
-  let story = null; try { story = extractStory(new DOMParser().parseFromString(t, "text/html")); } catch(e){}
-  if (!story) return { kind: "nostory", msg: "got a page back, but there's no story in it" + (title ? ` (“${title.slice(0, 60)}”)` : "") };
-  return { kind: "ok", story };
-}
-// Fetch one AO3 page: each proxy in turn, each with a timeout. Resolves { text, story, proxy, tries } or throws an
-// error with .kind (cancel / noproxy / badproxy / the last failure kind) and .tries = [{ proxy, kind, msg }].
-async function fetchAo3Page(target, opts){
-  opts = opts || {};
-  const { proxies, bad } = proxyList(), signal = opts.signal;
-  if (bad.length) throw ao3Err("badproxy", `Your proxy address has to start with https:// (or http://localhost): “${bad[0]}”. Fix it in Settings → Chapters & AO3.`);
-  if (!proxies.length) throw ao3Err("noproxy", "No CORS proxy is switched on (Settings → Chapters & AO3). AO3 doesn't let other websites read its pages (CORS), so this page can only fetch chapters through a proxy.");
-  const tries = [], secs = Math.max(1, +prefs.fetchTimeout || 20);
-  for (const p of proxies){
-    if (signal && signal.aborted) throw ao3Err("cancel", "Cancelled.");
-    if (opts.onStatus) opts.onStatus(`trying ${p.name}…`);
-    const ctl = new AbortController(), stop = () => ctl.abort(), tm = setTimeout(stop, secs * 1000);
-    if (signal) signal.addEventListener("abort", stop);
-    let status = 0, text = "";
-    try {
-      const r = await fetch(proxyUrl(p.tpl, target), { signal: ctl.signal, credentials: "omit", referrerPolicy: "no-referrer", cache: "no-store" });
-      status = r.status; text = await r.text();
-    } catch(e){
-      if (signal && signal.aborted) throw ao3Err("cancel", "Cancelled.");
-      tries.push({ proxy: p.name, kind: ctl.signal.aborted ? "timeout" : "network",
-        msg: ctl.signal.aborted ? `no answer within ${secs} s` : "couldn't connect (down, blocked, or it doesn't allow this site)" });
-      continue;
-    } finally { clearTimeout(tm); if (signal) signal.removeEventListener("abort", stop); }
-    const c = classifyAo3Page(status, text);
-    if (c.kind === "ok") return { text, story: c.story, proxy: p.name, tries };
-    tries.push({ proxy: p.name, kind: c.kind, msg: c.msg });
-    if (AO3_STOP.has(c.kind)) break;
-  }
-  const decisive = tries.find(x => AO3_STOP.has(x.kind)), last = tries[tries.length - 1];
-  const msg = decisive ? decisive.msg.charAt(0).toUpperCase() + decisive.msg.slice(1) + "."
-    : `None of the proxies could get the page: ${tries.map(x => `${x.proxy}: ${x.msg}`).join("; ")}.`;
-  throw ao3Err((decisive || last).kind, msg, { tries });
-}
-// one-time agreement before anything is sent to a proxy (also a switch in Settings)
-function askFetchConsent(host){
-  if (prefs.ao3Fetch) return Promise.resolve(true);
-  const old = document.getElementById("ao3Consent"); if (old) old.remove();
-  return new Promise(res => {
-    const d = document.createElement("div"); d.className = "consent"; d.id = "ao3Consent"; d.setAttribute("role", "group"); d.setAttribute("aria-label", "Fetching from AO3");
-    d.innerHTML = `<p><b>Fetch chapters through a proxy?</b> AO3 doesn't let other websites read its pages, so this goes through a public CORS proxy: a third-party server that will see <b>which work and chapter</b> you fetch (not your cipher or your text). You can switch this off any time in Settings &rarr; Chapters &amp; AO3.</p>
-<div class="actions"><button class="btn small primary" id="ao3ConsentYes" type="button">OK, fetch it</button><button class="btn small" id="ao3ConsentNo" type="button">Not now</button></div>`;
-    host.appendChild(d);
-    const done = yes => { d.remove(); if (yes){ setPref("ao3Fetch", true); writeCookie(); $("ao3FetchOn").checked = true; } res(yes); };
-    d.querySelector("#ao3ConsentYes").addEventListener("click", () => done(true));
-    d.querySelector("#ao3ConsentNo").addEventListener("click", () => done(false));
-    d.querySelector("#ao3ConsentYes").focus({ preventScroll: true });
-  });
-}
-const FETCH_TIP = "Or open it on AO3, save the page (browser menu → Download / Save page, or Share → Save) and choose that file together with the ones you have.";
-const fetchFailMsg = e => e.kind === "cancel" ? "Stopped." : e.message + (e.kind === "noproxy" || e.kind === "badproxy" ? "" : "");
-
-// ---------- next chapters for the story you loaded ----------
-let encSrcs = [];          // what's loaded on the Encrypt tab right now (your files + fetched chapters)
-let fetchedPages = [];     // chapters fetched from AO3: { id, num, title, text, proxy }
-let fetchJob = null;       // the running fetch: { ctl, total, done, msg }
-let fetchNote = null;      // the last result, shown under the chapter list: { msg, cls }
-function resetFetched(){ if (fetchJob) fetchJob.ctl.abort(); fetchJob = null; fetchedPages = []; fetchNote = null; }
-function showFetchMsg(el){ el.textContent = fetchNote ? fetchNote.msg : ""; el.className = "status cn-fstatus " + (fetchNote && fetchNote.cls || ""); }
-function setFetchMsg(msg, cls){
-  fetchNote = { msg, cls };
-  const el = document.querySelector("#encChapters .cn-fstatus"); if (el) showFetchMsg(el);
-}
-// Get chapters one after another (in chapter order), adding each to the story as soon as it arrives.
-async function getChapters(chs){
-  if (fetchJob || !chs.length || !encIndex || !encIndex.work) return;
-  const host = document.querySelector("#encChapters .cn-fetch") || $("encChapters");
-  if (!(await askFetchConsent(host))){ setFetchMsg("Not fetched. Use “Open on AO3” instead, or allow fetching in Settings → Chapters & AO3.", "warn"); return; }
-  const work = encIndex.work, ctl = new AbortController(), delay = Math.max(0, +prefs.fetchDelay || 0) * 1000;
-  fetchJob = { ctl, total: chs.length, done: 0 };
-  refreshChapterBox();
-  const got = [];
-  let fail = null;
-  for (let i = 0; i < chs.length; i++){
-    const c = chs[i], of = chs.length > 1 ? ` (${i + 1} of ${chs.length})` : "";
-    try {
-      if (i > 0 && delay){ setFetchMsg(`Got chapter ${chs[i - 1].num}. Waiting ${delay / 1000} s before the next one, to go easy on AO3…`, "busy"); await sleepAbortable(delay, ctl.signal); }
-      setFetchMsg(`Getting chapter ${c.num}${of}…`, "busy");
-      const r = await fetchAo3Page(buildAo3Url({ work, chapter: c.id }), { signal: ctl.signal, onStatus: m => setFetchMsg(`Getting chapter ${c.num}${of}: ${m}`, "busy") });
-      fetchedPages = fetchedPages.filter(p => p.id !== c.id).concat({ id: c.id, num: c.num, title: c.title, text: r.text, proxy: r.proxy });
-      fetchJob.done++; got.push(c);
-      await loadEncSources(encSrcs.concat({ name: `chapter ${c.num} from AO3`, size: r.text.length, type: "text/html", text: r.text, kind: "fetched from AO3", fetched: c.id }), { keepFetch: true });
-    } catch(e){ fail = { c, e }; break; }
-  }
-  fetchJob = null;
-  const gotTxt = got.length ? `Added chapter${got.length > 1 ? "s" : ""} ${got.map(c => c.num).join(", ")} from AO3, combined with your file in chapter order and ready to encrypt.` : "";
-  if (!fail) setFetchMsg(gotTxt, "ok");
-  else if (fail.e.kind === "cancel") setFetchMsg((gotTxt ? gotTxt + " " : "") + "Stopped before chapter " + fail.c.num + ".", got.length ? "ok" : "warn");
-  else setFetchMsg((gotTxt ? gotTxt + " " : "") + `Couldn't get chapter ${fail.c.num}. ${fail.e.message} ${FETCH_TIP}`, "err");
-  refreshChapterBox();
-}
-function refreshChapterBox(){
-  if (!encIndex) return;
-  const box = $("encChapters"), cn = box.querySelector(".chapnav");
-  if (!cn) return;
-  const keep = window.scrollY, fresh = document.createElement("div");
-  renderChapterNav(fresh, encIndex, cn.querySelector(".cn-note") ? cn.querySelector(".cn-note").textContent : null, { fetch: true });
-  cn.replaceWith(fresh.firstChild);
-  window.scrollTo(0, keep);
-}
-// the fetch actions under the chapter list (Encrypt tab only)
-function renderFetchActions(nav, idx, el, prev){
-  const wrap = el("div", "cn-fetch", null, nav);
-  const missing = idx.list.filter(c => !c.have && c.id), { next } = chapterNextPrev(idx);
-  const nxt = next && next.id ? next : missing[0];
-  const row = el("div", "cn-frow", null, wrap);
-  if (fetchJob){
-    el("span", "cn-prog", `Getting ${fetchJob.total > 1 ? "chapters" : "chapter"}: ${fetchJob.done} of ${fetchJob.total} done`, row);
-    el("button", "btn small cn-cancel", "Cancel", row).addEventListener("click", () => fetchJob && fetchJob.ctl.abort());
-  } else if (missing.length){
-    const b1 = el("button", "btn primary cn-getnext", `Get next chapter (${nxt.num})`, row);
-    b1.type = "button"; b1.addEventListener("click", () => getChapters([nxt]));
-    if (missing.length > 1){
-      const b2 = el("button", "btn small cn-getall", `Get all remaining chapters (${missing.length})`, row);
-      b2.type = "button"; b2.addEventListener("click", () => getChapters(missing));
-    }
-  } else el("span", "cn-prog", "You have every chapter.", row);
-  // always there: open the chapter on AO3 yourself (adult-content check skipped), save the page, choose the file
-  if (nxt || prev){
-    const np = el("div", "cn-np", null, wrap);
-    const open = (c, cls, text) => { const a = el("a", cls, text, np); a.href = c.id ? buildAo3Url({ work: idx.work, chapter: c.id }) : ao3Links({ work: idx.work }).index; a.target = "_blank"; a.rel = "noopener noreferrer"; a.title = "Open on AO3 (new tab)"; };
-    if (prev) open(prev, "btn small cn-prev", `\u2190 Previous: ${prev.num}. ${prev.title}`);
-    if (nxt) open(nxt, "btn small cn-next", `Open on AO3: ${nxt.num}. ${nxt.title} \u2197`);
-  }
-  const st = el("div", "status cn-fstatus", null, wrap); st.setAttribute("aria-live", "polite");
-  showFetchMsg(st);
-  if (missing.length && !fetchJob && !(fetchNote && fetchNote.cls === "err")) el("p", "hint cn-ftip", (prefs.ao3Fetch ? "Fetching uses a CORS proxy (Settings → Chapters & AO3). " : "The first time, you're asked before anything is fetched through a proxy. ") + FETCH_TIP, wrap);
-  if (fetchedPages.length){
-    const sv = el("div", "cn-saved", null, wrap);
-    el("span", null, "Fetched pages:", sv);
-    for (const p of [...fetchedPages].sort((a, b) => a.num - b.num)){
-      const b = el("button", "btn small cn-save", `Save ch. ${p.num} as .html`, sv); b.type = "button";
-      b.addEventListener("click", () => download(p.text, safeName(`${(encStory && encStory.title) || "work-" + idx.work} - chapter ${p.num}`) + ".html", "text/html"));
-    }
-  }
 }
 const describeFile = f => `“${f.name || "unnamed file"}” (${fmtBytes(f.size || 0)}, ${f.type ? "type " + f.type : "no file type given"})`;
 function showEncFileError(errs){
@@ -2983,7 +2805,6 @@ function showEncFileError(errs){
 }
 async function loadEncFiles(files){
   files = [...(files || [])].filter(Boolean); if (!files.length) return;
-  resetFetched();
   const pk = $("encPicked"); pk.hidden = false; pk.classList.remove("err"); pk.textContent = "Received " + files.map(describeFile).join(", ");
   setStatus($("encStatus"), "Reading " + (files.length > 1 ? files.length + " files" : "the file") + "…", "busy");
   const srcs = [], errs = [];
@@ -2995,7 +2816,6 @@ async function loadEncFiles(files){
   return loadEncSources(srcs);
 }
 async function loadEncSources(srcs){
-  encSrcs = srcs;
   encBytes = null; encStoryText = ""; encStory = null; encIndex = null;
   $("encOut").hidden = true; setStatus($("encStatus"), "Reading the story…", "busy"); await nextFrame();
   const parts = srcs.map(src => {
@@ -3044,7 +2864,6 @@ $("encPasteBtn").addEventListener("click", () => {
   if (!/\S/.test(t)){ setStatus($("encStatus"), "The paste box is empty. Paste the story text or the page's HTML first.", "err"); return; }
   if (/^\s*AO3SUB\$\d/.test(t)){ setStatus($("encStatus"), STORY_FILE_HELP.cipher, "err"); return; }
   const html = looksLikeHtml(t) ? t : storyTextToHtml(t, "Pasted story");
-  resetFetched();
   $("encPicked").hidden = false; $("encPicked").classList.remove("err"); $("encPicked").textContent = `Pasted ${t.length.toLocaleString()} characters · read as ${looksLikeHtml(t) ? "HTML" : "plain text"}`;
   loadEncSources([{ name: "pasted text", size: enc.encode(t).length, type: "", text: html, kind: looksLikeHtml(t) ? "HTML" : "plain text" }]);
 });
@@ -3222,7 +3041,7 @@ async function runDecrypt(force, restoring){
     let m, bytes = null, plain = "";
     decFormatted = isFormattedText(src); decIndex = null;
     if (decFormatted){
-      const doc = decodeStoryFormatted(src, key, { force }); decIndex = takeChapterIndex(doc); const stx = extractStory(doc);
+      const doc = decodeStoryFormatted(src, key, { force }); decIndex = takeChapterIndex(doc); if (decIndex) decIndex.title = oneLine((doc.querySelector("h1") || {}).textContent) || null; const stx = extractStory(doc);
       decLegacy = false; decText = fmtDocToPage(doc, decIndex); decHtml = enc.encode(decText); decStory = stx ? storyText(stx) : doc.body.textContent;
       m = { title: stx ? stx.title : "", author: stx ? stx.author : "" };
       const nch = stx ? stx.chapters.length : 1;
@@ -3595,71 +3414,7 @@ addEventListener("resize", dodgeHostBadges); setInterval(dodgeHostBadges, 1500);
 // test hooks
 // ---------- get all chapters from AO3 ----------
 $("ao3Url").addEventListener("input", () => showAo3Links(parseAo3Url($("ao3Url").value)));
-$("ao3Proxy").value = prefs.proxy || "";
-$("ao3Proxy").addEventListener("change", e => setPref("proxy", e.target.value.trim()));
-$("ao3FetchOn").checked = !!prefs.ao3Fetch;
-$("ao3FetchOn").addEventListener("change", e => setPref("ao3Fetch", e.target.checked));
-function renderProxyChecks(){
-  const host = $("proxyChecks"); host.textContent = "";
-  for (const p of BUILTIN_PROXIES){
-    const l = document.createElement("label"); l.className = "check";
-    const c = document.createElement("input"); c.type = "checkbox"; c.id = "px-" + p.id; c.checked = proxyIsOn(p);
-    c.addEventListener("change", () => {
-      if (p.off) setPref("proxiesOn", (prefs.proxiesOn || []).filter(x => x !== p.id).concat(c.checked ? [p.id] : []));
-      else setPref("proxiesOff", (prefs.proxiesOff || []).filter(x => x !== p.id).concat(c.checked ? [] : [p.id]));
-    });
-    l.append(c, " " + p.name + " ");
-    const u = document.createElement("span"); u.className = "unit"; u.textContent = p.note ? `(${p.note})` : `(${p.tpl.replace(/^https:\/\//, "").replace(/\?.*$/, "")})`; l.append(u);
-    host.appendChild(l);
-  }
-}
-renderProxyChecks();
-for (const [id, k, lo, hi] of [["fetchDelay", "fetchDelay", 0, 120], ["fetchTimeout", "fetchTimeout", 3, 180]]){
-  $(id).value = prefs[k];
-  $(id).addEventListener("change", e => { const v = Math.min(hi, Math.max(lo, Math.round(+e.target.value || 0))); e.target.value = v; setPref(k, v); });
-}
-// "Test the proxies now": ask each switched-on proxy for AO3's front page and say which ones answered
-$("proxyTest").addEventListener("click", async () => {
-  const st = $("proxyStatus"), { proxies, bad } = proxyList();
-  if (bad.length){ setStatus(st, `Your proxy address has to start with https:// (or http://localhost): “${bad[0]}”.`, "err"); return; }
-  if (!proxies.length){ setStatus(st, "No proxies are switched on.", "err"); return; }
-  if (!(await askFetchConsent($("proxyTest").parentNode))) return;
-  $("proxyTest").disabled = true; setStatus(st, "Testing " + proxies.length + " prox" + (proxies.length > 1 ? "ies" : "y") + "…", "busy");
-  const res = [], secs = Math.max(1, +prefs.fetchTimeout || 20);
-  await Promise.all(proxies.map(async (p, i) => {
-    const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), secs * 1000), t0 = performance.now();
-    try {
-      const r = await fetch(proxyUrl(p.tpl, "https://archiveofourown.org/"), { signal: ctl.signal, credentials: "omit", referrerPolicy: "no-referrer", cache: "no-store" });
-      const text = await r.text(), c = classifyAo3Page(r.status, text), ms = Math.round(performance.now() - t0);
-      const works = r.ok && /Archive of Our Own/i.test(text) && c.kind !== "cloudflare" && c.kind !== "ratelimit";
-      res[i] = { p, ok: works, msg: works ? `works (${ms} ms)` : c.kind === "ok" || c.kind === "nostory" ? `answered (${r.status}) but not with AO3's page` : c.msg };
-    } catch(e){ res[i] = { p, ok: false, msg: ctl.signal.aborted ? `no answer within ${secs} s` : "couldn't connect" }; }
-    finally { clearTimeout(tm); }
-  }));
-  $("proxyTest").disabled = false;
-  const n = res.filter(x => x.ok).length;
-  setStatus(st, n ? `${n} of ${res.length} working right now.` : "None of them reached AO3 right now. Try again later, add your own proxy, or use “Open on AO3” and save the page.", n ? "ok" : "err");
-  const ul = document.createElement("ul"); ul.className = "proxyres";
-  for (const x of res){ const li = document.createElement("li"); li.className = x.ok ? "ok" : "bad"; li.textContent = `${x.p.name}: ${x.msg}`; ul.appendChild(li); }
-  st.appendChild(ul);
-});
-$("ao3Fetch").addEventListener("click", fetchWork);
-// "Fetch whole work": the whole work on one page (view_full_work), through the same proxies
-async function fetchWork(){
-  const st = $("ao3Status"), w = parseAo3Link($("ao3Url").value);
-  if (!w || !w.work){ setStatus(st, "Paste an AO3 link like https://archiveofourown.org/works/123456 (a chapter link works too).", "err"); showAo3Links(null); return; }
-  showAo3Links(w);
-  if (!(await askFetchConsent(st.parentNode))){ setStatus(st, "Not fetched. Use the links above to get the work from AO3 yourself.", "warn"); return; }
-  $("ao3Fetch").disabled = true; setStatus(st, "Fetching the whole work…", "busy");
-  try {
-    const r = await fetchAo3Page(buildAo3Url(w, { full: true }), { onStatus: m => setStatus(st, "Fetching the whole work: " + m, "busy") });
-    resetFetched();
-    await loadEncSources([{ name: `work-${w.work}.html`, text: r.text, size: r.text.length, type: "text/html", kind: "fetched from AO3" }]);
-    setStatus(st, `Fetched the whole work (via ${r.proxy}). It's loaded in the Encrypt tab, ready to encrypt.`, "ok");
-  } catch(e){
-    setStatus(st, `Couldn't fetch the work. ${e.message} Use “Download whole work” above, then choose the file in the Encrypt tab.`, "err");
-  } finally { $("ao3Fetch").disabled = false; }
-}
+// Settings → Chapters & AO3: turn any pasted AO3 link into clean links (nothing is fetched)
 // reading list (links to works or chapters, kept on this device)
 let readingList = store.get("ao3enc.readingList", []);
 function renderRL(sel){
@@ -3959,7 +3714,7 @@ async function restoreLast(){
   }
 }
 window.AO3Ready = Promise.all([restoreLast().catch(() => {}), fontsReady]);
-window.AO3Cipher = { fixEntities, simplifyPunct, simplifyChars, encodeBytesLegacy, v5Plan, decodeBodyV5, escapeMatcher, simplifyStory, chapterIndexOf, mergeIndexes, takeChapterIndex, chapterNextPrev, ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, juniperKey, DEC_ORDER, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta, extractStory, storyText, parseStoryText, storyToHtml, looksLikeHtmlFile, storyToFmtDoc, parseAo3Url, parseAo3Link, buildAo3Url, buildAo3ChapterUrl, classifyAo3Page, proxyUrl, proxyList, BUILTIN_PROXIES, ao3Links, encodeStoryFormatted, decodeStoryFormatted, fmtSerialize, fmtParse, fmtDocToPage, isFormattedText };
+window.AO3Cipher = { fixEntities, simplifyPunct, simplifyChars, encodeBytesLegacy, v5Plan, decodeBodyV5, escapeMatcher, simplifyStory, chapterIndexOf, mergeIndexes, takeChapterIndex, chapterNextPrev, ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, juniperKey, DEC_ORDER, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta, extractStory, storyText, parseStoryText, storyToHtml, looksLikeHtmlFile, storyToFmtDoc, parseAo3Url, parseAo3Link, buildAo3Url, buildAo3ChapterUrl, ao3DownloadName, chapterLinksText, chapterLinksHtml, ao3Links, encodeStoryFormatted, decodeStoryFormatted, fmtSerialize, fmtParse, fmtDocToPage, isFormattedText };
 window.KoaYT = { parseYouTube, embedUrl, watchUrl };
 </script>
 </body>
