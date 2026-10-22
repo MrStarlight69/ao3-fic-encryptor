@@ -2153,7 +2153,7 @@ function chapterNextPrev(idx){
   return { next: idx.list.find(c => c.num > lo && !c.have) || null, prev: [...idx.list].reverse().find(c => c.num < lo) || null };
 }
 // https://archiveofourown.org/works/WORK/chapters/CHAPTER?view_adult=true (built from the ids in the uploaded file)
-const chapterUrl = (idx, c) => idx.work && c.id ? buildAo3Url({ work: idx.work, chapter: c.id }) : null;
+const chapterUrl = (idx, c) => idx.work && c.id ? ao3UserLink(`https://archiveofourown.org/works/${idx.work}/chapters/${c.id}`, "rl") : null;   // via rl()
 // AO3's own "Download → HTML" file name for a work: the one linked in the file if there is one, otherwise made from the
 // title the way AO3 does it (accents dropped, only letters/digits/space/_/-, cut at a word to 24 characters, spaces → _)
 function ao3DownloadName(title, found){
@@ -2643,7 +2643,8 @@ function updateEncHint(){
   $("encHint").textContent = notes.join(" "); $("encHintBox").hidden = !notes.length;
 }
 // ---------- AO3 links: read any AO3 address people paste, build clean ones ----------
-// A cleaned-up version of the old gemt()/rl() helpers. Those split the address on "/" and took the piece after
+// parseAo3Link is the careful reader; the original gemt()/rl() helpers are included as written further down and
+// the page uses their answers when they agree with it. Those split the address on "/" and took the piece after
 // "chapters" (indexOf = -1 when there was none, so they silently used the first piece), cut work ids to 8 digits,
 // let the unsplit string win for the first piece (undoing the "?" strip) and ignored "#fragments".
 // parseAo3Link("https://archiveofourown.org/works/41675589?view_adult=true.html") -> { work: "41675589", chapter: null, collection: null }
@@ -2684,9 +2685,93 @@ function buildAo3Url(link, opts){
 const buildAo3ChapterUrl = (work, chapter) => buildAo3Url({ work, chapter });
 // older name, still used around the page: only links that name a work
 function parseAo3Url(input){ const l = parseAo3Link(input); return l && l.work ? { work: l.work, chapter: l.chapter } : null; }
+// ---- the site owner's own link helpers, gemt() and rl(), kept as written ----
+// Only changes: rl() no longer fetches anything (that line is removed; it returns the link instead), `cow` is declared
+// here, and shower() (which they call) is defined. Their quirks are kept on purpose; the site calls them through
+// ao3UserLink() below, which checks each answer and falls back to buildAo3Url() when it doesn't match.
+var cow = true;
+// [workId, chapterId] -> AO3 link; the chapter part only when there is a chapter id. Skips the adult-content check.
+function shower(arr) {
+  return `https://archiveofourown.org/works/${arr[0]}` + (arr[1] ? `/chapters/${arr[1]}` : "") + "?view_adult=true";
+}
+function gemt(link) {
+  //console.clear();
+  var failsafe = link.split("https://archiveofourown.org");
+  var failsafeindex = 0;
+  failsafe.forEach(function(element, index) {
+    if (element.includes("/works") === true) {
+      failsafeindex = index;
+    } else {
+      null;
+    }
+    //console.log(element.includes("/works"));
+  });
+  var splitted = failsafe[failsafeindex].split("/");
+  var arr = [splitted[splitted.indexOf("works") + 1], splitted[splitted.indexOf("chapters") + 1]];
+  arr.forEach(function(element, index) {
+    if (element.includes("?") === true) {
+      arr[index] = element.split("?")[0];
+      //console.log(element.split("?")[0]);
+    } else {
+      //Check for pound symbols.   #
+      null;
+    }
+    if (index === 0) {
+      arr[index] = element.slice(0, 8);
+    } else {
+      null;
+    }
+    //console.log(`Element at index ${index} from the array arr is ${element} and checking if it has a question mark: ${element.includes("?")}`);
+    //console.log(arr[index]);
+  });
+  //console.log(shower(arr));
+  //console.log(arr[0].slice(0, 8));
+  //console.log(shower(arr));
+  //https://archiveofourown.org/works/41675589?view_adult=true.html
+  //gemt("https://archiveofourown.org/works/41675589?view_adult=true.html");
+  return shower(arr);
+}
+function rl(x) {
+  var splitter = x.split("/");
+  var link = [splitter[splitter.indexOf("works") + 1], splitter[splitter.indexOf("chapters") + 1]];
+  if (link[1].includes("?") === true) {
+    link[1] = link[1].split("?")[0];
+  } else if (link[1].includes("https:") === true) {
+    link[1] = "";
+    if (link[0].includes("?") === true) {
+      link[0] = link[0].split("?")[0];
+    } else {
+      null;
+    }
+  } else {
+    null;
+  }
+  //console.log(link);
+  var eepy = shower(link);
+  cow = false;
+  //console.log(eepy);
+  return eepy;
+}
+// The page's callers go through here: ask gemt() (pasted links) or rl() (chapter links the page builds), and use the
+// answer only if it names the same work and chapter as parseAo3Link() reads from the input. Otherwise (9-digit work
+// ids cut to 8 by slice(0, 8), short ids that keep a "?", http:// or www. links, #fragments, odd text that throws)
+// the clean buildAo3Url() link is used. ao3UserLinkStats counts which way each call went.
+const ao3UserLinkStats = { gemt: 0, rl: 0, fallback: 0 };
+function ao3UserLink(input, which){
+  const want = parseAo3Url(input); if (!want) return null;
+  const expected = buildAo3Url(want);
+  try {
+    const got = (which === "rl" ? rl : gemt)(String(input).trim());
+    if (typeof got === "string" && /^https:\/\/archiveofourown\.org\/works\/\d{1,15}(?:\/chapters\/\d{1,15})?\?view_adult=true$/.test(got) && got === expected){ ao3UserLinkStats[which === "rl" ? "rl" : "gemt"]++; return got; }
+  } catch(e){}
+  ao3UserLinkStats.fallback++;
+  return expected;
+}
+// a pasted link for the link box: { work, chapter, url } where url is the gemt() answer (checked)
+function readAo3Input(input){ const w = parseAo3Url(input); if (w) w.url = ao3UserLink(input, "gemt"); return w; }
 function ao3Links(w){
   const base = "https://archiveofourown.org/works/" + w.work;
-  return { work: base, chapter: w.chapter ? buildAo3Url(w) : null, full: buildAo3Url({ work: w.work }, { full: true }), index: base + "/navigate", adult: buildAo3Url({ work: w.work }) };
+  return { work: base, chapter: w.chapter ? (w.url && /\/chapters\//.test(w.url) ? w.url : buildAo3Url(w)) : null, full: buildAo3Url({ work: w.work }, { full: true }), index: base + "/navigate", adult: buildAo3Url({ work: w.work }) };
 }
 // Settings → Chapters & AO3 link box: chapter link (if the link names a chapter), entire work, chapter index, and the
 // HTML download when the work is the one loaded on the Encrypt tab (its title gives AO3's file name)
@@ -2943,7 +3028,7 @@ function showChapterBox(good, story, parts){
   idx.stats = (parts || good).map(p => p.stats).filter(Boolean).sort((a, b) => b.posted - a.posted)[0] || null;
   encWork = work; encIndex = idx.work || idx.list.length > 1 ? idx : null;
   if (work && !$("ao3Url").value) $("ao3Url").value = "https://archiveofourown.org/works/" + work;
-  if (work) showAo3Links(parseAo3Url($("ao3Url").value));
+  if (work) showAo3Links(readAo3Input($("ao3Url").value));
   // the Next chapter bar, right under the file name
   renderNextBar($("encNext"), story ? nextModel(idx, story.chapters.length, idx.stats) : null, idx);
   const pre = [];
@@ -3658,7 +3743,7 @@ addEventListener("resize", dodgeHostBadges); setInterval(dodgeHostBadges, 1500);
 
 // test hooks
 // ---------- get all chapters from AO3 ----------
-$("ao3Url").addEventListener("input", () => showAo3Links(parseAo3Url($("ao3Url").value)));
+$("ao3Url").addEventListener("input", () => showAo3Links(readAo3Input($("ao3Url").value)));
 // Settings → Chapters & AO3: turn any pasted AO3 link into clean links (nothing is fetched)
 // reading list (links to works or chapters, kept on this device)
 let readingList = store.get("ao3enc.readingList", []);
@@ -3669,9 +3754,9 @@ function renderRL(sel){
   if (sel !== undefined) s.value = String(sel);
   $("rlRemove").disabled = $("rlClear").disabled = !readingList.length;
 }
-$("rlSel").addEventListener("change", e => { const r = readingList[+e.target.value]; if (r && e.target.value !== ""){ $("ao3Url").value = r.url; showAo3Links(parseAo3Url(r.url)); } });
+$("rlSel").addEventListener("change", e => { const r = readingList[+e.target.value]; if (r && e.target.value !== ""){ $("ao3Url").value = r.url; showAo3Links(readAo3Input(r.url)); } });
 $("rlAdd").addEventListener("click", () => {
-  const w = parseAo3Url($("ao3Url").value);
+  const w = readAo3Input($("ao3Url").value);
   if (!w){ setStatus($("ao3Status"), "Paste an AO3 link first, then press Add link.", "err"); return; }
   const L = ao3Links(w), url = L.chapter || L.work;
   let i = readingList.findIndex(r => r.url === url);
@@ -3962,7 +4047,7 @@ async function restoreLast(){
   }
 }
 window.AO3Ready = Promise.all([restoreLast().catch(() => {}), fontsReady]);
-window.AO3Cipher = { fixEntities, simplifyPunct, simplifyChars, encodeBytesLegacy, v5Plan, decodeBodyV5, escapeMatcher, simplifyStory, chapterIndexOf, mergeIndexes, takeChapterIndex, chapterNextPrev, ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, juniperKey, DEC_ORDER, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta, extractStory, storyText, parseStoryText, storyToHtml, looksLikeHtmlFile, storyToFmtDoc, parseAo3Url, parseAo3Link, buildAo3Url, buildAo3ChapterUrl, ao3DownloadName, chapterLinksText, chapterLinksHtml, ao3Links, encodeStoryFormatted, decodeStoryFormatted, fmtSerialize, fmtParse, fmtDocToPage, isFormattedText };
+window.AO3Cipher = { fixEntities, simplifyPunct, simplifyChars, encodeBytesLegacy, v5Plan, decodeBodyV5, escapeMatcher, simplifyStory, chapterIndexOf, mergeIndexes, takeChapterIndex, chapterNextPrev, ALPHA, encodeBytes, decodeText, fingerprint, exportKey, importKey, isValidKey, analyzeKey, sharedOutputs, parseJsonFirstWins, cipherToJson, collectionToJson, parseCipherFile, slugify, juniperKey, DEC_ORDER, shuffleKey, caesarKey, reverseKey, keywordKey, ao3Meta, extractStory, storyText, parseStoryText, storyToHtml, looksLikeHtmlFile, storyToFmtDoc, parseAo3Url, parseAo3Link, buildAo3Url, gemt, rl, shower, ao3UserLink, ao3UserLinkStats, buildAo3ChapterUrl, ao3DownloadName, chapterLinksText, chapterLinksHtml, ao3Links, encodeStoryFormatted, decodeStoryFormatted, fmtSerialize, fmtParse, fmtDocToPage, isFormattedText };
 window.KoaYT = { parseYouTube, embedUrl, watchUrl };
 </script>
 </body>
